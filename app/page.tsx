@@ -217,7 +217,7 @@ const ofertasAgrupadas: {
     <main className="min-h-screen bg-gray-100">
 
       {/* Barra superior */}
-      <nav className="bg-white shadow-md px-10 py-5 flex justify-between items-center">
+      <nav className="bg-white shadow-md px-4 md:px-10 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold text-teal-700">
   Pinturería
 </h1>
@@ -251,15 +251,15 @@ const ofertasAgrupadas: {
 
       {/* Banner principal */}
       <section className="bg-gradient-to-r from-teal-700 to-teal-500 text-white py-20 px-10 text-center">
-        <h1 className="text-7xl font-bold text-white">
+        <h1 className="text-4xl md:text-7xl font-bold text-white">
   A Todo Trapo Online
 </h1>
 
-<h2 className="text-3xl text-white mt-5 font-light">
+<h2 className="text-lg md:text-3xl text-white mt-5 font-light">
   Pinturas, limpieza y artículos para el hogar
 </h2>
 
-<p className="text-2xl text-white/90 mt-8">
+<p className="text-lg md:text-2xl text-white/90 mt-8">
   Todo lo que necesitás, en un solo lugar
 </p>
       </section>
@@ -300,7 +300,7 @@ const ofertasAgrupadas: {
 </section>
       <div className="flex items-center justify-center p-6">
 
-        <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-7xl w-full">
+        <div className="bg-white p-4 md:p-10 rounded-3xl shadow-2xl max-w-7xl w-full">
 
           <div className="flex justify-between items-center mb-10">
 
@@ -322,7 +322,7 @@ const ofertasAgrupadas: {
     placeholder="🔍 Buscar producto..."
     value={busqueda}
     onChange={(e)=>setBusqueda(e.target.value)}
-    className="border rounded-xl px-4 py-3 w-96 text-black"
+    className="border rounded-xl px-4 py-3 w-full md:w-96 text-black"
   />
 
 </div>
@@ -403,14 +403,14 @@ const ofertasAgrupadas: {
 <img
   src={productoSeleccionado?.Imagen?.trim()}
   alt={grupo.nombre}
-  className="w-40 h-40 object-contain mx-auto"
+  className="w-40 h-40 object-contain mx-auto bg-white p-2"
 />
 
           <h3 className="text-xl font-bold text-gray-800 mt-4">
             {grupo.nombre}
           </h3>
 
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
             Línea: {grupo.linea}
           </p>
 
@@ -424,7 +424,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
         .toLocaleString("es-AR")}
     </p>
 
-    <p className="text-4xl font-bold text-green-600">
+    <p className="text-xl md:text-2xl font-bold text-green-600">
       $
       {Number(productoSeleccionado["Precio oferta"])
         .toLocaleString("es-AR")}
@@ -444,7 +444,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
   </>
 )
 : (
-  <p className="text-3xl font-bold text-green-700 mt-4">
+  <p className="text-xl md:text-3xl font-bold text-green-700 mt-4">
     $
     {Number(productoSeleccionado.Precio)
       .toLocaleString("es-AR")}
@@ -467,7 +467,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
       )
     )
   }
-  className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl w-full"
+  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded-xl w-full"
 >
   🛒 Agregar al carrito
 </button>
@@ -538,7 +538,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
     Productos de {marca}
   </h3>
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
 
     {productosAgrupados.map((grupo, index) => {
       const productoSeleccionado =
@@ -557,45 +557,61 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 
         <div
           key={index}
-          className="bg-gray-50 p-6 rounded-2xl shadow-lg"
+          className="bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg"
         >
 
           <img
   src={productoSeleccionado?.Imagen?.trim()}
   alt={grupo.nombre}
-  className="w-40 h-40 object-contain mx-auto"
+  className="w-24 h-24 md:w-40 md:h-40 object-contain mx-auto"
 />
 
-          <h3 className="text-xl font-bold text-gray-800 mt-4">
+          <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2">
             {grupo.nombre}
           </h3>
 
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
   Línea: {grupo.linea}
 </p>
 
           <div className="mt-4">
 
-            <p className="text-gray-600 mb-2">
-              Tamaño
-            </p>
+            <p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
+  Tamaño
+</p>
 
-            <select
-  className="border rounded-lg py-1 px-3 w-full text-black text-sm"
-              value={tamanosSeleccionados[index] || grupo.items[0].Tamaño}
-              onChange={(e) =>
-                setTamanosSeleccionados({
-                  ...tamanosSeleccionados,
-                  [index]: e.target.value,
-                })
-              }
-            >
-              {[...new Set(grupo.items.map((item:any)=>item.Tamaño))].map((tam:any,i:number)=>(
-                <option key={i} value={tam}>
-                  {tam}
-                </option>
-              ))}
-            </select>
+<div className="flex flex-wrap gap-2">
+  {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
+
+    <button
+      key={i}
+      onClick={() => {
+
+  const primerColorDisponible =
+    grupo.items.find(item => item.Tamaño === tam)?.Color;
+
+  setTamanosSeleccionados({
+    ...tamanosSeleccionados,
+    [index]: tam,
+  });
+
+  setColoresSeleccionados({
+    ...coloresSeleccionados,
+    [index]: primerColorDisponible,
+  });
+
+}}
+      className={
+  (tamanosSeleccionados[index] || grupo.items[0].Tamaño) === tam
+    ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+    : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
+}
+    >
+      {tam}
+    </button>
+
+  ))}
+</div>
 
             {grupo.items.some(
   (item:any) => item.Color?.trim()
@@ -638,7 +654,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
     .toLocaleString("es-AR")}
 </p>
 
-<p className="text-4xl font-bold text-green-600">
+<p className="text-xl md:text-2xl font-bold text-green-600">
   $
   {Number(productoSeleccionado?.["Precio oferta"])
     .toLocaleString("es-AR")}
@@ -657,7 +673,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
     </div>
   </>
 ) : (
-  <p className="text-3xl font-bold text-green-700 mt-4">
+  <p className="text-xl md:text-3xl font-bold text-green-700 mt-4">
     $
     {Number(productoSeleccionado?.Precio)
       .toLocaleString("es-AR")}
@@ -687,7 +703,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 )
               )
             }
-            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl w-full"
+            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded-xl w-full"
           >
             🛒 Agregar al carrito
           </button>
@@ -717,7 +733,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
     🔥 Ofertas destacadas
   </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
 
    {ofertasAgrupadas.map((grupo, index) => {
 
@@ -749,7 +765,7 @@ return (
   <img
     src={productoSeleccionado.Imagen.trim()}
     alt={grupo.nombre}
-    className="w-40 h-40 object-contain mx-auto"
+    className="w-40 h-40 object-contain mx-auto bg-white p-2"
   />
 ) : (
   <div className="w-40 h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
@@ -759,30 +775,58 @@ return (
 
 
 
-<h3 className="text-xl font-bold text-gray-800 mt-4">
+<h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2">
   {grupo.nombre}
 </h3>
 
-<p className="text-gray-600 mt-4 mb-2">
+<p className="text-gray-600 text-sm">
+  Línea: {grupo.linea}
+</p>
+
+<p className="text-red-500 line-through text-lg mt-4">
+$
+{Number(productoSeleccionado?.Precio).toLocaleString("es-AR")}
+</p>
+
+<p className="text-2xl font-bold text-green-600">
+$
+{Number(productoSeleccionado?.["Precio oferta"]).toLocaleString("es-AR")}
+</p>
+
+<p className="text-green-700 font-semibold text-sm mb-4">
+  Ahorrás $
+  {(
+    Number(productoSeleccionado?.Precio) -
+    Number(productoSeleccionado?.["Precio oferta"])
+  ).toLocaleString("es-AR")}
+</p>
+
+<p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
   Tamaño
 </p>
 
-<select
-  className="border rounded-lg py-1 px-3 w-full text-black text-sm"
-  value={tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño}
-  onChange={(e) =>
-    setTamanosSeleccionados({
-      ...tamanosSeleccionados,
-      ["oferta"+index]: e.target.value,
-    })
-  }
->
+<div className="flex flex-wrap gap-2">
   {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
-    <option key={i}>
+
+    <button
+      key={i}
+      onClick={() =>
+        setTamanosSeleccionados({
+          ...tamanosSeleccionados,
+          ["oferta"+index]: tam,
+        })
+      }
+      className={
+        (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño) === tam
+          ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+          : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
+      }
+    >
       {tam}
-    </option>
+    </button>
+
   ))}
-</select>
+</div>
 
 <p className="text-gray-600 mt-4 mb-2">
   Color
@@ -807,23 +851,7 @@ return (
   </option>
 ))}
 </select>
-          <p className="text-red-500 line-through text-xl">
-$
-{Number(productoSeleccionado?.Precio).toLocaleString("es-AR")}
-</p>
-
-<p className="text-4xl font-bold text-green-600">
-$
-{Number(productoSeleccionado?.["Precio oferta"]).toLocaleString("es-AR")}
-</p>
-
-<p className="text-green-700 font-semibold text-lg mt-2">
-  Ahorrás $
-  {(
-    Number(productoSeleccionado?.Precio) -
-    Number(productoSeleccionado?.["Precio oferta"])
-  ).toLocaleString("es-AR")}
-</p>
+          
 
 <div className="inline-block mt-3 bg-yellow-400 text-black font-bold px-4 py-2 rounded-xl">
   🔥 OFERTA
@@ -839,7 +867,7 @@ $
       Number(productoSeleccionado?.["Precio oferta"])
     )
   }
-  className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl w-full"
+  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded-xl w-full"
 >
   🛒 Agregar al carrito
 </button>
@@ -947,7 +975,7 @@ $
       {/* Botón flotante carrito */}
 <button
   onClick={() => setMostrarCarrito(!mostrarCarrito)}
-  className="fixed bottom-28 right-6 bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-2xl text-3xl"
+  className="fixed bottom-24 right-4 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-2xl text-2xl"
 >
   🛒
   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2">
@@ -956,11 +984,14 @@ $
 </button>
 
 {mostrarCarrito && (
-  <div className="fixed bottom-48 right-6 bg-white shadow-2xl rounded-2xl p-6 w-72 z-50 max-h-96 overflow-y-auto">
+  <div className="fixed bottom-48 right-6 bg-white shadow-2xl rounded-2xl p-6 w-60 z-50 max-h-96 overflow-y-auto">
 
     <h3 className="font-bold text-xl text-black mb-4">
       🛒 Carrito
     </h3>
+    <p className="text-sm text-gray-500 mb-3">
+  {carrito.length} productos
+</p>
 
     <div className="text-black text-left">
 
@@ -970,35 +1001,39 @@ $
           className="mb-2 border-b pb-2 flex justify-between items-center"
         >
           <div>
-            <p>{producto.nombre}</p>
+            <p className="text-[10px] text-black leading-tight">
+  {producto.nombre}
+</p>
 
-            <p className="text-green-700 font-bold">
-              ${producto.precio}
-            </p>
+<p className="text-green-700 font-bold text-sm">
+  ${producto.precio.toLocaleString("es-AR")}
+</p>
           </div>
 
           <button
             onClick={() =>
               setCarrito(carrito.filter((_, i) => i !== index))
             }
-            className="bg-red-500 text-white font-bold px-3 py-1 rounded-lg"
+            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg"
           >
             ×
           </button>
         </div>
       ))}
 
-      <p className="text-2xl font-bold text-black mt-4">
-        Total: $
-        {carrito.reduce(
-          (total, producto) => total + producto.precio,
-          0
-        )}
-      </p>
+      <p className="text-xl font-bold text-black mt-4">
+  Total: $
+  {carrito
+    .reduce(
+      (total, producto) => total + producto.precio,
+      0
+    )
+    .toLocaleString("es-AR")}
+</p>
 
       <button
         onClick={() => setCarrito([])}
-        className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
+        className="mt-4 bg-red-500 text-white text-sm px-3 py-2 rounded-xl w-full"
       >
         Vaciar carrito
       </button>
@@ -1012,12 +1047,12 @@ $
   href="https://wa.me/5493786519078?text=Hola,%20quiero%20hacer%20una%20consulta"
   target="_blank"
   rel="noopener noreferrer"
-  className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl transition hover:scale-110"
+  className="fixed bottom-4 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-2xl transition hover:scale-110"
 >
   <img
     src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
     alt="WhatsApp"
-    className="w-10 h-10"
+    className="w-8 h-8"
   />
 </a>
 
