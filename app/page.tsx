@@ -17,6 +17,7 @@ type Producto = {
   Imagen: string;
 };
 
+
 export default function Home() {
 
   const [mostrarMas, setMostrarMas] = useState(false);
@@ -37,8 +38,30 @@ useEffect(() => {
       download: true,
       header: true,
       complete: (resultado: Papa.ParseResult<Producto>) => {
+
+  console.log("PRIMER PRODUCTO:");
+  console.log(resultado.data[0]);
+
+  console.log("PRODUCTO 10:");
+  console.log(resultado.data[10]);
+  
+  console.log("IMAGEN:");
+console.log(resultado.data[10].Imagen);
+
+  console.log("IMAGEN PRODUCTO 10:");
+  console.log(resultado.data[10]["Imagen"]);
+
+  console.log("NOMBRES DE LAS COLUMNAS:");
+  console.log(Object.keys(resultado.data[10]));
+
+  console.log(
+  resultado.data.find(
+    p => p.Nombre?.toLowerCase().includes("tersinol")
+  )
+);
+
   setProductos(resultado.data);
-  console.log(resultado.data);
+
 },
     }
   );
@@ -46,6 +69,13 @@ useEffect(() => {
 
 console.log(productos);
 console.log(productos[0]);
+useEffect(() => {
+  if (productos.length > 0) {
+    console.log("PRIMER PRODUCTO:");
+    console.log(productos[0]);
+    console.log("IMAGEN:", productos[0].Imagen);
+  }
+}, [productos]);
 
 function agregarAlCarrito(nombre: string, precio: number) {
   setCarrito([
@@ -370,9 +400,11 @@ const ofertasAgrupadas: {
           className="bg-gray-50 p-6 rounded-2xl shadow-lg"
         >
 
-          <div className="text-6xl">
-            {grupo.items[0].Emoji}
-          </div>
+<img
+  src={productoSeleccionado?.Imagen?.trim()}
+  alt={grupo.nombre}
+  className="w-40 h-40 object-contain mx-auto"
+/>
 
           <h3 className="text-xl font-bold text-gray-800 mt-4">
             {grupo.nombre}
@@ -528,7 +560,11 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
           className="bg-gray-50 p-6 rounded-2xl shadow-lg"
         >
 
-          <div className="text-6xl">🪣</div>
+          <img
+  src={productoSeleccionado?.Imagen?.trim()}
+  alt={grupo.nombre}
+  className="w-40 h-40 object-contain mx-auto"
+/>
 
           <h3 className="text-xl font-bold text-gray-800 mt-4">
             {grupo.nombre}
@@ -685,39 +721,48 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 
    {ofertasAgrupadas.map((grupo, index) => {
 
-  const productoSeleccionado = grupo.items.find(
-  (item) =>
-    item.Tamaño ===
-      (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
-    &&
-    item.Color ===
-(
-  coloresSeleccionados["oferta"+index] ||
+  const productoSeleccionado =
   grupo.items.find(
-    i =>
-      i.Tamaño ===
-      (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
-  )?.Color
-)
-);
+    (item) =>
+      item.Tamaño ===
+        (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
+      &&
+      item.Color ===
+        (
+          coloresSeleccionados["oferta"+index] ||
+          grupo.items.find(
+            i =>
+              i.Tamaño ===
+              (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
+          )?.Color
+        )
+  ) || grupo.items[0];
 
-if (productoSeleccionado) {
-  console.log(productoSeleccionado);
-}
-  
-
-  return (
+return (
 
         <div
           key={index}
           className="bg-white p-6 rounded-2xl shadow-lg"
         >
 
-          <div className="text-6xl">🪣</div>
+          {productoSeleccionado?.Imagen?.trim() ? (
+  <img
+    src={productoSeleccionado.Imagen.trim()}
+    alt={grupo.nombre}
+    className="w-40 h-40 object-contain mx-auto"
+  />
+) : (
+  <div className="w-40 h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
+    Sin imagen
+  </div>
+)}
 
-          <h3 className="text-xl font-bold text-gray-800 mt-4">
-            {grupo.nombre}
-          </h3>
+
+
+<h3 className="text-xl font-bold text-gray-800 mt-4">
+  {grupo.nombre}
+</h3>
+
 <p className="text-gray-600 mt-4 mb-2">
   Tamaño
 </p>
