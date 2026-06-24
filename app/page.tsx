@@ -15,6 +15,8 @@ type Producto = {
   "Precio oferta": string;
   Oferta: string;
   Imagen: string;
+  Fragancias: string;
+Aromas: string;
 };
 
 
@@ -29,6 +31,7 @@ const [mostrarCarrito, setMostrarCarrito] = useState(false);
 const [productos, setProductos] = useState<Producto[]>([]);
 const [seleccionados, setSeleccionados] = useState<any>({});
 const [coloresSeleccionados, setColoresSeleccionados] = useState<any>({});
+const [fraganciasSeleccionadas, setFraganciasSeleccionadas] = useState<any>({});
 const [tamanosSeleccionados, setTamanosSeleccionados] = useState<any>({});
 const [busqueda, setBusqueda] = useState("");
 useEffect(() => {
@@ -542,14 +545,34 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 
     {productosAgrupados.map((grupo, index) => {
       const productoSeleccionado =
-  grupo.items.find(
-    (item) =>
-      item.Tamaño ===
-        (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-      &&
-      item.Color ===
-        (coloresSeleccionados[index] || grupo.items[0].Color)
-  ) || grupo.items[0];
+  grupo.items.find((item) => {
+    if (
+      grupo.items.some((i) => i.Color?.trim())
+    ) {
+      return (
+        item.Tamaño ===
+          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
+        &&
+        item.Color ===
+          (coloresSeleccionados[index] || grupo.items[0].Color)
+      );
+    }
+
+    if (
+      grupo.items.some((i) => i.Fragancias?.trim())
+    ) {
+      return (
+        item.Tamaño ===
+          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
+        &&
+        item.Fragancias ===
+          (fraganciasSeleccionadas[index] || grupo.items[0].Fragancias)
+      );
+    }
+
+    return item.Tamaño ===
+      (tamanosSeleccionados[index] || grupo.items[0].Tamaño);
+  }) || grupo.items[0];
 
       console.log(grupo.items);
 
@@ -573,6 +596,12 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
           <p className="text-gray-600 text-sm">
   Línea: {grupo.linea}
 </p>
+
+{productoSeleccionado?.Aromas?.trim() && (
+  <div className="mt-2 inline-block bg-violet-100 text-violet-700 text-xs font-semibold px-3 py-1 rounded-full">
+    🌸 {productoSeleccionado.Aromas}
+  </div>
+)}
 
           <div className="mt-4">
 
@@ -615,7 +644,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 
             {grupo.items.some(
   (item:any) => item.Color?.trim()
-) && (
+) ? (
   <>
     <p className="text-gray-600 mb-2 mt-4">
       Color
@@ -644,7 +673,38 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
         ))}
     </select>
   </>
-)}
+) : grupo.items.some(
+  (item:any) => item.Fragancias?.trim()
+) ? (
+  <>
+    <p className="text-gray-600 mb-2 mt-4">
+      Fragancia
+    </p>
+
+    <select
+      className="border rounded-lg py-1 px-3 w-full text-black text-sm"
+      value={fraganciasSeleccionadas[index] || grupo.items[0].Fragancias}
+      onChange={(e) =>
+        setFraganciasSeleccionadas({
+          ...fraganciasSeleccionadas,
+          [index]: e.target.value,
+        })
+      }
+    >
+      {grupo.items
+        .filter(
+          (item:any) =>
+            item.Tamaño ===
+            (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
+        )
+        .map((item:any, i:number) => (
+          <option key={i} value={item.Fragancias}>
+            {item.Fragancias}
+          </option>
+        ))}
+    </select>
+  </>
+) : null}
 
             {productoSeleccionado?.Oferta === "si" ? (
   <>
