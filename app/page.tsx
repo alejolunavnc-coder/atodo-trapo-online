@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 
 type Producto = {
@@ -34,6 +34,8 @@ const [coloresSeleccionados, setColoresSeleccionados] = useState<any>({});
 const [fraganciasSeleccionadas, setFraganciasSeleccionadas] = useState<any>({});
 const [tamanosSeleccionados, setTamanosSeleccionados] = useState<any>({});
 const [busqueda, setBusqueda] = useState("");
+const [mostrarBusqueda, setMostrarBusqueda] = useState(false);
+const inputBusquedaRef = useRef<HTMLInputElement>(null);
 useEffect(() => {
   Papa.parse(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRonjC9Bv3YGK1Wpr8CN2EZh9370FkdcEXo94iCA-rJPiw7Y2gLT9hipzcTk4UWcFCRQaEvN0XT0Q_/pub?gid=0&single=true&output=csv",
@@ -41,28 +43,6 @@ useEffect(() => {
       download: true,
       header: true,
       complete: (resultado: Papa.ParseResult<Producto>) => {
-
-  console.log("PRIMER PRODUCTO:");
-  console.log(resultado.data[0]);
-
-  console.log("PRODUCTO 10:");
-  console.log(resultado.data[10]);
-  
-  console.log("IMAGEN:");
-console.log(resultado.data[10].Imagen);
-
-  console.log("IMAGEN PRODUCTO 10:");
-  console.log(resultado.data[10]["Imagen"]);
-
-  console.log("NOMBRES DE LAS COLUMNAS:");
-  console.log(Object.keys(resultado.data[10]));
-
-  console.log(
-  resultado.data.find(
-    p => p.Nombre?.toLowerCase().includes("tersinol")
-  )
-);
-
   setProductos(resultado.data);
 
 },
@@ -70,15 +50,6 @@ console.log(resultado.data[10].Imagen);
   );
 }, []);
 
-console.log(productos);
-console.log(productos[0]);
-useEffect(() => {
-  if (productos.length > 0) {
-    console.log("PRIMER PRODUCTO:");
-    console.log(productos[0]);
-    console.log("IMAGEN:", productos[0].Imagen);
-  }
-}, [productos]);
 
 function agregarAlCarrito(nombre: string, precio: number) {
   setCarrito([
@@ -100,20 +71,26 @@ const productosFiltrados = productos.filter(
     producto.Categoría?.trim() === categoria
 );
 const productosBuscados = Object.values(
+  
+  
   productos
     .filter((producto) =>
       (
-  producto.Nombre +
+  (producto.Nombre || "") +
   " " +
-  producto.Marca +
+  (producto.Marca || "") +
   " " +
-  producto.Linea +
+  (producto.Linea || "") +
   " " +
-  producto.Color +
+  (producto.Color || "") +
   " " +
-  producto.Tamaño +
+  (producto.Fragancias || "") +
   " " +
-  producto.Categoría
+  (producto.Aromas || "") +
+  " " +
+  (producto.Tamaño || "") +
+  " " +
+  (producto.Categoría || "")
 )
 .toLowerCase()
 .includes(busqueda.trim().toLowerCase())
@@ -149,10 +126,6 @@ const productosBuscados = Object.values(
       {}
     )
 );
-
-console.log(productosBuscados);
-console.log(productos[0]);
-console.log(busqueda);
 
 const productosAgrupados: {
   nombre: string;
@@ -320,57 +293,19 @@ const ofertasAgrupadas: {
 
   </div>
 
-  <input
-    type="text"
-    placeholder="🔍 Buscar producto..."
-    value={busqueda}
-    onChange={(e)=>setBusqueda(e.target.value)}
-    className="border rounded-xl px-4 py-3 w-full md:w-96 text-black"
-  />
+  {/*
+<input
+  type="text"
+  placeholder="🔍 Buscar producto..."
+  value={busqueda}
+  onChange={(e)=>setBusqueda(e.target.value)}
+  className="border rounded-xl px-4 py-3 w-full md:w-96 text-black"
+/>
+*/}
 
 </div>
 <div className="col-span-3"></div>
-{/* Categorías */}
-{vista === "categorias" && (
-<>
-  {busqueda === "" && (
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
-
-    {[...new Set(productos.map((p) => p.Categoría?.trim()))]
-      .filter(Boolean)
-      .map((categoria) => (
-
-        <div
-          key={categoria}
-          onClick={() => {
-            setCategoria(categoria);
-            setVista("marcas");
-          }}
-          className="bg-gray-100 p-5 rounded-xl shadow text-gray-800 cursor-pointer hover:bg-gray-200"
-        >
-
-          <div className="text-4xl">
-            {
-              productos.find(
-                (p) => p.Categoría?.trim() === categoria
-              )?.Emoji
-            }
-          </div>
-
-          <p className="mt-2 font-medium">
-            {categoria}
-          </p>
-
-        </div>
-
-      ))}
-
-  </div>
-  )}
-
-  
-
-  {vista === "categorias" && busqueda !== "" && (
+{busqueda !== "" && (
 
 <div className="bg-white p-6 mt-8 rounded-2xl shadow max-h-[800px] overflow-y-auto">
 
@@ -382,7 +317,7 @@ const ofertasAgrupadas: {
     {productosBuscados.length} productos encontrados
   </p>
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
 
     {productosBuscados.map((grupo, index) => {
 
@@ -403,19 +338,84 @@ const ofertasAgrupadas: {
           className="bg-gray-50 p-6 rounded-2xl shadow-lg"
         >
 
-<img
-  src={productoSeleccionado?.Imagen?.trim()}
-  alt={grupo.nombre}
-  className="w-40 h-40 object-contain mx-auto bg-white p-2"
-/>
+{productoSeleccionado?.Imagen?.trim() && (
+  <img
+    src={productoSeleccionado.Imagen.trim()}
+    alt={grupo.nombre}
+    className="w-40 h-40 object-contain mx-auto"
+  />
+)}
 
           <h3 className="text-xl font-bold text-gray-800 mt-4">
             {grupo.nombre}
           </h3>
 
           <p className="text-gray-600 text-sm">
-            Línea: {grupo.linea}
-          </p>
+  {grupo.linea}
+</p>
+
+          <p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
+  Tamaño
+</p>
+
+<div className="flex flex-wrap gap-2 mb-4">
+  {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
+    <button
+      key={i}
+      onClick={() =>
+        setTamanosSeleccionados({
+          ...tamanosSeleccionados,
+          ["busqueda"+index]: tam,
+        })
+      }
+      className={
+        (tamanosSeleccionados["busqueda"+index] || grupo.items[0].Tamaño) === tam
+          ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+          : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
+      }
+    >
+      {tam}
+    </button>
+  ))}
+</div>
+{grupo.items.some(
+  (item:any) => item.Fragancias?.trim()
+) && (
+  <>
+    <p className="text-gray-600 mb-2 mt-4">
+      Fragancia
+    </p>
+
+    <select
+      className="border rounded-lg py-1 px-3 w-full text-black text-sm"
+      value={
+        fraganciasSeleccionadas["busqueda"+index] ||
+        grupo.items[0].Fragancias
+      }
+      onChange={(e) =>
+        setFraganciasSeleccionadas({
+          ...fraganciasSeleccionadas,
+          ["busqueda"+index]: e.target.value,
+        })
+      }
+    >
+      {grupo.items
+        .filter(
+          (item:any) =>
+            item.Tamaño ===
+            (
+              tamanosSeleccionados["busqueda"+index] ||
+              grupo.items[0].Tamaño
+            )
+        )
+        .map((item:any, i:number) => (
+          <option key={i} value={item.Fragancias}>
+            {item.Fragancias}
+          </option>
+        ))}
+    </select>
+  </>
+)}
 
           {
 productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
@@ -487,8 +487,51 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
 
 )}
 
-</>
+
+{/* Categorías */}
+{vista === "categorias" && (
+<>
+  {busqueda === "" && (
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+
+    {[...new Set(productos.map((p) => p.Categoría?.trim()))]
+      .filter(Boolean)
+      .map((categoria) => (
+
+        <div
+          key={categoria}
+          onClick={() => {
+            setCategoria(categoria);
+            setVista("marcas");
+          }}
+          className="bg-gray-100 p-5 rounded-xl shadow text-gray-800 cursor-pointer hover:bg-gray-200"
+        >
+
+          <div className="text-4xl">
+            {
+              productos.find(
+                (p) => p.Categoría?.trim() === categoria
+              )?.Emoji
+            }
+          </div>
+
+          <p className="mt-2 font-medium">
+            {categoria}
+          </p>
+
+        </div>
+
+      ))}
+
+  </div>
+  )}
+
+  </>
 )}
+
+  
+
+  
 
 
 {/* Marcas */}
@@ -574,7 +617,6 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
       (tamanosSeleccionados[index] || grupo.items[0].Tamaño);
   }) || grupo.items[0];
 
-      console.log(grupo.items);
 
       return (
 
@@ -583,18 +625,24 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
           className="bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg"
         >
 
-          <img
-  src={productoSeleccionado?.Imagen?.trim()}
-  alt={grupo.nombre}
-  className="w-24 h-24 md:w-40 md:h-40 object-contain mx-auto"
-/>
+          {productoSeleccionado?.Imagen?.trim() ? (
+  <img
+    src={productoSeleccionado.Imagen.trim()}
+    alt={grupo.nombre}
+    className="w-24 h-24 md:w-40 md:h-40 object-contain mx-auto"
+  />
+) : (
+  <div className="w-24 h-24 md:w-40 md:h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
+    Sin imagen
+  </div>
+)}
 
           <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2">
             {grupo.nombre}
           </h3>
 
           <p className="text-gray-600 text-sm">
-  Línea: {grupo.linea}
+  {grupo.linea}
 </p>
 
 {productoSeleccionado?.Aromas?.trim() && (
@@ -840,7 +888,7 @@ return (
 </h3>
 
 <p className="text-gray-600 text-sm">
-  Línea: {grupo.linea}
+  {grupo.linea}
 </p>
 
 <p className="text-red-500 line-through text-lg mt-4">
@@ -1032,6 +1080,31 @@ $
         </p>
 
       </footer>
+      <button
+  onClick={() => {
+  setMostrarBusqueda(!mostrarBusqueda);
+
+  setTimeout(() => {
+    inputBusquedaRef.current?.focus();
+  }, 100);
+}}
+  className="fixed bottom-44 right-4 text-4xl z-50 hover:scale-110 transition"
+>
+  🔍
+</button>
+{mostrarBusqueda && (
+  <div className="fixed bottom-56 right-4 z-50">
+    <input
+  ref={inputBusquedaRef}
+  type="text"
+  placeholder="🔍 Buscar producto..."
+  value={busqueda}
+  onChange={(e) => setBusqueda(e.target.value)}
+  className="border rounded-xl px-4 py-3 w-72 text-black shadow-xl bg-white"
+/>
+  </div>
+)}
+
       {/* Botón flotante carrito */}
 <button
   onClick={() => setMostrarCarrito(!mostrarCarrito)}
@@ -1102,6 +1175,22 @@ $
 
   </div>
 )}
+
+{vista !== "categorias" && (
+  <button
+    onClick={() => {
+      if (vista === "productos") {
+        setVista("marcas");
+      } else if (vista === "marcas") {
+        setVista("categorias");
+      }
+    }}
+    className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white text-teal-700 font-bold px-6 py-3 rounded-full shadow-xl border border-gray-200 z-50"
+  >
+    ← Volver
+  </button>
+)}
+
       {/* Botón flotante WhatsApp */}
 <a
   href="https://wa.me/5493786519078?text=Hola,%20quiero%20hacer%20una%20consulta"
