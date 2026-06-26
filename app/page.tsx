@@ -1,7 +1,10 @@
 
 "use client";
+
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
+import TarjetaProducto from "./componentes/TarjetaProducto";
+import SelectorProducto from "./componentes/SelectorProducto";
 
 type Producto = {
   Categoría: string;
@@ -40,6 +43,7 @@ const [detalleAbierto, setDetalleAbierto] = useState(false);
 const [grupoDetalle, setGrupoDetalle] = useState<any>(null);
 const inputBusquedaRef = useRef<HTMLInputElement>(null);
 const panelDetalleRef = useRef<HTMLDivElement>(null);
+const resultadosBusquedaRef = useRef<HTMLDivElement>(null);
 const [altoPanelDetalle, setAltoPanelDetalle] = useState(0);
 useEffect(() => {
   Papa.parse(
@@ -54,6 +58,17 @@ useEffect(() => {
     }
   );
 }, []);
+
+useEffect(() => {
+  if (busqueda.trim() === "") return;
+
+  setTimeout(() => {
+    resultadosBusquedaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 150);
+}, [busqueda]);
 
 useEffect(() => {
   if (!detalleAbierto || !panelDetalleRef.current) return;
@@ -371,7 +386,10 @@ return (
 <div className="col-span-3"></div>
 {busqueda !== "" && (
 
-<div className="bg-white p-6 mt-8 rounded-2xl shadow max-h-[800px] overflow-y-auto">
+<div
+  ref={resultadosBusquedaRef}
+  className="bg-white p-6 mt-8 rounded-2xl shadow max-h-[800px] overflow-y-auto"
+>
 
   <h2 className="text-2xl font-bold text-black mb-2">
     Resultados de búsqueda
@@ -402,63 +420,67 @@ return (
           className="bg-gray-50 p-6 rounded-2xl shadow-lg"
         >
 
-{productoSeleccionado?.Imagen?.trim() && (
-  <img
-    src={productoSeleccionado.Imagen.trim()}
-    alt={grupo.nombre}
-    className="w-40 h-40 object-contain mx-auto"
-  />
-)}
+<TarjetaProducto
+  nombre={grupo.nombre}
+  linea={grupo.linea}
+  imagen={productoSeleccionado?.Imagen}
+  aromas={productoSeleccionado?.Aromas}
+  precio={productoSeleccionado?.Precio}
+  precioOferta={productoSeleccionado?.["Precio oferta"]}
+  oferta={productoSeleccionado?.Oferta}
+  
+/>
 
-          <h3 className="text-xl font-bold text-gray-800 mt-4 text-center">
-  {grupo.nombre}
-</h3>
-
-<p className="text-gray-500 text-xs text-center mt-1">
-  {grupo.linea}
-</p>
-
-          <p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
-  Tamaño
-</p>
-
-<div className="flex flex-wrap gap-2 mb-4">
-  {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
-    <button
-      key={i}
-      onClick={() =>
-        setTamanosSeleccionados({
-          ...tamanosSeleccionados,
-          ["busqueda"+index]: tam,
-        })
-      }
-      className={
-        (tamanosSeleccionados["busqueda"+index] || grupo.items[0].Tamaño) === tam
-          ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-          : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
-      }
-    >
-      {tam}
-    </button>
-  ))}
-</div>
+          <SelectorProducto
+  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
+  tamanoSeleccionado={
+    tamanosSeleccionados["busqueda" + index] || grupo.items[0].Tamaño
+  }
+  onCambiarTamano={(tam) =>
+    setTamanosSeleccionados({
+      ...tamanosSeleccionados,
+      ["busqueda" + index]: tam,
+    })
+  }
+  fragancias={[
+    ...new Set(
+      grupo.items
+        .filter(
+          (item:any) =>
+            item.Tamaño ===
+            (tamanosSeleccionados["busqueda" + index] || grupo.items[0].Tamaño)
+        )
+        .map((item:any) => item.Fragancias)
+        .filter(Boolean)
+    )
+  ]}
+  fraganciaSeleccionada={
+    fraganciasSeleccionadas["busqueda" + index] || grupo.items[0].Fragancias
+  }
+  onCambiarFragancia={(fragancia) =>
+    setFraganciasSeleccionadas({
+      ...fraganciasSeleccionadas,
+      ["busqueda" + index]: fragancia,
+    })
+  }
+/>
 {grupo.items.some(
-  (item:any) => item.Fragancias?.trim()
+  (item:any) => item.Color?.trim()
 ) && (
   <>
     <p className="text-gray-600 mb-2 mt-4">
-      Fragancia
+      Color
     </p>
 
     <select
       className="border rounded-lg py-1 px-3 w-full text-black text-sm"
       value={
-        fraganciasSeleccionadas["busqueda"+index] ||
-        grupo.items[0].Fragancias
+        coloresSeleccionados["busqueda"+index] ||
+        grupo.items[0].Color
       }
       onChange={(e) =>
-        setFraganciasSeleccionadas({
-          ...fraganciasSeleccionadas,
+        setColoresSeleccionados({
+          ...coloresSeleccionados,
           ["busqueda"+index]: e.target.value,
         })
       }
@@ -473,63 +495,35 @@ return (
             )
         )
         .map((item:any, i:number) => (
-          <option key={i} value={item.Fragancias}>
-            {item.Fragancias}
+          <option key={i} value={item.Color}>
+            {item.Color}
           </option>
         ))}
     </select>
   </>
 )}
 
-          {
-productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
-? (
-  <>
-    <p className="text-red-500 line-through text-xl">
-      $
-      {Number(productoSeleccionado.Precio)
-        .toLocaleString("es-AR")}
-    </p>
 
-    <p className="text-xl md:text-2xl font-bold text-green-600">
-      $
-      {Number(productoSeleccionado["Precio oferta"])
-        .toLocaleString("es-AR")}
-    </p>
-
-    <p className="text-green-700 font-semibold text-lg mt-2">
-      Ahorrás $
-      {(
-        Number(productoSeleccionado.Precio) -
-        Number(productoSeleccionado["Precio oferta"])
-      ).toLocaleString("es-AR")}
-    </p>
-
-    <div className="inline-block mt-3 bg-yellow-400 text-black font-bold px-4 py-2 rounded-xl">
-      🔥 OFERTA
-    </div>
-  </>
-)
-: (
-  <p className="text-xl md:text-3xl font-bold text-green-700 mt-4">
-    $
-    {Number(productoSeleccionado.Precio)
-      .toLocaleString("es-AR")}
-  </p>
-)
-}
-          <div className="mt-2 pt-2 border-t border-gray-100 flex justify-center pb-1">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-</div>
+          
+          <button
+  onClick={() => {
+    agregarAlCarrito(
+      grupo.nombre +
+        " " +
+        productoSeleccionado.Tamaño +
+        " " +
+        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
+      Number(
+        productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+          ? productoSeleccionado["Precio oferta"]
+          : productoSeleccionado.Precio
+      )
+    );
+  }}
+  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
+>
+  🛒 Agregar
+</button>
 
         </div>
 
@@ -679,113 +673,74 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
   <div
   key={index}
   onClick={() => {
+  if (window.innerWidth < 768) {
     setGrupoDetalle({
       grupo,
       index,
       producto: productoSeleccionado,
     });
     setDetalleAbierto(true);
-  }}
+  }
+}}
   className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer text-center"
 >
 
-    {productoSeleccionado?.Imagen?.trim() ? (
-  <img
-    src={productoSeleccionado.Imagen.trim()}
-    alt={grupo.nombre}
-    className="w-24 h-24 md:w-40 md:h-40 object-contain mx-auto"
-  />
-) : (
-  <div className="w-24 h-24 md:w-40 md:h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
-    Sin imagen
-  </div>
-)}
+    <TarjetaProducto
+  nombre={grupo.nombre}
+  linea={grupo.linea}
+  imagen={productoSeleccionado?.Imagen}
+  aromas={productoSeleccionado?.Aromas}
+  precio={productoSeleccionado?.Precio}
+  precioOferta={productoSeleccionado?.["Precio oferta"]}
+  oferta={productoSeleccionado?.Oferta}
 
-          <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2 text-center">
-  {grupo.nombre}
-</h3>
-
-<p className="text-gray-500 text-xs text-center mt-1">
-  {grupo.linea}
-</p>
-
-{productoSeleccionado?.Aromas?.trim() && (
-  <div className="mt-2 inline-block bg-violet-100 text-violet-700 text-xs font-semibold px-3 py-1 rounded-full">
-    🌸 {productoSeleccionado.Aromas}
-  </div>
-)}
+/>
 
           <div className="hidden md:block mt-4 border-t pt-3 space-y-3">
 
-            <p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
-  Tamaño
-</p>
+            <SelectorProducto
+  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
+  tamanoSeleccionado={
+    tamanosSeleccionados[index] || grupo.items[0].Tamaño
+  }
+  onCambiarTamano={(tam) => {
+    const primerColorDisponible =
+      grupo.items.find(item => item.Tamaño === tam)?.Color;
 
-<div className="flex flex-wrap gap-2">
-  {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
+    setTamanosSeleccionados({
+      ...tamanosSeleccionados,
+      [index]: tam,
+    });
 
-    <button
-      key={i}
-      onClick={() => {
-
-  const primerColorDisponible =
-    grupo.items.find(item => item.Tamaño === tam)?.Color;
-
-  setTamanosSeleccionados({
-    ...tamanosSeleccionados,
-    [index]: tam,
-  });
-
+    setColoresSeleccionados({
+      ...coloresSeleccionados,
+      [index]: primerColorDisponible,
+    });
+  }}
+  colores={[
+  ...new Set(
+    grupo.items
+      .filter(
+        (item:any) =>
+          item.Tamaño ===
+          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
+      )
+      .map((item:any) => item.Color)
+      .filter(Boolean)
+  )
+]}
+colorSeleccionado={coloresSeleccionados[index] || grupo.items[0].Color}
+onCambiarColor={(color) =>
   setColoresSeleccionados({
     ...coloresSeleccionados,
-    [index]: primerColorDisponible,
-  });
-
-}}
-      className={
-  (tamanosSeleccionados[index] || grupo.items[0].Tamaño) === tam
-    ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-    : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
+    [index]: color,
+  })
 }
-    >
-      {tam}
-    </button>
 
-  ))}
-</div>
+/>
 
-            {grupo.items.some(
-  (item:any) => item.Color?.trim()
-) ? (
-  <>
-    <p className="text-gray-600 mb-2 mt-4">
-      Color
-    </p>
-
-    <select
-      className="border rounded-lg py-1 px-3 w-full text-black text-sm"
-      value={coloresSeleccionados[index] || grupo.items[0].Color}
-      onChange={(e) =>
-        setColoresSeleccionados({
-          ...coloresSeleccionados,
-          [index]: e.target.value,
-        })
-      }
-    >
-      {grupo.items
-        .filter(
-          (item:any) =>
-            item.Tamaño ===
-            (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-        )
-        .map((item:any, i:number) => (
-          <option key={i} value={item.Color}>
-            {item.Color}
-          </option>
-        ))}
-    </select>
-  </>
-) : grupo.items.some(
+            
+  {grupo.items.some(
   (item:any) => item.Fragancias?.trim()
 ) ? (
   <>
@@ -818,44 +773,30 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
   </>
 ) : null}
 
-            {productoSeleccionado?.Oferta === "si" ? (
-  <>
-    <p className="text-red-500 line-through text-xl">
-  $
-  {Number(productoSeleccionado?.["Precio oferta"])
-    .toLocaleString("es-AR")}
-</p>
+            
 
-<p className="text-xl md:text-2xl font-bold text-green-600">
-  $
-  {Number(productoSeleccionado?.["Precio oferta"])
-    .toLocaleString("es-AR")}
-</p>
+<button
+  onClick={(e) => {
+    e.stopPropagation();
 
-<p className="text-green-700 font-semibold text-xl">
-  Ahorrás $
-  {(
-    Number(productoSeleccionado?.Precio) -
-    Number(productoSeleccionado?.["Precio oferta"])
-  ).toLocaleString("es-AR")}
-</p>
+    agregarAlCarrito(
+      grupo.nombre +
+        " " +
+        productoSeleccionado.Tamaño +
+        " " +
+        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
+      Number(
+        productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+          ? productoSeleccionado["Precio oferta"]
+          : productoSeleccionado.Precio
+      )
+    );
+  }}
+  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
+>
+  🛒 Agregar
+</button>
 
-    <div className="inline-block mt-3 bg-yellow-400 text-black font-bold px-4 py-2 rounded-xl shadow">
-      🔥 OFERTA
-    </div>
-  </>
-) : (
-  <p className="text-xl md:text-3xl font-bold text-green-700 mt-4">
-    $
-    {Number(productoSeleccionado?.Precio)
-      .toLocaleString("es-AR")}
-  </p>
-  
-
-  
-  
-  
-)}
 
           </div>
 
@@ -933,72 +874,38 @@ return (
   className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer"
 >
 
-          {productoSeleccionado?.Imagen?.trim() ? (
-  <img
-    src={productoSeleccionado.Imagen.trim()}
-    alt={grupo.nombre}
-    className="w-40 h-40 object-contain mx-auto bg-white p-2"
-  />
-) : (
-  <div className="w-40 h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
-    Sin imagen
-  </div>
-)}
+          <TarjetaProducto
+  nombre={grupo.nombre}
+  linea={grupo.linea}
+  imagen={productoSeleccionado?.Imagen}
+  aromas={productoSeleccionado?.Aromas}
+  precio={productoSeleccionado?.Precio}
+  precioOferta={productoSeleccionado?.["Precio oferta"]}
+  oferta={productoSeleccionado?.Oferta}
+/>
 
 
 
-<h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2 text-center">
-  {grupo.nombre}
-</h3>
+<SelectorProducto
+  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
+  tamanoSeleccionado={
+    tamanosSeleccionados["oferta" + index] || grupo.items[0].Tamaño
+  }
+  onCambiarTamano={(tam) => {
+    const primerColorDisponible =
+      grupo.items.find(item => item.Tamaño === tam)?.Color;
 
-<p className="text-gray-500 text-xs text-center mt-1">
-  {grupo.linea}
-</p>
+    setTamanosSeleccionados({
+      ...tamanosSeleccionados,
+      ["oferta" + index]: tam,
+    });
 
-<p className="text-red-500 line-through text-lg mt-4">
-$
-{Number(productoSeleccionado?.Precio).toLocaleString("es-AR")}
-</p>
-
-<p className="text-2xl font-bold text-green-600">
-$
-{Number(productoSeleccionado?.["Precio oferta"]).toLocaleString("es-AR")}
-</p>
-
-<p className="text-green-700 font-semibold text-sm mb-4">
-  Ahorrás $
-  {(
-    Number(productoSeleccionado?.Precio) -
-    Number(productoSeleccionado?.["Precio oferta"])
-  ).toLocaleString("es-AR")}
-</p>
-
-<p className="text-xs font-semibold text-gray-500 mt-4 mb-2 uppercase">
-  Tamaño
-</p>
-
-<div className="flex flex-wrap gap-2">
-  {[...new Set(grupo.items.map(item => item.Tamaño))].map((tam, i) => (
-
-    <button
-      key={i}
-      onClick={() =>
-        setTamanosSeleccionados({
-          ...tamanosSeleccionados,
-          ["oferta"+index]: tam,
-        })
-      }
-      className={
-        (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño) === tam
-          ? "bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-          : "bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
-      }
-    >
-      {tam}
-    </button>
-
-  ))}
-</div>
+    setColoresSeleccionados({
+      ...coloresSeleccionados,
+      ["oferta" + index]: primerColorDisponible,
+    });
+  }}
+/>
 
 <p className="text-gray-600 mt-4 mb-2">
   Color
@@ -1025,9 +932,23 @@ $
 </select>
           
 
-<div className="inline-block mt-3 bg-yellow-400 text-black font-bold px-4 py-2 rounded-xl">
-  🔥 OFERTA
-</div>
+<button
+  onClick={(e) => {
+    e.stopPropagation();
+
+    agregarAlCarrito(
+      grupo.nombre +
+        " " +
+        productoSeleccionado.Tamaño +
+        " " +
+        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
+      Number(productoSeleccionado["Precio oferta"])
+    );
+  }}
+  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
+>
+  🛒 Agregar
+</button>
 <div className="mt-2 pt-2 border-t border-gray-100 flex justify-center pb-1">
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -1161,7 +1082,7 @@ $
   placeholder="🔍 Buscar producto..."
   value={busqueda}
   onChange={(e) => setBusqueda(e.target.value)}
-  className="fixed bottom-4 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.30)] transition hover:scale-110"
+  className="w-72 md:w-80 bg-white text-black border border-gray-300 px-4 py-3 rounded-xl shadow-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
 />
   </div>
 )}
@@ -1443,7 +1364,7 @@ $
     }
     className="mt-3 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold text-base py-2.5 rounded-2xl"
   >
-    🛒 Agregar al carrito
+    🛒 Agregar
   </button>
 )}
 
