@@ -410,11 +410,11 @@ return (
   />
 )}
 
-          <h3 className="text-xl font-bold text-gray-800 mt-4">
-            {grupo.nombre}
-          </h3>
+          <h3 className="text-xl font-bold text-gray-800 mt-4 text-center">
+  {grupo.nombre}
+</h3>
 
-          <p className="text-gray-600 text-sm">
+<p className="text-gray-500 text-xs text-center mt-1">
   {grupo.linea}
 </p>
 
@@ -686,7 +686,7 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
     });
     setDetalleAbierto(true);
   }}
-  className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer"
+  className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer text-center"
 >
 
     {productoSeleccionado?.Imagen?.trim() ? (
@@ -701,11 +701,11 @@ productoSeleccionado?.Oferta?.trim().toLowerCase() === "si"
   </div>
 )}
 
-          <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2">
-            {grupo.nombre}
-          </h3>
+          <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2 text-center">
+  {grupo.nombre}
+</h3>
 
-          <p className="text-gray-600 text-sm">
+<p className="text-gray-500 text-xs text-center mt-1">
   {grupo.linea}
 </p>
 
@@ -947,11 +947,11 @@ return (
 
 
 
-<h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2">
+<h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2 text-center">
   {grupo.nombre}
 </h3>
 
-<p className="text-gray-600 text-sm">
+<p className="text-gray-500 text-xs text-center mt-1">
   {grupo.linea}
 </p>
 
@@ -1161,7 +1161,7 @@ $
   placeholder="🔍 Buscar producto..."
   value={busqueda}
   onChange={(e) => setBusqueda(e.target.value)}
-  className="border rounded-xl px-4 py-3 w-72 text-black shadow-xl bg-white"
+  className="fixed bottom-4 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.30)] transition hover:scale-110"
 />
   </div>
 )}
@@ -1576,7 +1576,7 @@ $
   }
   target="_blank"
   rel="noopener noreferrer"
-  className="fixed bottom-4 right-6 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-2xl transition hover:scale-110"
+  className="fixed bottom-4 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.30)] transition hover:scale-110"
 >
   <img
     src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
