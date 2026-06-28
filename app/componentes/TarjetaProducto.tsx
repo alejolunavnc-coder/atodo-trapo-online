@@ -1,90 +1,124 @@
 type TarjetaProductoProps = {
   nombre: string;
   linea: string;
+  marca?: string;
   imagen?: string;
   aromas?: string;
   precio?: string;
   precioOferta?: string;
   oferta?: string;
-
-  onAgregar?: () => void;
-  textoBoton?: string;
 };
 
 export default function TarjetaProducto({
   nombre,
   linea,
+  marca,
   imagen,
   aromas,
   precio,
   precioOferta,
   oferta,
-  onAgregar,
-textoBoton,
 }: TarjetaProductoProps) {
+  const estaEnOferta = oferta?.trim().toLowerCase() === "si";
+
+  const precioNormal = Number(precio);
+  const precioConOferta = Number(precioOferta);
+
+  const precioFinal =
+    estaEnOferta && precioOferta ? precioOferta : precio;
+
+  const ahorro =
+    estaEnOferta && precioNormal && precioConOferta
+      ? precioNormal - precioConOferta
+      : 0;
+
+  const porcentaje =
+    estaEnOferta && precioNormal && precioConOferta
+      ? Math.round(((precioNormal - precioConOferta) / precioNormal) * 100)
+      : 0;
+
   return (
-    <>
-      {imagen?.trim() ? (
-        <img
-          src={imagen.trim()}
-          alt={nombre}
-          className="w-24 h-24 md:w-40 md:h-40 object-contain mx-auto"
-        />
-      ) : (
-        <div className="w-24 h-24 md:w-40 md:h-40 mx-auto flex items-center justify-center text-gray-400 border rounded">
-          Sin imagen
+    <div className="relative">
+
+      {/* Chapita superior: columna Nombre */}
+      {marca?.trim() && (
+        <div className="absolute top-0 left-0 z-10">
+          <span className="inline-flex items-center bg-blue-950 text-white text-[9px] font-extrabold uppercase tracking-[0.12em] px-3 py-1 rounded-full shadow-sm">
+            {marca}
+          </span>
         </div>
       )}
 
-      <h3 className="text-sm md:text-xl font-bold text-gray-800 mt-2 text-center">
-        {nombre}
-      </h3>
-
-      <p className="text-gray-500 text-xs text-center mt-1">
-        {linea}
-      </p>
-
-      {aromas?.trim() && (
-        <div className="mt-2 inline-block bg-violet-100 text-violet-700 text-xs font-semibold px-3 py-1 rounded-full">
-          🌸 {aromas}
+      {/* Descuento */}
+      {estaEnOferta && porcentaje > 0 && (
+        <div className="absolute top-0 right-0 z-10">
+          <span className="inline-flex items-center bg-yellow-400 text-blue-950 text-[10px] font-black px-3 py-1 rounded-full shadow-sm">
+            -{porcentaje}%
+          </span>
         </div>
       )}
-      {precio && (
-  <div className="mt-4">
-    {oferta?.trim().toLowerCase() === "si" ? (
-      <>
-        <p className="text-red-500 line-through text-xl">
-          ${Number(precio).toLocaleString("es-AR")}
-        </p>
 
-        <p className="text-xl md:text-2xl font-bold text-green-600">
-          ${Number(precioOferta).toLocaleString("es-AR")}
-        </p>
+      {/* Imagen */}
+      <div className="h-[150px] flex items-center justify-center pt-6">
+        {imagen?.trim() ? (
+          <img
+            src={imagen.trim()}
+            alt={marca || nombre}
+            className="max-h-[130px] max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.03] drop-shadow-[0_12px_12px_rgba(0,0,0,0.18)]"
+          />
+        ) : (
+          <div className="w-full h-[120px] flex items-center justify-center text-[12px] text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            Sin imagen
+          </div>
+        )}
+      </div>
 
-        <p className="text-green-700 font-semibold text-lg mt-2">
-          Ahorrás $
-          {(Number(precio) - Number(precioOferta)).toLocaleString("es-AR")}
-        </p>
-      </>
-    ) : (
-      <p className="text-xl md:text-3xl font-bold text-green-700">
-        ${Number(precio).toLocaleString("es-AR")}
-      </p>
-    )}
-  </div>
-)}
-{onAgregar && (
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      onAgregar();
-    }}
-    className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
-  >
-    🛒 {textoBoton || "Agregar"}
-  </button>
-)}
-    </>
+      {/* Información: solo columna Linea */}
+      <div className="mt-3">
+
+        {linea?.trim() && (
+          <h3 className="text-[17px] font-extrabold text-blue-950 leading-tight tracking-[-0.03em]">
+            {linea}
+          </h3>
+        )}
+
+        {aromas?.trim() && (
+          <div className="mt-2 inline-flex items-center bg-violet-50 text-violet-700 text-[11px] font-bold px-3 py-1 rounded-full">
+            🌸 {aromas}
+          </div>
+        )}
+
+      </div>
+
+      {/* Precio */}
+      {precioFinal && (
+        <div className="mt-4">
+
+          {estaEnOferta && precio && precioOferta ? (
+            <>
+              <p className="text-[13px] text-red-500 line-through font-semibold">
+                ${precioNormal.toLocaleString("es-AR")}
+              </p>
+
+              <p className="text-[28px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+                ${precioConOferta.toLocaleString("es-AR")}
+              </p>
+
+              {ahorro > 0 && (
+                <p className="text-[13px] font-extrabold text-green-600 mt-1">
+                  Ahorrás ${ahorro.toLocaleString("es-AR")}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-[28px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+              ${Number(precioFinal).toLocaleString("es-AR")}
+            </p>
+          )}
+
+        </div>
+      )}
+
+    </div>
   );
 }
-

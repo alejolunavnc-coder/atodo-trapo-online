@@ -1,10 +1,40 @@
 
 "use client";
 
+/* Imports */
+
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import TarjetaProducto from "./componentes/TarjetaProducto";
 import SelectorProducto from "./componentes/SelectorProducto";
+
+import {
+  Truck,
+  CircleDashed,
+  Waves,
+  CreditCard,
+  MapPin,
+  Clock3,
+  BadgePercent,
+  MessagesSquare,
+  ShoppingBasket,
+  PaintBucket,
+  Brush,
+  SprayCan,
+  Leaf,
+  House,
+  Package,
+  Bug,
+  Sparkles,
+  Lightbulb,
+} from "lucide-react";
+
+import {
+  FaWhatsapp,
+  FaInstagram,
+} from "react-icons/fa";
+
+/* Tipos */
 
 type Producto = {
   Categoría: string;
@@ -19,13 +49,16 @@ type Producto = {
   Oferta: string;
   Imagen: string;
   Fragancias: string;
-Aromas: string;
+  Aromas: string;
 };
 
+/* Componente principal */
 
 export default function Home() {
 
-  const [mostrarMas, setMostrarMas] = useState(false);
+  /* Estados */
+
+const [mostrarMas, setMostrarMas] = useState(false);
 const [vista, setVista] = useState("categorias");
 const [marca, setMarca] = useState("");
 const [categoria, setCategoria] = useState("");
@@ -45,6 +78,9 @@ const inputBusquedaRef = useRef<HTMLInputElement>(null);
 const panelDetalleRef = useRef<HTMLDivElement>(null);
 const resultadosBusquedaRef = useRef<HTMLDivElement>(null);
 const [altoPanelDetalle, setAltoPanelDetalle] = useState(0);
+
+/* useEffect */
+
 useEffect(() => {
   Papa.parse(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRonjC9Bv3YGK1Wpr8CN2EZh9370FkdcEXo94iCA-rJPiw7Y2gLT9hipzcTk4UWcFCRQaEvN0XT0Q_/pub?gid=0&single=true&output=csv",
@@ -87,6 +123,7 @@ useEffect(() => {
   };
 }, [detalleAbierto, grupoDetalle]);
 
+/* Funciones */
 
 function agregarAlCarrito(nombre: string, precio: number) {
   setCarrito([
@@ -103,6 +140,8 @@ function agregarAlCarrito(nombre: string, precio: number) {
     setCarritoAnimado(false);
   }, 300);
 }
+
+/* Datos calculados */
 
 const productosEnOferta = productos.filter(
   (producto) => producto.Oferta?.trim().toLowerCase() === "si"
@@ -268,800 +307,1331 @@ const productoDetalle =
       })
     : null;
 
-return (
-    <main className="min-h-screen bg-gray-100 overflow-x-hidden max-w-full">
+/* Render */
+    
+    return (
+    <main className="min-h-screen bg-gray-100 overflow-x-clip max-w-full">
 
-      {/* Barra superior */}
-      <nav className="bg-white shadow-md px-4 md:px-10 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold text-teal-700">
-  Pinturería
-</h1>
+{/* Barra azul superior */}
+<div className="hidden md:block bg-blue-950 text-white/95 text-[12px] font-medium tracking-wide">
+  <div className="max-w-7xl mx-auto px-6 h-8 grid grid-cols-3 items-center">
+    <div className="flex items-center gap-5 justify-start">
+      <div className="flex items-center gap-2">
+        <MapPin size={15} strokeWidth={2} className="text-white" />
+        <span className="font-medium">
+          Envíos a Candelaria y zonas aledañas
+        </span>
+      </div>
+    </div>
 
-        <div className="flex items-center gap-6">
+    <div className="flex items-center justify-center text-[12px] font-medium">
 
-  
+  <span>
+    🕒 Lun-Sáb 8:00–12:00 | 16:00–19:15
+  </span>
 
-  <a href="#" className="text-gray-700 font-medium">
-    Inicio
-  </a>
+  <span className="mx-4 opacity-50">
+    •
+  </span>
 
-  <a href="#" className="text-gray-700 font-medium">
-    Productos
-  </a>
-
-  <a href="#" className="text-gray-700 font-medium">
-    Ofertas
-  </a>
-
-  <a href="#" className="text-gray-700 font-medium">
-    Contacto
-  </a>
-
-  
+  <span>
+    Dom. 9:30–12:00
+  </span>
 
 </div>
-      </nav>
-
-      
-
-      {/* Banner principal */}
-      <section className="bg-gradient-to-r from-teal-700 to-teal-500 text-white py-20 px-10 text-center">
-        <h1 className="text-4xl md:text-7xl font-bold text-white">
-  A Todo Trapo Online
-</h1>
-
-<h2 className="text-lg md:text-3xl text-white mt-5 font-light">
-  Pinturas, limpieza y artículos para el hogar
-</h2>
-
-<p className="text-lg md:text-2xl text-white/90 mt-8">
-  Todo lo que necesitás, en un solo lugar
-</p>
-      </section>
-<section className="bg-white shadow-sm py-8">
-
-  <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-
-    <div>
-      <div className="text-4xl">🚚</div>
-      <p className="font-semibold text-gray-800 mt-2">
-        Envíos rápidos
-      </p>
-    </div>
-
-    <div>
-      <div className="text-4xl">💳</div>
-      <p className="font-semibold text-gray-800 mt-2">
-        Todos los medios de pago
-      </p>
-    </div>
-
-    <div>
-      <div className="text-4xl">🎨</div>
-      <p className="font-semibold text-gray-800 mt-2">
-        Gran variedad
-      </p>
-    </div>
-
-    <div>
-      <div className="text-4xl">🏠</div>
-      <p className="font-semibold text-gray-800 mt-2">
-        Todo para tu hogar
-      </p>
-    </div>
-
   </div>
-
-</section>
-      <div className="flex items-center justify-center p-6">
-
-        <div className="bg-white p-4 md:p-10 rounded-3xl shadow-2xl max-w-7xl w-full">
-
-          <div className="flex justify-between items-center mb-10">
-
-  <div>
-    <div className="grid grid-cols-12 gap-8"></div>
-
-    <h2 className="text-4xl font-bold text-gray-800">
-      Categorías
-    </h2>
-
-    <p className="text-gray-500 mt-2">
-      Encontrá todo lo que necesitás para tu hogar
-    </p>
-
-  </div>
-
-  {/*
-<input
-  type="text"
-  placeholder="🔍 Buscar producto..."
-  value={busqueda}
-  onChange={(e)=>setBusqueda(e.target.value)}
-  className="border rounded-xl px-4 py-3 w-full md:w-96 text-black"
-/>
-*/}
-
 </div>
-<div className="col-span-3"></div>
-{busqueda !== "" && (
 
-<div
-  ref={resultadosBusquedaRef}
-  className="bg-white p-6 mt-8 rounded-2xl shadow max-h-[800px] overflow-y-auto"
->
+{/* Franja sticky: logo + buscador + acciones */}
+<header className="hidden md:block sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-[0_8px_30px_rgba(15,23,42,0.10)]">
+  <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-8">
 
-  <h2 className="text-2xl font-bold text-black mb-2">
-    Resultados de búsqueda
-  </h2>
+    <img
+      src="/logo.png"
+      alt="A Todo Trapo"
+      className="w-48 object-contain"
+    />
 
-  <p className="text-gray-500 mb-6">
-    {productosBuscados.length} productos encontrados
-  </p>
+    <div className="flex-1 max-w-3xl flex">
+      <input
+        type="text"
+        placeholder="Buscá productos, marcas, líneas..."
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        className="w-full h-11 border border-gray-200 rounded-l-full px-6 text-[15px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-700 transition"
+      />
 
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <button className="bg-blue-950 hover:bg-blue-900 text-white w-12 rounded-r-full flex items-center justify-center transition">
+        🔍
+      </button>
+    </div>
 
-    {productosBuscados.map((grupo, index) => {
+    <div className="flex items-center gap-6 text-[13px] text-slate-700">
 
-      const productoSeleccionado =
-        grupo.items.find(
-          item =>
-            item.Tamaño ===
-              (tamanosSeleccionados["busqueda"+index] || grupo.items[0].Tamaño)
-            &&
-            item.Color ===
-              (coloresSeleccionados["busqueda"+index] || grupo.items[0].Color)
-        ) || grupo.items[0];
+      <button className="flex items-center gap-2 hover:text-blue-800 transition">
+        <BadgePercent size={18} strokeWidth={2} className="text-blue-900" />
+        <span className="font-medium">Ofertas</span>
+      </button>
 
-      return (
+      <a
+        href="https://wa.me/5493764354249"
+        target="_blank"
+        className="flex items-center gap-2 hover:text-blue-800 transition"
+      >
+        <FaWhatsapp size={18} className="text-blue-900" />
+        <span className="font-medium">Contacto</span>
+      </a>
 
-        <div
-          key={index}
-          className="bg-gray-50 p-6 rounded-2xl shadow-lg"
-        >
+      <button
+        onClick={() => setMostrarCarrito(!mostrarCarrito)}
+        className="relative flex items-center gap-2 hover:text-blue-800 transition"
+      >
+        <ShoppingBasket size={20} strokeWidth={2} className="text-blue-900" />
 
-<TarjetaProducto
-  nombre={grupo.nombre}
-  linea={grupo.linea}
-  imagen={productoSeleccionado?.Imagen}
-  aromas={productoSeleccionado?.Aromas}
-  precio={productoSeleccionado?.Precio}
-  precioOferta={productoSeleccionado?.["Precio oferta"]}
-  oferta={productoSeleccionado?.Oferta}
-  
-/>
-
-          <SelectorProducto
-  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
-  tamanoSeleccionado={
-    tamanosSeleccionados["busqueda" + index] || grupo.items[0].Tamaño
-  }
-  onCambiarTamano={(tam) =>
-    setTamanosSeleccionados({
-      ...tamanosSeleccionados,
-      ["busqueda" + index]: tam,
-    })
-  }
-  fragancias={[
-    ...new Set(
-      grupo.items
-        .filter(
-          (item:any) =>
-            item.Tamaño ===
-            (tamanosSeleccionados["busqueda" + index] || grupo.items[0].Tamaño)
-        )
-        .map((item:any) => item.Fragancias)
-        .filter(Boolean)
-    )
-  ]}
-  fraganciaSeleccionada={
-    fraganciasSeleccionadas["busqueda" + index] || grupo.items[0].Fragancias
-  }
-  onCambiarFragancia={(fragancia) =>
-    setFraganciasSeleccionadas({
-      ...fraganciasSeleccionadas,
-      ["busqueda" + index]: fragancia,
-    })
-  }
-/>
-{grupo.items.some(
-  (item:any) => item.Color?.trim()
-) && (
-  <>
-    <p className="text-gray-600 mb-2 mt-4">
-      Color
-    </p>
-
-    <select
-      className="border rounded-lg py-1 px-3 w-full text-black text-sm"
-      value={
-        coloresSeleccionados["busqueda"+index] ||
-        grupo.items[0].Color
-      }
-      onChange={(e) =>
-        setColoresSeleccionados({
-          ...coloresSeleccionados,
-          ["busqueda"+index]: e.target.value,
-        })
-      }
-    >
-      {grupo.items
-        .filter(
-          (item:any) =>
-            item.Tamaño ===
-            (
-              tamanosSeleccionados["busqueda"+index] ||
-              grupo.items[0].Tamaño
-            )
-        )
-        .map((item:any, i:number) => (
-          <option key={i} value={item.Color}>
-            {item.Color}
-          </option>
-        ))}
-    </select>
-  </>
-)}
-
-
-          
-          <button
-  onClick={() => {
-    agregarAlCarrito(
-      grupo.nombre +
-        " " +
-        productoSeleccionado.Tamaño +
-        " " +
-        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
-      Number(
-        productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-          ? productoSeleccionado["Precio oferta"]
-          : productoSeleccionado.Precio
-      )
-    );
-  }}
-  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
->
-  🛒 Agregar
-</button>
-
+        <div className="flex flex-col leading-none">
+          <span className="font-semibold text-[13px] text-slate-800">
+            Carrito
+          </span>
+          <span className="text-[10px] text-gray-400">
+            {carrito.length} productos
+          </span>
         </div>
 
-      );
+        {carrito.length > 0 && (
+          <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-yellow-400 text-[9px] text-blue-950 flex items-center justify-center font-bold">
+            {carrito.length}
+          </span>
+        )}
+      </button>
 
-    })}
+    </div>
+  </div>
+</header>
+
+{/* Menú normal */}
+<nav className="hidden md:block bg-white border-b border-gray-200">
+  <div className="max-w-7xl mx-auto h-[54px] px-6 flex items-center justify-between">
+
+    <div className="flex items-center gap-10 ml-[80px] text-[14px] font-semibold text-[#162a63]">
+      <a href="#" className="relative font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+        Inicio
+        <span className="absolute left-0 -bottom-[17px] w-full h-[3px] bg-yellow-400 rounded-full"></span>
+      </a>
+
+      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+        Productos
+      </a>
+
+      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+        Marcas
+      </a>
+
+      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+        Ofertas
+      </a>
+
+      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+        Contacto
+      </a>
+    </div>
+
+    <a
+      href="https://wa.me/5493764354249"
+      target="_blank"
+      className="flex items-center gap-2 bg-[#1FAF5A] hover:bg-[#198F49] text-white px-5 py-2 rounded-xl text-[14px] font-semibold transition shadow-sm"
+    >
+      <FaWhatsapp size={17} />
+      <span>Consultanos por WhatsApp</span>
+    </a>
 
   </div>
+</nav>
 
-</div>
+      {/* Banner principal */}
+<section className="bg-slate-50 overflow-hidden">
+  <div className="max-w-7xl mx-auto px-6 pt-2 pb-4">
 
+    <div className="relative rounded-[28px] bg-white border border-gray-100 overflow-hidden shadow-sm">
+
+      <img
+        src="/banner.png"
+        alt="A Todo Trapo"
+        className="w-full h-[280px] object-cover object-center block"
+      />
+
+      {/* Botón Ver productos */}
+      <button
+        className="absolute left-[44px] bottom-[82px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[14px] px-5 py-2 rounded-lg shadow-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:-translate-y-0.5 hover:shadow-md"
+      >
+        Ver productos
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
+
+    </div>
+
+  </div>
+</section>
+      
+      {/* Beneficios */}
+<section className="bg-slate-50 -mt-3 pb-5">
+  <div className="max-w-7xl mx-auto px-6">
+
+    <div className="bg-white border border-gray-100 rounded-[18px] overflow-hidden">
+
+      <div className="grid grid-cols-4">
+
+        <div className="relative flex items-center gap-2.5 px-6 py-3.5">
+          <Truck
+            size={23}
+            strokeWidth={2}
+            className="text-blue-900 shrink-0"
+          />
+
+          <div>
+            <h3 className="font-semibold text-blue-950 text-[14px] leading-tight">
+              Envíos rápidos
+            </h3>
+
+            <p className="text-gray-500 text-[11px] mt-0.5">
+              a Candelaria y zonas aledañas
+            </p>
+          </div>
+
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-px bg-gray-200" />
+        </div>
+
+        <div className="relative flex items-center gap-2.5 px-6 py-3.5">
+          <CircleDashed
+            size={23}
+            strokeWidth={2}
+            className="text-blue-900 shrink-0"
+          />
+
+          <div>
+            <h3 className="font-semibold text-blue-950 text-[14px] leading-tight">
+              Sistema tintométrico
+            </h3>
+
+            <p className="text-gray-500 text-[11px] mt-0.5">
+              Miles de colores al instante
+            </p>
+          </div>
+
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-px bg-gray-200" />
+        </div>
+
+        <div className="relative flex items-center gap-2.5 px-6 py-3.5">
+          <Waves
+            size={23}
+            strokeWidth={2}
+            className="text-blue-900 shrink-0"
+          />
+
+          <div>
+            <h3 className="font-semibold text-blue-950 text-[14px] leading-tight">
+              Especialistas en piscinas
+            </h3>
+
+            <p className="text-gray-500 text-[11px] mt-0.5">
+              Todo para el cuidado del agua
+            </p>
+          </div>
+
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-px bg-gray-200" />
+        </div>
+
+        <div className="flex items-center gap-2.5 px-6 py-3.5">
+          <CreditCard
+            size={23}
+            strokeWidth={2}
+            className="text-blue-900 shrink-0"
+          />
+
+          <div>
+            <h3 className="font-semibold text-blue-950 text-[14px] leading-tight">
+              Todos los medios de pago
+            </h3>
+
+            <p className="text-gray-500 text-[11px] mt-0.5">
+              Efectivo, tarjetas y transferencias
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{/* Contenedor principal del catálogo */}
+
+<div className="bg-slate-50">
+  <div className="max-w-7xl mx-auto px-6">
+
+    <div className="col-span-3"></div>
+
+{/* Resultados de búsqueda */}
+
+{busqueda !== "" && (
+  <div
+    ref={resultadosBusquedaRef}
+    className="bg-white p-6 mt-8 rounded-2xl shadow max-h-[800px] overflow-y-auto"
+  >
+    <h2 className="text-2xl font-bold text-black mb-2">
+      Resultados de búsqueda
+    </h2>
+
+    <p className="text-gray-500 mb-6">
+      {productosBuscados.length} productos encontrados
+    </p>
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {productosBuscados.map((grupo, index) => {
+        const productoSeleccionado =
+          grupo.items.find((item) => {
+            if (grupo.items.some((i) => i.Color?.trim())) {
+              return (
+                item.Tamaño ===
+                  (tamanosSeleccionados["busqueda" + index] ||
+                    grupo.items[0].Tamaño) &&
+                item.Color ===
+                  (coloresSeleccionados["busqueda" + index] ||
+                    grupo.items[0].Color)
+              );
+            }
+
+            if (grupo.items.some((i) => i.Fragancias?.trim())) {
+              return (
+                item.Tamaño ===
+                  (tamanosSeleccionados["busqueda" + index] ||
+                    grupo.items[0].Tamaño) &&
+                item.Fragancias ===
+                  (fraganciasSeleccionadas["busqueda" + index] ||
+                    grupo.items[0].Fragancias)
+              );
+            }
+
+            return (
+              item.Tamaño ===
+              (tamanosSeleccionados["busqueda" + index] ||
+                grupo.items[0].Tamaño)
+            );
+          }) || grupo.items[0];
+
+        return (
+          <div
+            key={index}
+            className="bg-gray-50 p-6 rounded-2xl shadow-lg"
+          >
+            <TarjetaProducto
+              nombre={grupo.nombre}
+              linea={grupo.linea}
+              imagen={productoSeleccionado?.Imagen}
+              aromas={productoSeleccionado?.Aromas}
+              precio={productoSeleccionado?.Precio}
+              precioOferta={productoSeleccionado?.["Precio oferta"]}
+              oferta={productoSeleccionado?.Oferta}
+            />
+
+            <SelectorProducto
+              tamanos={[...new Set(grupo.items.map((item) => item.Tamaño))]}
+              tamanoSeleccionado={
+                tamanosSeleccionados["busqueda" + index] ||
+                grupo.items[0].Tamaño
+              }
+              onCambiarTamano={(tam) => {
+                const primerColorDisponible =
+                  grupo.items.find((item) => item.Tamaño === tam)?.Color;
+
+                const primeraFraganciaDisponible =
+                  grupo.items.find((item) => item.Tamaño === tam)?.Fragancias;
+
+                setTamanosSeleccionados({
+                  ...tamanosSeleccionados,
+                  ["busqueda" + index]: tam,
+                });
+
+                setColoresSeleccionados({
+                  ...coloresSeleccionados,
+                  ["busqueda" + index]: primerColorDisponible,
+                });
+
+                setFraganciasSeleccionadas({
+                  ...fraganciasSeleccionadas,
+                  ["busqueda" + index]: primeraFraganciaDisponible,
+                });
+              }}
+              colores={[
+                ...new Set(
+                  grupo.items
+                    .filter(
+                      (item: any) =>
+                        item.Tamaño ===
+                        (tamanosSeleccionados["busqueda" + index] ||
+                          grupo.items[0].Tamaño)
+                    )
+                    .map((item: any) => item.Color)
+                    .filter(Boolean)
+                ),
+              ]}
+              colorSeleccionado={
+                coloresSeleccionados["busqueda" + index] ||
+                grupo.items[0].Color
+              }
+              onCambiarColor={(color) =>
+                setColoresSeleccionados({
+                  ...coloresSeleccionados,
+                  ["busqueda" + index]: color,
+                })
+              }
+              fragancias={[
+                ...new Set(
+                  grupo.items
+                    .filter(
+                      (item: any) =>
+                        item.Tamaño ===
+                        (tamanosSeleccionados["busqueda" + index] ||
+                          grupo.items[0].Tamaño)
+                    )
+                    .map((item: any) => item.Fragancias)
+                    .filter(Boolean)
+                ),
+              ]}
+              fraganciaSeleccionada={
+                fraganciasSeleccionadas["busqueda" + index] ||
+                grupo.items[0].Fragancias
+              }
+              onCambiarFragancia={(fragancia) =>
+                setFraganciasSeleccionadas({
+                  ...fraganciasSeleccionadas,
+                  ["busqueda" + index]: fragancia,
+                })
+              }
+              textoBoton="Agregar"
+              onAgregar={() =>
+                agregarAlCarrito(
+                  grupo.nombre +
+                    " " +
+                    productoSeleccionado.Tamaño +
+                    " " +
+                    (productoSeleccionado.Fragancias ||
+                      productoSeleccionado.Color ||
+                      ""),
+                  Number(
+                    productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+                      ? productoSeleccionado["Precio oferta"]
+                      : productoSeleccionado.Precio
+                  )
+                )
+              }
+            />
+          </div>
+        );
+      })}
+    </div>
+  </div>
 )}
 
 
 {/* Categorías */}
 {vista === "categorias" && (
-<>
-  {busqueda === "" && (
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+  <>
+    {busqueda === "" && (
+      <section id="seccion-categorias" className="-mt-3 pb-5 scroll-mt-32">
+        <div className="max-w-7xl mx-auto px-6">
 
-    {[...new Set(productos.map((p) => p.Categoría?.trim()))]
-      .filter(Boolean)
-      .map((categoria) => (
+          <h2 className="text-[19px] font-bold text-blue-950 mb-1 -ml-2 mt-[4px]">
+            Explorá nuestras categorías
+          </h2>
 
-        <div
-          key={categoria}
-          onClick={() => {
-            setCategoria(categoria);
-            setVista("marcas");
-          }}
-          className="bg-gray-100 p-5 rounded-xl shadow text-gray-800 cursor-pointer hover:bg-gray-200"
-        >
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 mt-0 -ml-2">
 
-          <div className="text-4xl">
-            {
-              productos.find(
-                (p) => p.Categoría?.trim() === categoria
-              )?.Emoji
-            }
+            {[...new Set(productos.map((p) => p.Categoría?.trim()))]
+              .filter(Boolean)
+              .map((categoria) => {
+                const nombreCategoria = String(categoria).toLowerCase();
+
+                const iconoCategoria =
+                  nombreCategoria.includes("pintura")
+                    ? "pinturas.png"
+                    : nombreCategoria.includes("pincel") ||
+                      nombreCategoria.includes("rodillo")
+                    ? "pinceles.png"
+                    : nombreCategoria.includes("limpieza")
+                    ? "limpieza.png"
+                    : nombreCategoria.includes("piscina")
+                    ? "piscina.png"
+                    : nombreCategoria.includes("jardin") ||
+                      nombreCategoria.includes("jardineria") ||
+                      nombreCategoria.includes("jardinería")
+                    ? "jardineria.png"
+                    : nombreCategoria.includes("hogar")
+                    ? "hogar.png"
+                    : nombreCategoria.includes("aroma")
+                    ? "aromatizantes.png"
+                    : nombreCategoria.includes("plaga") ||
+                      nombreCategoria.includes("insecticida")
+                    ? "insecticidas.png"
+                    : nombreCategoria.includes("electric")
+                    ? "electricidad.png"
+                    : nombreCategoria.includes("plastico") ||
+                      nombreCategoria.includes("plástico")
+                    ? "plasticos.png"
+                    : "hogar.png";
+
+                return (
+                  <button
+                    key={categoria}
+                    onClick={() => {
+                      setCategoria(categoria);
+
+                      if (nombreCategoria.includes("pintura")) {
+                        setVista("marcas");
+                      } else {
+                        setMarca("");
+                        setVista("productos");
+                      }
+                    }}
+                    className="group bg-white border border-gray-200 rounded-[16px] h-[112px] w-[118px] px-3 py-3 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <div className="flex justify-center mb-2">
+                      <img
+                        src={`/iconos/categorias/${iconoCategoria}`}
+                        alt={categoria}
+                        className="w-14 h-14 object-contain transition-transform duration-200 group-hover:scale-105"
+                      />
+                    </div>
+
+                    <h3 className="font-semibold text-[13px] text-slate-900 leading-tight text-center break-words">
+                      {categoria}
+                    </h3>
+                  </button>
+                );
+              })}
+
           </div>
 
-          <p className="mt-2 font-medium">
-            {categoria}
-          </p>
-
         </div>
-
-      ))}
-
-  </div>
-  )}
-
+      </section>
+    )}
   </>
 )}
 
-  
-
-  
-
-
 {/* Marcas */}
+
 {vista === "marcas" && (
   <>
+    <section className="-mt-4 pb-8">
+      <div className="max-w-7xl mx-auto px-6">
 
+        <h2 className="text-[22px] font-bold text-blue-950 mb-5 -ml-2 mt-[4px]">
+          Elegí una marca
+        </h2>
 
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mt-0 -ml-2">
 
-     {[
-  ...new Set(
-    productos
-      .filter(
-        (p) => p.Categoría?.trim() === categoria
-      )
-      .map((p) => p.Marca?.trim())
-  )
-]
-.filter(Boolean)
-.map((marca) => (
-          <div
-            key={marca}
-            onClick={() => {
-              setMarca(marca);
-              setVista("productos");
-            }}
-            className="bg-gray-100 p-5 rounded-xl shadow text-gray-800 font-semibold cursor-pointer hover:bg-gray-200"
-          >
-            {marca}
-          </div>
-        ))}
+          {[
+            ...new Set(
+              productos
+                .filter((p) => p.Categoría?.trim() === categoria)
+                .map((p) => p.Marca?.trim())
+            )
+          ]
+            .filter(Boolean)
+            .map((marca) => {
+              const nombreMarca = String(marca).toLowerCase();
 
-    </div>
+              const iconoMarca =
+                nombreMarca.includes("tersuave")
+                  ? "tersuave.png"
+                  : nombreMarca.includes("silver")
+                  ? "silver.png"
+                  : nombreMarca.includes("colorin") || nombreMarca.includes("colorín")
+                  ? "colorin.png"
+                  : "default.png";
 
-    <div className="mt-8">
-      <button
-        onClick={() => setVista("categorias")}
-        className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-3 rounded-xl"
-      >
-        ← Volver a categorías
-      </button>
-    </div>
+              return (
+                <button
+                  key={marca}
+                  onClick={() => {
+                    setMarca(marca);
+                    setVista("productos");
+                  }}
+                  className="group relative bg-white border border-gray-200 rounded-[22px] h-[170px] w-full flex items-center justify-center overflow-hidden shadow-[0_10px_28px_rgba(15,23,42,0.07)] hover:shadow-[0_18px_40px_rgba(15,23,42,0.13)] hover:-translate-y-1 transition-all duration-300"
+                >
+                  {/* Fondo */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white via-white to-slate-50 opacity-95" />
+
+                  {/* Sombra del logo */}
+                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-36 h-4 bg-slate-900/10 rounded-full blur-md group-hover:bg-slate-900/15 transition" />
+
+                  <img
+                    src={`/iconos/marcas/${iconoMarca}`}
+                    alt={marca}
+                    className={`relative z-10 object-contain drop-shadow-[0_12px_18px_rgba(15,23,42,0.18)] transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1 ${
+                      nombreMarca.includes("tersuave")
+                        ? "max-w-[290px] max-h-[145px]"
+                        : nombreMarca.includes("silver")
+                        ? "max-w-[190px] max-h-[110px]"
+                        : nombreMarca.includes("colorin") || nombreMarca.includes("colorín")
+                        ? "max-w-[220px] max-h-[120px]"
+                        : "max-w-[200px] max-h-[110px]"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+
+        </div>
+
+      </div>
+    </section>
   </>
 )}
 
 {/* Productos */}
 {vista === "productos" && (
-<>
-  <h3 className="text-3xl font-bold text-gray-800 mb-10">
-    Productos de {marca}
-  </h3>
-
-  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-
-    {productosAgrupados.map((grupo, index) => {
-      const productoSeleccionado =
-  grupo.items.find((item) => {
-    if (
-      grupo.items.some((i) => i.Color?.trim())
-    ) {
-      return (
-        item.Tamaño ===
-          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-        &&
-        item.Color ===
-          (coloresSeleccionados[index] || grupo.items[0].Color)
-      );
-    }
-
-    if (
-      grupo.items.some((i) => i.Fragancias?.trim())
-    ) {
-      return (
-        item.Tamaño ===
-          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-        &&
-        item.Fragancias ===
-          (fraganciasSeleccionadas[index] || grupo.items[0].Fragancias)
-      );
-    }
-
-    return item.Tamaño ===
-      (tamanosSeleccionados[index] || grupo.items[0].Tamaño);
-  }) || grupo.items[0];
-
-
-      return (
-
-  <div
-  key={index}
-  onClick={() => {
-  if (window.innerWidth < 768) {
-    setGrupoDetalle({
-      grupo,
-      index,
-      producto: productoSeleccionado,
-    });
-    setDetalleAbierto(true);
-  }
-}}
-  className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer text-center"
->
-
-    <TarjetaProducto
-  nombre={grupo.nombre}
-  linea={grupo.linea}
-  imagen={productoSeleccionado?.Imagen}
-  aromas={productoSeleccionado?.Aromas}
-  precio={productoSeleccionado?.Precio}
-  precioOferta={productoSeleccionado?.["Precio oferta"]}
-  oferta={productoSeleccionado?.Oferta}
-
-/>
-
-          <div className="hidden md:block mt-4 border-t pt-3 space-y-3">
-
-            <SelectorProducto
-  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
-  tamanoSeleccionado={
-    tamanosSeleccionados[index] || grupo.items[0].Tamaño
-  }
-  onCambiarTamano={(tam) => {
-    const primerColorDisponible =
-      grupo.items.find(item => item.Tamaño === tam)?.Color;
-
-    setTamanosSeleccionados({
-      ...tamanosSeleccionados,
-      [index]: tam,
-    });
-
-    setColoresSeleccionados({
-      ...coloresSeleccionados,
-      [index]: primerColorDisponible,
-    });
-  }}
-  colores={[
-  ...new Set(
-    grupo.items
-      .filter(
-        (item:any) =>
-          item.Tamaño ===
-          (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-      )
-      .map((item:any) => item.Color)
-      .filter(Boolean)
-  )
-]}
-colorSeleccionado={coloresSeleccionados[index] || grupo.items[0].Color}
-onCambiarColor={(color) =>
-  setColoresSeleccionados({
-    ...coloresSeleccionados,
-    [index]: color,
-  })
-}
-
-/>
-
-            
-  {grupo.items.some(
-  (item:any) => item.Fragancias?.trim()
-) ? (
   <>
-    <p className="text-gray-600 mb-2 mt-4">
-      Fragancia
-    </p>
+    <section className="pb-10">
 
-    <select
-      className="border rounded-lg py-1 px-3 w-full text-black text-sm"
-      value={fraganciasSeleccionadas[index] || grupo.items[0].Fragancias}
-      onChange={(e) =>
-        setFraganciasSeleccionadas({
-          ...fraganciasSeleccionadas,
-          [index]: e.target.value,
-        })
-      }
-    >
-      {grupo.items
-        .filter(
-          (item:any) =>
-            item.Tamaño ===
-            (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
-        )
-        .map((item:any, i:number) => (
-          <option key={i} value={item.Fragancias}>
-            {item.Fragancias}
-          </option>
-        ))}
-    </select>
+      <div className="flex items-center justify-between mb-7">
+        <div>
+          <h3 className="text-[30px] font-extrabold text-blue-950 tracking-[-0.03em] leading-tight">
+            Productos de {marca || categoria}
+          </h3>
+
+          <p className="text-[14px] text-slate-500 mt-1">
+            Elegí el producto y consultá stock por WhatsApp
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        {productosAgrupados.map((grupo, index) => {
+          const productoSeleccionado =
+            grupo.items.find((item) => {
+              if (grupo.items.some((i) => i.Color?.trim())) {
+                return (
+                  item.Tamaño ===
+                    (tamanosSeleccionados[index] || grupo.items[0].Tamaño) &&
+                  item.Color ===
+                    (coloresSeleccionados[index] || grupo.items[0].Color)
+                );
+              }
+
+              if (grupo.items.some((i) => i.Fragancias?.trim())) {
+                return (
+                  item.Tamaño ===
+                    (tamanosSeleccionados[index] || grupo.items[0].Tamaño) &&
+                  item.Fragancias ===
+                    (fraganciasSeleccionadas[index] || grupo.items[0].Fragancias)
+                );
+              }
+
+              return (
+                item.Tamaño ===
+                (tamanosSeleccionados[index] || grupo.items[0].Tamaño)
+              );
+            }) || grupo.items[0];
+
+          const nombreTarjeta = grupo.nombre;
+          const lineaTarjeta = grupo.linea;
+          const placaTarjeta = grupo.nombre;
+
+          const tieneFragancias = grupo.items.some((i) => i.Fragancias?.trim());
+
+          const opcionesTamanos = [
+            ...new Set(grupo.items.map((item) => item.Tamaño)),
+          ].filter(Boolean);
+
+          const tamanioActual =
+            tamanosSeleccionados[index] || grupo.items[0].Tamaño;
+
+          const opcionesFragancias = [
+            ...new Set(
+              grupo.items
+                .filter((item: any) => item.Tamaño === tamanioActual)
+                .map((item: any) => item.Fragancias)
+                .filter(Boolean)
+            ),
+          ];
+
+          const opcionesColores = [
+            ...new Set(
+              grupo.items
+                .filter((item: any) => item.Tamaño === tamanioActual)
+                .map((item: any) => item.Color)
+                .filter(Boolean)
+            ),
+          ];
+
+          return (
+            <div
+              key={index}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  setGrupoDetalle({
+                    grupo,
+                    index,
+                    producto: productoSeleccionado,
+                  });
+                  setDetalleAbierto(true);
+                }
+              }}
+              className="group relative bg-white border border-gray-200 rounded-[20px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col min-h-[430px]"
+            >
+              <TarjetaProducto
+                nombre={nombreTarjeta}
+                linea={lineaTarjeta}
+                marca={placaTarjeta}
+                imagen={productoSeleccionado?.Imagen}
+                aromas={productoSeleccionado?.Aromas}
+                precio={productoSeleccionado?.Precio}
+                precioOferta={productoSeleccionado?.["Precio oferta"]}
+                oferta={productoSeleccionado?.Oferta}
+              />
+
+              <div className="hidden md:block mt-3 pt-3 border-t border-gray-100 min-h-[112px]">
+
+                {opcionesTamanos.length > 0 && (
+                  <>
+                    <p className="text-[12px] font-bold text-blue-950 mb-2">
+                      Tamaño
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {opcionesTamanos.map((tam, i) => (
+                        <button
+                          key={i}
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            const primerColorDisponible =
+                              grupo.items.find((item) => item.Tamaño === tam)?.Color;
+
+                            const primeraFraganciaDisponible =
+                              grupo.items.find((item) => item.Tamaño === tam)?.Fragancias;
+
+                            setTamanosSeleccionados({
+                              ...tamanosSeleccionados,
+                              [index]: tam,
+                            });
+
+                            setColoresSeleccionados({
+                              ...coloresSeleccionados,
+                              [index]: primerColorDisponible,
+                            });
+
+                            setFraganciasSeleccionadas({
+                              ...fraganciasSeleccionadas,
+                              [index]: primeraFraganciaDisponible,
+                            });
+                          }}
+                          className={
+                            tamanioActual === tam
+                              ? "h-8 px-3 rounded-lg bg-blue-950 text-white text-[12px] font-bold"
+                              : "h-8 px-3 rounded-lg bg-white border border-gray-200 text-blue-950 text-[12px] font-semibold hover:border-blue-300"
+                          }
+                        >
+                          {tam}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <div className="mt-4 mb-5">
+                  {tieneFragancias && opcionesFragancias.length > 0 ? (
+                    <>
+                      <p className="text-[12px] font-bold text-blue-950 mb-2">
+                        Fragancia
+                      </p>
+
+                      <select
+                        value={
+                          fraganciasSeleccionadas[index] ||
+                          productoSeleccionado?.Fragancias ||
+                          ""
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) =>
+                          setFraganciasSeleccionadas({
+                            ...fraganciasSeleccionadas,
+                            [index]: e.target.value,
+                          })
+                        }
+                        className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
+                      >
+                        {opcionesFragancias.map((fragancia, i) => (
+                          <option key={i} value={fragancia}>
+                            {fragancia}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  ) : opcionesColores.length > 0 ? (
+                    <>
+                      <p className="text-[12px] font-bold text-blue-950 mb-2">
+                        Color
+                      </p>
+
+                      <select
+                        value={
+                          coloresSeleccionados[index] ||
+                          productoSeleccionado?.Color ||
+                          ""
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) =>
+                          setColoresSeleccionados({
+                            ...coloresSeleccionados,
+                            [index]: e.target.value,
+                          })
+                        }
+                        className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
+                      >
+                        {opcionesColores.map((color, i) => (
+                          <option key={i} value={color}>
+                            {color}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  ) : null}
+                </div>
+
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  agregarAlCarrito(
+                    nombreTarjeta +
+                      " " +
+                      productoSeleccionado.Tamaño +
+                      " " +
+                      (productoSeleccionado.Fragancias ||
+                        productoSeleccionado.Color ||
+                        ""),
+                    Number(
+                      productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+                        ? productoSeleccionado["Precio oferta"]
+                        : productoSeleccionado.Precio
+                    )
+                  );
+                }}
+                className="hidden md:flex mt-auto w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md items-center justify-center gap-2"
+              >
+                🛒 Agregar
+              </button>
+            </div>
+          );
+        })}
+
+      </div>
+
+    </section>
   </>
-) : null}
-
-            
-
-<button
-  onClick={(e) => {
-    e.stopPropagation();
-
-    agregarAlCarrito(
-      grupo.nombre +
-        " " +
-        productoSeleccionado.Tamaño +
-        " " +
-        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
-      Number(
-        productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-          ? productoSeleccionado["Precio oferta"]
-          : productoSeleccionado.Precio
-      )
-    );
-  }}
-  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
->
-  🛒 Agregar
-</button>
-
-
-          </div>
-
-          <div className="mt-2 pt-2 border-t border-gray-100 flex justify-center pb-1">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-</div>
-
-        </div>
-
-      );
-
-    })}
-
-  </div>
-
-  <div className="mt-8 text-center">
-    <button
-      onClick={() => setVista("marcas")}
-      className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-3 rounded-xl"
-    >
-      ← Volver a marcas
-    </button>
-  </div>
-
-</>
 )}
-<section className="hidden md:block mt-20">
 
-  <h2 className="text-3xl font-bold text-gray-800 mb-8">
-    🔥 Ofertas destacadas
-  </h2>
+{/* Ofertas destacadas */}
+<section className="hidden md:block mt-8 pb-10">
+  <div className="bg-white border border-gray-100 rounded-[26px] shadow-sm p-6">
 
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+    <div className="flex items-center gap-5 mb-5">
+      <h2 className="text-[30px] font-bold text-blue-950 leading-none">
+        Ofertas destacadas
+      </h2>
 
-   {ofertasAgrupadas.map((grupo, index) => {
+      <button className="bg-orange-50 text-red-600 px-4 py-2 rounded-xl text-[14px] font-semibold hover:bg-orange-100 transition">
+        🔥 Ver todas las ofertas
+      </button>
+    </div>
 
-  const productoSeleccionado =
-  grupo.items.find(
-    (item) =>
-      item.Tamaño ===
-        (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
-      &&
-      item.Color ===
-        (
-          coloresSeleccionados["oferta"+index] ||
-          grupo.items.find(
-            i =>
-              i.Tamaño ===
-              (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
-          )?.Color
-        )
-  ) || grupo.items[0];
+    <div className="grid grid-cols-[1fr_300px] gap-5">
 
-return (
+      <div className="grid grid-cols-4 gap-4">
+        {ofertasAgrupadas.slice(0, 4).map((grupo, index) => {
+          const productoSeleccionado =
+            grupo.items.find((item) => {
+              if (grupo.items.some((i) => i.Color?.trim())) {
+                return (
+                  item.Tamaño ===
+                    (tamanosSeleccionados["oferta" + index] ||
+                      grupo.items[0].Tamaño) &&
+                  item.Color ===
+                    (coloresSeleccionados["oferta" + index] ||
+                      grupo.items.find(
+                        (i) =>
+                          i.Tamaño ===
+                          (tamanosSeleccionados["oferta" + index] ||
+                            grupo.items[0].Tamaño)
+                      )?.Color)
+                );
+              }
 
-        <div
-  key={index}
-  onClick={() => {
-    setGrupoDetalle({
-      grupo,
-      index,
-      producto: productoSeleccionado,
-    });
-    setDetalleAbierto(true);
-  }}
-  className="relative bg-gray-50 p-2 md:p-6 rounded-2xl shadow-lg cursor-pointer"
->
+              if (grupo.items.some((i) => i.Fragancias?.trim())) {
+                return (
+                  item.Tamaño ===
+                    (tamanosSeleccionados["oferta" + index] ||
+                      grupo.items[0].Tamaño) &&
+                  item.Fragancias ===
+                    (fraganciasSeleccionadas["oferta" + index] ||
+                      grupo.items[0].Fragancias)
+                );
+              }
 
-          <TarjetaProducto
-  nombre={grupo.nombre}
-  linea={grupo.linea}
-  imagen={productoSeleccionado?.Imagen}
-  aromas={productoSeleccionado?.Aromas}
-  precio={productoSeleccionado?.Precio}
-  precioOferta={productoSeleccionado?.["Precio oferta"]}
-  oferta={productoSeleccionado?.Oferta}
-/>
+              return (
+                item.Tamaño ===
+                (tamanosSeleccionados["oferta" + index] || grupo.items[0].Tamaño)
+              );
+            }) || grupo.items[0];
 
+          return (
+            <div
+              key={index}
+              className="relative bg-white border border-gray-200 rounded-[18px] p-3 shadow-sm hover:shadow-md transition"
+            >
+              {productoSeleccionado?.Oferta?.trim().toLowerCase() === "si" && (
+                <>
+                  <span className="absolute top-3 left-3 bg-yellow-400 text-blue-950 text-[10px] font-bold px-2 py-0.5 rounded-md z-10">
+                    -
+                    {Math.round(
+                      (1 -
+                        Number(productoSeleccionado["Precio oferta"]) /
+                          Number(productoSeleccionado.Precio)) *
+                        100
+                    )}
+                    %
+                  </span>
 
+                  <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md z-10">
+                    OFERTA
+                  </span>
+                </>
+              )}
 
-<SelectorProducto
-  tamanos={[...new Set(grupo.items.map(item => item.Tamaño))]}
-  tamanoSeleccionado={
-    tamanosSeleccionados["oferta" + index] || grupo.items[0].Tamaño
-  }
-  onCambiarTamano={(tam) => {
-    const primerColorDisponible =
-      grupo.items.find(item => item.Tamaño === tam)?.Color;
+              <div className="h-[120px] flex items-center justify-center mb-2 mt-4">
+                {productoSeleccionado?.Imagen?.trim() && (
+                  <img
+                    src={productoSeleccionado.Imagen.trim()}
+                    alt={grupo.nombre}
+                    className="max-h-[115px] max-w-full object-contain"
+                  />
+                )}
+              </div>
 
-    setTamanosSeleccionados({
-      ...tamanosSeleccionados,
-      ["oferta" + index]: tam,
-    });
+              <div>
+                <h3 className="text-[14px] font-bold text-blue-950 leading-tight">
+                  {productoSeleccionado?.Marca || grupo.nombre}
+                </h3>
 
-    setColoresSeleccionados({
-      ...coloresSeleccionados,
-      ["oferta" + index]: primerColorDisponible,
-    });
-  }}
-/>
+                <p className="text-[13px] text-blue-950 leading-tight mt-0.5">
+                  {grupo.nombre}
+                </p>
 
-<p className="text-gray-600 mt-4 mb-2">
-  Color
-</p>
+                <p className="text-[13px] text-blue-950 leading-tight mt-0.5">
+                  {productoSeleccionado?.Tamaño}
+                </p>
+              </div>
 
-<select
-  className="border rounded-lg py-1 px-3 w-full text-black text-sm"
->
-  {[
-  ...new Set(
-    grupo.items
-      .filter(
-        (item:any)=>
-          item.Tamaño ===
-          (tamanosSeleccionados["oferta"+index] || grupo.items[0].Tamaño)
-      )
-      .map((item:any)=>item.Color)
-  )
-].map((color:any,i:number)=>(
-  <option key={i} value={color}>
-    {color}
-  </option>
-))}
-</select>
-          
+              <div className="mt-3">
+                <p className="text-[13px] text-red-600 line-through leading-none">
+                  $
+                  {Number(productoSeleccionado.Precio).toLocaleString("es-AR")}
+                </p>
 
-<button
-  onClick={(e) => {
-    e.stopPropagation();
+                <p className="text-[23px] font-bold text-blue-950 leading-tight mt-1">
+                  $
+                  {Number(productoSeleccionado["Precio oferta"]).toLocaleString(
+                    "es-AR"
+                  )}
+                </p>
 
-    agregarAlCarrito(
-      grupo.nombre +
-        " " +
-        productoSeleccionado.Tamaño +
-        " " +
-        (productoSeleccionado.Fragancias || productoSeleccionado.Color || ""),
-      Number(productoSeleccionado["Precio oferta"])
-    );
-  }}
-  className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
->
-  🛒 Agregar
-</button>
-<div className="mt-2 pt-2 border-t border-gray-100 flex justify-center pb-1">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-</div>
+                <p className="text-[13px] font-semibold text-green-600 leading-tight">
+                  Ahorrás $
+                  {(
+                    Number(productoSeleccionado.Precio) -
+                    Number(productoSeleccionado["Precio oferta"])
+                  ).toLocaleString("es-AR")}
+                </p>
+              </div>
 
+              <div className="border-t border-gray-200 mt-3 pt-3">
+                <p className="text-[11px] font-semibold text-blue-950 mb-1.5">
+                  Tamaño
+                </p>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {[...new Set(grupo.items.map((item) => item.Tamaño))]
+                    .filter(Boolean)
+                    .map((tam, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          const primerColorDisponible = grupo.items.find(
+                            (item) => item.Tamaño === tam
+                          )?.Color;
+
+                          const primeraFraganciaDisponible = grupo.items.find(
+                            (item) => item.Tamaño === tam
+                          )?.Fragancias;
+
+                          setTamanosSeleccionados({
+                            ...tamanosSeleccionados,
+                            ["oferta" + index]: tam,
+                          });
+
+                          setColoresSeleccionados({
+                            ...coloresSeleccionados,
+                            ["oferta" + index]: primerColorDisponible,
+                          });
+
+                          setFraganciasSeleccionadas({
+                            ...fraganciasSeleccionadas,
+                            ["oferta" + index]: primeraFraganciaDisponible,
+                          });
+                        }}
+                        className={
+                          (tamanosSeleccionados["oferta" + index] ||
+                            grupo.items[0].Tamaño) === tam
+                            ? "h-7 px-2 rounded-md bg-blue-950 text-white text-[11px] font-semibold"
+                            : "h-7 px-2 rounded-md bg-white border border-gray-200 text-blue-950 text-[11px] font-medium hover:border-blue-300"
+                        }
+                      >
+                        {tam}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              <div className="mt-3">
+                {grupo.items.some((i) => i.Fragancias?.trim()) ? (
+                  <>
+                    <p className="text-[11px] font-semibold text-blue-950 mb-1.5">
+                      Fragancia
+                    </p>
+
+                    <select
+                      value={
+                        fraganciasSeleccionadas["oferta" + index] ||
+                        productoSeleccionado?.Fragancias ||
+                        ""
+                      }
+                      onChange={(e) =>
+                        setFraganciasSeleccionadas({
+                          ...fraganciasSeleccionadas,
+                          ["oferta" + index]: e.target.value,
+                        })
+                      }
+                      className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
+                    >
+                      {[
+                        ...new Set(
+                          grupo.items
+                            .filter(
+                              (item: any) =>
+                                item.Tamaño ===
+                                (tamanosSeleccionados["oferta" + index] ||
+                                  grupo.items[0].Tamaño)
+                            )
+                            .map((item: any) => item.Fragancias)
+                            .filter(Boolean)
+                        ),
+                      ].map((fragancia, i) => (
+                        <option key={i} value={fragancia}>
+                          {fragancia}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[11px] font-semibold text-blue-950 mb-1.5">
+                      Color
+                    </p>
+
+                    <select
+                      value={
+                        coloresSeleccionados["oferta" + index] ||
+                        productoSeleccionado?.Color ||
+                        ""
+                      }
+                      onChange={(e) =>
+                        setColoresSeleccionados({
+                          ...coloresSeleccionados,
+                          ["oferta" + index]: e.target.value,
+                        })
+                      }
+                      className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
+                    >
+                      {[
+                        ...new Set(
+                          grupo.items
+                            .filter(
+                              (item: any) =>
+                                item.Tamaño ===
+                                (tamanosSeleccionados["oferta" + index] ||
+                                  grupo.items[0].Tamaño)
+                            )
+                            .map((item: any) => item.Color)
+                            .filter(Boolean)
+                        ),
+                      ].map((color, i) => (
+                        <option key={i} value={color}>
+                          {color}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </div>
+
+              <div className="grid grid-cols-[74px_1fr] gap-2 mt-4">
+                <div className="h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-between px-2 text-blue-950">
+                  <button className="text-[15px] leading-none">−</button>
+                  <span className="text-[12px] font-semibold">1</span>
+                  <button className="text-[15px] leading-none">+</button>
+                </div>
+
+                <button
+                  onClick={() =>
+                    agregarAlCarrito(
+                      grupo.nombre +
+                        " " +
+                        productoSeleccionado.Tamaño +
+                        " " +
+                        (productoSeleccionado.Fragancias ||
+                          productoSeleccionado.Color ||
+                          ""),
+                      Number(
+                        productoSeleccionado.Oferta?.trim().toLowerCase() ===
+                          "si"
+                          ? productoSeleccionado["Precio oferta"]
+                          : productoSeleccionado.Precio
+                      )
+                    )
+                  }
+                  className="h-9 bg-yellow-400 hover:bg-yellow-500 text-blue-950 rounded-lg text-[12px] font-bold transition whitespace-nowrap"
+                >
+                  🛒 Agregar
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="bg-blue-950 rounded-[24px] p-8 relative overflow-hidden min-h-[500px] flex flex-col justify-between">
+        <div className="relative z-10">
+          <h3 className="text-[26px] font-bold text-white leading-tight">
+            ¿Tenés dudas?
+          </h3>
+
+          <p className="text-[17px] font-bold text-yellow-400 mt-3">
+            Escribinos por WhatsApp
+          </p>
+
+          <p className="text-[15px] text-white/90 mt-6 leading-relaxed">
+            Te respondemos al instante para consultar stock, precios o disponibilidad.
+          </p>
+
+          <a
+            href="https://wa.me/5493786519078"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl text-[16px] font-bold transition mt-8 shadow-sm"
+          >
+            <FaWhatsapp size={21} />
+            Ir a WhatsApp
+          </a>
         </div>
 
-      );
-    })}
-  </div>
+        <div className="absolute right-8 bottom-10 text-[120px] opacity-10">
+          💬
+        </div>
 
+        <div className="absolute left-0 right-0 bottom-0 h-20 bg-blue-900/50 rounded-t-[50%]" />
+      </div>
+
+    </div>
+  </div>
 </section>
+
           {/* ¿Por qué elegirnos? */}
-<section className="mt-20">
+<section className="mt-6 pb-3">
+  <div className="bg-white border border-gray-100 rounded-[22px] shadow-sm overflow-hidden">
+    <div className="grid grid-cols-4">
 
-  <h2 className="text-3xl font-bold text-gray-800 mb-8">
-    ¿Por qué elegirnos?
-  </h2>
+      <div className="relative flex items-center gap-4 px-8 py-5">
+        <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+          <CircleDashed size={28} className="text-blue-950" strokeWidth={2} />
+        </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+          <h3 className="text-[15px] font-bold text-blue-950 leading-tight">
+            Sistema tintométrico
+          </h3>
+          <p className="text-[13px] text-slate-600 mt-1 leading-snug">
+            +1500 colores computarizados
+          </p>
+        </div>
 
-    <div className="bg-gray-50 p-6 rounded-2xl shadow">
-      <div className="text-5xl">🚚</div>
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 h-14 w-px bg-gray-200" />
+      </div>
 
-      <h3 className="font-bold mt-4 text-gray-800">
-        Envíos rápidos
-      </h3>
+      <div className="relative flex items-center gap-4 px-8 py-5">
+        <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+          <Truck size={28} className="text-blue-950" strokeWidth={2} />
+        </div>
 
-      <p className="text-gray-600 mt-2">
-        Entregas rápidas en toda la zona.
-      </p>
+        <div>
+          <h3 className="text-[15px] font-bold text-blue-950">
+            Envíos rápidos
+          </h3>
+          <p className="text-[13px] text-slate-600 mt-1 leading-snug">
+            Entregas en Candelaria y zonas aledañas
+          </p>
+        </div>
+
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 h-14 w-px bg-gray-200" />
+      </div>
+
+      <div className="relative flex items-center gap-4 px-8 py-5">
+        <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+          <CreditCard size={28} className="text-blue-950" strokeWidth={2} />
+        </div>
+
+        <div>
+          <h3 className="text-[15px] font-bold text-blue-950">
+            Pagos seguros
+          </h3>
+          <p className="text-[13px] text-slate-600 mt-1 leading-snug">
+            Efectivo, tarjetas y transferencias
+          </p>
+        </div>
+
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 h-14 w-px bg-gray-200" />
+      </div>
+
+      <div className="flex items-center gap-4 px-8 py-5">
+        <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+          <PaintBucket size={28} className="text-blue-950" strokeWidth={2} />
+        </div>
+
+        <div>
+          <h3 className="text-[15px] font-bold text-blue-950">
+            Gran variedad
+          </h3>
+          <p className="text-[13px] text-slate-600 mt-1 leading-snug">
+            Pinturas, limpieza, hogar y más
+          </p>
+        </div>
+      </div>
+
     </div>
-
-    <div className="bg-gray-50 p-6 rounded-2xl shadow">
-      <div className="text-5xl">💳</div>
-
-      <h3 className="font-bold mt-4 text-gray-800">
-        Pagos seguros
-      </h3>
-
-      <p className="text-gray-600 mt-2">
-        Transferencias, débito y crédito.
-      </p>
-    </div>
-
-    <div className="bg-gray-50 p-6 rounded-2xl shadow">
-      <div className="text-5xl">🎨</div>
-
-      <h3 className="font-bold mt-4 text-gray-800">
-        Gran variedad
-      </h3>
-
-      <p className="text-gray-600 mt-2">
-        Pinturas, limpieza y hogar.
-      </p>
-    </div>
-
-    <div className="bg-gray-50 p-6 rounded-2xl shadow">
-      <div className="text-5xl">🏠</div>
-
-      <h3 className="font-bold mt-4 text-gray-800">
-        Todo para tu hogar
-      </h3>
-
-      <p className="text-gray-600 mt-2">
-        Soluciones para cada ambiente.
-      </p>
-    </div>
-
   </div>
-
 </section>
 
 </div>
 
 </div>
 
-      {/* Footer */}
-      <footer className="bg-white mt-10 border-t p-10 text-center">
+      {/* Contacto / Footer */}
+<footer className="bg-slate-50 pt-3 pb-10">
+  <div className="bg-white border border-gray-100 rounded-[22px] shadow-sm overflow-hidden">
 
-        <h2 className="text-3xl font-bold text-teal-700">
-          A Todo Trapo Online
-        </h2>
+    <div className="grid grid-cols-[1.05fr_1.25fr_1fr]">
 
-        <p className="text-gray-600 mt-4">
-          📍 Anastacio Cabrera y San Martín, Candelaria, Misiones
+      {/* Logo */}
+      <div className="flex items-center gap-4 px-8 py-7">
+
+        <img
+          src="/logo.png"
+          alt="A Todo Trapo Online"
+          className="w-44 object-contain"
+        />
+
+        <div className="leading-tight">
+          <h2 className="text-[18px] font-extrabold text-teal-700 tracking-[-0.03em] leading-tight">
+            A Todo Trapo Online
+          </h2>
+
+          <p className="text-[13px] font-medium text-slate-500 mt-1 leading-snug">
+            Pinturería y artículos para el hogar
+          </p>
+        </div>
+
+      </div>
+
+      {/* Dirección */}
+      <div className="border-l border-r border-gray-200 px-10 py-7 flex flex-col justify-center">
+
+        <p className="flex items-center gap-3 text-[14px] font-medium text-slate-700 tracking-[-0.01em]">
+          <span className="text-[15px]">📍</span>
+          Anastacio Cabrera y San Martín, Candelaria, Misiones
         </p>
 
-        <p className="text-gray-600 mt-2">
-          🕘 Lunes a sábado de 8:00 a 12:00 y de 16:00 a 19:15
+        <p className="flex items-center gap-3 text-[14px] font-medium text-slate-700 tracking-[-0.01em] mt-3">
+          <span className="text-[15px]">🕘</span>
+          Lunes a sábado de 8:00 a 12:00 y de 16:00 a 19:15
         </p>
 
-        <p className="text-gray-600 mt-2">
+        <p className="pl-[32px] text-[14px] font-medium text-slate-600 tracking-[-0.01em] mt-0">
           Domingo de 9:30 a 12:00
         </p>
 
-        <p className="text-gray-600 mt-2">
-          📷 Instagram: @atodo_trapo01
-        </p>
+      </div>
 
-        <p className="text-gray-400 mt-6">
+      {/* Redes */}
+      <div className="px-10 py-7 flex flex-col justify-center items-start">
+
+        <a
+          href="https://www.instagram.com/atodo_trapo01"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-3 bg-blue-950 hover:bg-blue-900 text-white px-5 py-3 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <FaInstagram
+            size={22}
+            className="text-pink-400 group-hover:text-pink-300 transition"
+          />
+
+          <span className="text-[14px] font-bold tracking-[-0.01em]">
+            Instagram @atodo_trapo01
+          </span>
+        </a>
+
+        <p className="text-[13px] font-medium text-slate-400 tracking-[-0.01em] mt-6">
           © 2026 Todos los derechos reservados
         </p>
 
-      </footer>
+      </div>
+
+    </div>
+
+  </div>
+</footer>
+
+
       <button
   onClick={() => {
   setMostrarBusqueda(!mostrarBusqueda);
@@ -1087,6 +1657,8 @@ return (
   </div>
 )}
 
+{/* Modal detalle del producto */}
+
 {detalleAbierto && grupoDetalle && (
   <div className="fixed inset-0 z-50 md:hidden">
     <div
@@ -1097,6 +1669,9 @@ return (
     <div className="absolute bottom-0 left-0 right-0 z-[60]">
 
   <div className="absolute -top-8 right-5 z-[80]">
+    
+    {/* Carrito dentro del modal */}
+
       {mostrarCarrito && (
     <div className="absolute right-[72px] bottom-0 bg-white shadow-2xl rounded-2xl p-4 w-52 max-h-80 overflow-y-auto">
       <h3 className="font-bold text-lg text-black mb-2">
@@ -1459,20 +2034,58 @@ return (
   </div>
 )}
 
-
-
+{/* Botón volver flotante */}
 {vista !== "categorias" && !detalleAbierto && (
   <button
     onClick={() => {
       if (vista === "productos") {
-        setVista("marcas");
+        if (categoria.toLowerCase().includes("pintura")) {
+          setVista("marcas");
+
+          setTimeout(() => {
+            document
+              .getElementById("seccion-marcas")
+              ?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        } else {
+          setVista("categorias");
+          setMarca("");
+
+          setTimeout(() => {
+            document
+              .getElementById("seccion-categorias")
+              ?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        }
       } else if (vista === "marcas") {
         setVista("categorias");
+        setMarca("");
+
+        setTimeout(() => {
+          document
+            .getElementById("seccion-categorias")
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
       }
     }}
-    className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white text-teal-700 font-bold px-6 py-3 rounded-full shadow-xl border border-gray-200 z-50"
+    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+               flex items-center gap-3
+               bg-white/95 backdrop-blur-md
+               border border-gray-200
+               rounded-full
+               px-3 py-2
+               shadow-[0_12px_35px_rgba(0,0,0,0.18)]
+               hover:shadow-[0_18px_45px_rgba(0,0,0,0.22)]
+               hover:-translate-y-1
+               transition-all duration-300"
   >
-    ← Volver
+    <div className="w-9 h-9 rounded-full bg-blue-950 flex items-center justify-center text-white text-lg shadow-sm">
+      ←
+    </div>
+
+    <span className="pr-2 text-[15px] font-extrabold tracking-[-0.02em] text-blue-950">
+      Volver
+    </span>
   </button>
 )}
 

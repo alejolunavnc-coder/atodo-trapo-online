@@ -9,6 +9,8 @@ type SelectorProductoProps = {
   fragancias?: string[];
 fraganciaSeleccionada?: string;
 onCambiarFragancia?: (fragancia: string) => void;
+onAgregar?: () => void;
+textoBoton?: string;
 };
 
 export default function SelectorProducto({
@@ -21,6 +23,8 @@ onCambiarColor,
 fragancias,
 fraganciaSeleccionada,
 onCambiarFragancia,
+onAgregar,
+textoBoton,
 }: SelectorProductoProps) {
   return (
     <>
@@ -82,7 +86,19 @@ onCambiarFragancia,
     </select>
   </>
 )}
-    </>
-    
+
+{onAgregar && (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onAgregar();
+    }}
+    className="mt-4 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 rounded-xl"
+  >
+    🛒 {textoBoton || "Agregar"}
+  </button>
+)}
+
+</>
   );
 }
