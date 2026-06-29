@@ -78,6 +78,7 @@ const inputBusquedaRef = useRef<HTMLInputElement>(null);
 const panelDetalleRef = useRef<HTMLDivElement>(null);
 const resultadosBusquedaRef = useRef<HTMLDivElement>(null);
 const [altoPanelDetalle, setAltoPanelDetalle] = useState(0);
+const [productoAbierto, setProductoAbierto] = useState<number | null>(null);
 
 /* useEffect */
 
@@ -449,37 +450,37 @@ const productoDetalle =
 
       {/* Banner principal */}
 <section className="bg-slate-50 overflow-hidden">
-  <div className="max-w-7xl mx-auto px-6 pt-2 pb-4">
+  <div className="max-w-7xl mx-auto px-6 pt-4 pb-6">
 
-    <div className="relative rounded-[28px] bg-white border border-gray-100 overflow-hidden shadow-sm">
+    <div className="relative rounded-[32px] bg-white border border-gray-100 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.08)]">
 
       <img
         src="/banner.png"
         alt="A Todo Trapo"
-        className="w-full h-[280px] object-cover object-center block"
+        className="w-full h-[320px] object-cover object-center block"
       />
 
       {/* Botón Ver productos */}
-      <button
-        className="absolute left-[44px] bottom-[82px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[14px] px-5 py-2 rounded-lg shadow-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:-translate-y-0.5 hover:shadow-md"
-      >
-        Ver productos
+<button
+  className="absolute left-[54px] bottom-[25px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[15px] px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03]"
+>
+  Ver productos
 
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M9 5l7 7-7 7"
+    />
+  </svg>
+</button>
 
     </div>
 
@@ -909,7 +910,6 @@ const productoDetalle =
 {vista === "productos" && (
   <>
     <section className="pb-10">
-
       <div className="flex items-center justify-between mb-7">
         <div>
           <h3 className="text-[30px] font-extrabold text-blue-950 tracking-[-0.03em] leading-tight">
@@ -917,13 +917,12 @@ const productoDetalle =
           </h3>
 
           <p className="text-[14px] text-slate-500 mt-1">
-            Elegí el producto y consultá stock por WhatsApp
+            Tocá un producto para ver opciones
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
+      <div className="columns-1 md:columns-2 gap-4">
         {productosAgrupados.map((grupo, index) => {
           const productoSeleccionado =
             grupo.items.find((item) => {
@@ -954,6 +953,7 @@ const productoDetalle =
           const nombreTarjeta = grupo.nombre;
           const lineaTarjeta = grupo.linea;
           const placaTarjeta = grupo.nombre;
+          const estaAbierto = productoAbierto === index;
 
           const tieneFragancias = grupo.items.some((i) => i.Fragancias?.trim());
 
@@ -982,6 +982,11 @@ const productoDetalle =
             ),
           ];
 
+          const tieneOpciones =
+            opcionesTamanos.length > 0 ||
+            opcionesFragancias.length > 0 ||
+            opcionesColores.length > 0;
+
           return (
             <div
               key={index}
@@ -993,161 +998,178 @@ const productoDetalle =
                     producto: productoSeleccionado,
                   });
                   setDetalleAbierto(true);
+                } else {
+                  setProductoAbierto(estaAbierto ? null : index);
                 }
               }}
-              className="group relative bg-white border border-gray-200 rounded-[20px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col min-h-[430px]"
+              className="group break-inside-avoid mb-4 w-full bg-white border border-gray-200 rounded-[22px] shadow-sm hover:shadow-[0_16px_38px_rgba(15,23,42,0.14)] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
             >
-              <TarjetaProducto
-                nombre={nombreTarjeta}
-                linea={lineaTarjeta}
-                marca={placaTarjeta}
-                imagen={productoSeleccionado?.Imagen}
-                aromas={productoSeleccionado?.Aromas}
-                precio={productoSeleccionado?.Precio}
-                precioOferta={productoSeleccionado?.["Precio oferta"]}
-                oferta={productoSeleccionado?.Oferta}
-              />
+              <div className="p-4">
+                <TarjetaProducto
+                  nombre={nombreTarjeta}
+                  linea={lineaTarjeta}
+                  marca={placaTarjeta}
+                  imagen={productoSeleccionado?.Imagen}
+                  aromas={productoSeleccionado?.Aromas}
+                  precio={productoSeleccionado?.Precio}
+                  precioOferta={productoSeleccionado?.["Precio oferta"]}
+                  oferta={productoSeleccionado?.Oferta}
+                />
 
-              <div className="hidden md:block mt-3 pt-3 border-t border-gray-100 min-h-[112px]">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className={`hidden md:block transition-all duration-500 ease-in-out ${
+                    estaAbierto
+                      ? tieneOpciones
+                        ? "max-h-[260px] opacity-100 mt-3 overflow-visible"
+                        : "max-h-[70px] opacity-100 mt-2 overflow-visible"
+                      : "max-h-0 opacity-0 overflow-hidden"
+                  }`}
+                >
+                  {tieneOpciones && (
+                     <div className="ml-[145px] pr-2 -mt-10">
+                      {opcionesTamanos.length > 0 && (
+                        <div className="grid grid-cols-[72px_1fr] items-center gap-2">
+                          <p className="mt-1.5 text-[13px] font-extrabold text-blue-950">
+                            Tamaño
+                          </p>
 
-                {opcionesTamanos.length > 0 && (
-                  <>
-                    <p className="text-[12px] font-bold text-blue-950 mb-2">
-                      Tamaño
-                    </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {opcionesTamanos.map((tam, i) => (
+                              <button
+                                key={i}
+                                onClick={(e) => {
+                                  e.stopPropagation();
 
-                    <div className="flex flex-wrap gap-2">
-                      {opcionesTamanos.map((tam, i) => (
-                        <button
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
+                                  const primerColorDisponible =
+                                    grupo.items.find((item) => item.Tamaño === tam)
+                                      ?.Color;
 
-                            const primerColorDisponible =
-                              grupo.items.find((item) => item.Tamaño === tam)?.Color;
+                                  const primeraFraganciaDisponible =
+                                    grupo.items.find((item) => item.Tamaño === tam)
+                                      ?.Fragancias;
 
-                            const primeraFraganciaDisponible =
-                              grupo.items.find((item) => item.Tamaño === tam)?.Fragancias;
+                                  setTamanosSeleccionados({
+                                    ...tamanosSeleccionados,
+                                    [index]: tam,
+                                  });
 
-                            setTamanosSeleccionados({
-                              ...tamanosSeleccionados,
-                              [index]: tam,
-                            });
+                                  setColoresSeleccionados({
+                                    ...coloresSeleccionados,
+                                    [index]: primerColorDisponible,
+                                  });
 
-                            setColoresSeleccionados({
-                              ...coloresSeleccionados,
-                              [index]: primerColorDisponible,
-                            });
+                                  setFraganciasSeleccionadas({
+                                    ...fraganciasSeleccionadas,
+                                    [index]: primeraFraganciaDisponible,
+                                  });
+                                }}
+                                className={
+                                  tamanioActual === tam
+                                    ? "h-6 px-2.5 rounded-lg bg-blue-950 text-white text-[11px] font-bold"
+                                    : "h-6 px-2.5 rounded-lg bg-white border border-gray-200 text-blue-950 text-[11px] font-semibold hover:border-blue-300"
+                                }
+                              >
+                                {tam}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-                            setFraganciasSeleccionadas({
-                              ...fraganciasSeleccionadas,
-                              [index]: primeraFraganciaDisponible,
-                            });
-                          }}
-                          className={
-                            tamanioActual === tam
-                              ? "h-8 px-3 rounded-lg bg-blue-950 text-white text-[12px] font-bold"
-                              : "h-8 px-3 rounded-lg bg-white border border-gray-200 text-blue-950 text-[12px] font-semibold hover:border-blue-300"
-                          }
-                        >
-                          {tam}
-                        </button>
-                      ))}
+                      <div className="mt-1.5">
+                        {tieneFragancias && opcionesFragancias.length > 0 ? (
+                          <div className="grid grid-cols-[72px_1fr] items-center gap-2">
+                            <p className="mt-1.5 text-[13px] font-extrabold text-blue-950">
+                              Fragancia
+                            </p>
+
+                            <select
+                              value={
+                                fraganciasSeleccionadas[index] ||
+                                productoSeleccionado?.Fragancias ||
+                                ""
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) =>
+                                setFraganciasSeleccionadas({
+                                  ...fraganciasSeleccionadas,
+                                  [index]: e.target.value,
+                                })
+                              }
+                              className="w-full h-7 bg-white border border-gray-200 rounded-lg px-2.5 text-[11px] font-semibold text-blue-950 outline-none focus:border-blue-800"
+                            >
+                              {opcionesFragancias.map((fragancia, i) => (
+                                <option key={i} value={fragancia}>
+                                  {fragancia}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : opcionesColores.length > 0 ? (
+                          <div className="grid grid-cols-[72px_1fr] items-center gap-2">
+                            <p className="mt-1.5 text-[13px] font-extrabold text-blue-950">
+                              Color
+                            </p>
+
+                            <select
+                              value={
+                                coloresSeleccionados[index] ||
+                                productoSeleccionado?.Color ||
+                                ""
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) =>
+                                setColoresSeleccionados({
+                                  ...coloresSeleccionados,
+                                  [index]: e.target.value,
+                                })
+                              }
+                              className="w-full h-7 bg-white border border-gray-200 rounded-lg px-2.5 text-[11px] font-semibold text-blue-950 outline-none focus:border-blue-800"
+                            >
+                              {opcionesColores.map((color, i) => (
+                                <option key={i} value={color}>
+                                  {color}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </>
-                )}
+                  )}
 
-                <div className="mt-4 mb-5">
-                  {tieneFragancias && opcionesFragancias.length > 0 ? (
-                    <>
-                      <p className="text-[12px] font-bold text-blue-950 mb-2">
-                        Fragancia
-                      </p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
 
-                      <select
-                        value={
-                          fraganciasSeleccionadas[index] ||
-                          productoSeleccionado?.Fragancias ||
-                          ""
-                        }
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) =>
-                          setFraganciasSeleccionadas({
-                            ...fraganciasSeleccionadas,
-                            [index]: e.target.value,
-                          })
-                        }
-                        className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
-                      >
-                        {opcionesFragancias.map((fragancia, i) => (
-                          <option key={i} value={fragancia}>
-                            {fragancia}
-                          </option>
-                        ))}
-                      </select>
-                    </>
-                  ) : opcionesColores.length > 0 ? (
-                    <>
-                      <p className="text-[12px] font-bold text-blue-950 mb-2">
-                        Color
-                      </p>
-
-                      <select
-                        value={
-                          coloresSeleccionados[index] ||
-                          productoSeleccionado?.Color ||
-                          ""
-                        }
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) =>
-                          setColoresSeleccionados({
-                            ...coloresSeleccionados,
-                            [index]: e.target.value,
-                          })
-                        }
-                        className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-[12px] text-blue-950 outline-none focus:border-blue-800"
-                      >
-                        {opcionesColores.map((color, i) => (
-                          <option key={i} value={color}>
-                            {color}
-                          </option>
-                        ))}
-                      </select>
-                    </>
-                  ) : null}
+                      agregarAlCarrito(
+                        nombreTarjeta +
+                          " " +
+                          productoSeleccionado.Tamaño +
+                          " " +
+                          (productoSeleccionado.Fragancias ||
+                            productoSeleccionado.Color ||
+                            ""),
+                        Number(
+                          productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+                            ? productoSeleccionado["Precio oferta"]
+                            : productoSeleccionado.Precio
+                        )
+                      );
+                    }}
+                    className={`w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${
+                      tieneOpciones ? "mt-4" : "mt-2"
+                    }`}
+                  >
+                    🛒 Agregar
+                  </button>
                 </div>
-
               </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  agregarAlCarrito(
-                    nombreTarjeta +
-                      " " +
-                      productoSeleccionado.Tamaño +
-                      " " +
-                      (productoSeleccionado.Fragancias ||
-                        productoSeleccionado.Color ||
-                        ""),
-                    Number(
-                      productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-                        ? productoSeleccionado["Precio oferta"]
-                        : productoSeleccionado.Precio
-                    )
-                  );
-                }}
-                className="hidden md:flex mt-auto w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md items-center justify-center gap-2"
-              >
-                🛒 Agregar
-              </button>
             </div>
           );
         })}
-
       </div>
-
     </section>
   </>
 )}

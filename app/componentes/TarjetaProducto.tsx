@@ -24,8 +24,7 @@ export default function TarjetaProducto({
   const precioNormal = Number(precio);
   const precioConOferta = Number(precioOferta);
 
-  const precioFinal =
-    estaEnOferta && precioOferta ? precioOferta : precio;
+  const precioFinal = estaEnOferta && precioOferta ? precioOferta : precio;
 
   const ahorro =
     estaEnOferta && precioNormal && precioConOferta
@@ -34,90 +33,87 @@ export default function TarjetaProducto({
 
   const porcentaje =
     estaEnOferta && precioNormal && precioConOferta
-      ? Math.round(((precioNormal - precioConOferta) / precioNormal) * 100)
+      ? Math.ceil(((precioNormal - precioConOferta) / precioNormal) * 100)
       : 0;
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center gap-4 min-h-[104px]">
 
-      {/* Chapita superior: columna Nombre */}
       {marca?.trim() && (
-        <div className="absolute top-0 left-0 z-10">
-          <span className="inline-flex items-center bg-blue-950 text-white text-[9px] font-extrabold uppercase tracking-[0.12em] px-3 py-1 rounded-full shadow-sm">
+        <div className="absolute -top-2 left-0 z-10">
+          <span className="inline-flex items-center bg-blue-950 text-white text-[8px] font-extrabold uppercase tracking-[0.10em] px-2.5 py-0.5 rounded-full shadow-sm">
             {marca}
           </span>
         </div>
       )}
 
-      {/* Descuento */}
       {estaEnOferta && porcentaje > 0 && (
-        <div className="absolute top-0 right-0 z-10">
-          <span className="inline-flex items-center bg-yellow-400 text-blue-950 text-[10px] font-black px-3 py-1 rounded-full shadow-sm">
+        <div className="absolute -top-2 right-0 z-10">
+          <span className="inline-flex items-center bg-yellow-400 text-blue-950 text-[9px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
             -{porcentaje}%
           </span>
         </div>
       )}
 
-      {/* Imagen */}
-      <div className="h-[150px] flex items-center justify-center pt-6">
-        {imagen?.trim() ? (
-          <img
-            src={imagen.trim()}
-            alt={marca || nombre}
-            className="max-h-[130px] max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.03] drop-shadow-[0_12px_12px_rgba(0,0,0,0.18)]"
-          />
-        ) : (
-          <div className="w-full h-[120px] flex items-center justify-center text-[12px] text-gray-400 border border-dashed border-gray-200 rounded-xl">
-            Sin imagen
-          </div>
-        )}
-      </div>
+      <div className="w-[125px] h-[104px] flex items-center justify-center shrink-0 pt-4 pr-4 border-r border-gray-200/70">
+  {imagen?.trim() ? (
+    <img
+      src={imagen.trim()}
+      alt={marca || nombre}
+      className="max-h-[100px] max-w-[112px] object-contain transition-transform duration-300 group-hover:scale-[1.04] drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)]"
+    />
+  ) : (
+    <div className="w-[100px] h-[82px] flex items-center justify-center text-[11px] text-gray-400 border border-dashed border-gray-200 rounded-xl">
+      Sin imagen
+    </div>
+  )}
+</div>
 
-      {/* Información: solo columna Linea */}
-      <div className="mt-3">
+<div className="flex-1 pr-8 -mt-8">
 
-        {linea?.trim() && (
-          <h3 className="text-[17px] font-extrabold text-blue-950 leading-tight tracking-[-0.03em]">
-            {linea}
-          </h3>
-        )}
+  {linea?.trim() && (
+    <h3 className="text-[15px] font-extrabold text-blue-950 leading-tight tracking-[-0.03em]">
+      {linea}
+    </h3>
+  )}
 
-        {aromas?.trim() && (
-          <div className="mt-2 inline-flex items-center bg-violet-50 text-violet-700 text-[11px] font-bold px-3 py-1 rounded-full">
-            🌸 {aromas}
-          </div>
-        )}
+  {aromas?.trim() && (
+    <div className="mt-1 inline-flex items-center bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+      🌸 {aromas}
+    </div>
+  )}
 
-      </div>
+  {precioFinal && (
+    <div className="mt-1">
+      {estaEnOferta && precio && precioOferta ? (
+        <>
+          <p className="text-[11px] text-red-500 line-through font-semibold">
+            ${precioNormal.toLocaleString("es-AR")}
+          </p>
 
-      {/* Precio */}
-      {precioFinal && (
-        <div className="mt-4">
+          <p className="text-[23px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+            ${precioConOferta.toLocaleString("es-AR")}
+          </p>
 
-          {estaEnOferta && precio && precioOferta ? (
-            <>
-              <p className="text-[13px] text-red-500 line-through font-semibold">
-                ${precioNormal.toLocaleString("es-AR")}
-              </p>
-
-              <p className="text-[28px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
-                ${precioConOferta.toLocaleString("es-AR")}
-              </p>
-
-              {ahorro > 0 && (
-                <p className="text-[13px] font-extrabold text-green-600 mt-1">
-                  Ahorrás ${ahorro.toLocaleString("es-AR")}
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="text-[28px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
-              ${Number(precioFinal).toLocaleString("es-AR")}
+          {ahorro > 0 && (
+            <p className="text-[11px] font-extrabold text-green-600 mt-0.5">
+              Ahorrás ${ahorro.toLocaleString("es-AR")}
             </p>
           )}
-
-        </div>
+        </>
+      ) : (
+        <p className="text-[24px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+          ${Number(precioFinal).toLocaleString("es-AR")}
+        </p>
       )}
+    </div>
+  )}
+
+</div>
+
+<div className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-950 text-[26px] font-light transition-transform duration-300 group-hover:rotate-180">
+  ⌄
+</div>
 
     </div>
   );
