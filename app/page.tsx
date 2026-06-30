@@ -1456,15 +1456,11 @@ const productoDetalle =
 
               <div className="mt-3">
                 <p className="text-[13px] text-red-600 line-through leading-none">
-                  $
-                  {Number(productoSeleccionado.Precio).toLocaleString("es-AR")}
+                  ${Number(productoSeleccionado.Precio).toLocaleString("es-AR")}
                 </p>
 
                 <p className="text-[23px] font-bold text-blue-950 leading-tight mt-1">
-                  $
-                  {Number(productoSeleccionado["Precio oferta"]).toLocaleString(
-                    "es-AR"
-                  )}
+                  ${Number(productoSeleccionado["Precio oferta"]).toLocaleString("es-AR")}
                 </p>
 
                 <p className="text-[13px] font-semibold text-green-600 leading-tight">
@@ -1606,36 +1602,27 @@ const productoDetalle =
                 )}
               </div>
 
-              <div className="grid grid-cols-[74px_1fr] gap-2 mt-4">
-                <div className="h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-between px-2 text-blue-950">
-                  <button className="text-[15px] leading-none">−</button>
-                  <span className="text-[12px] font-semibold">1</span>
-                  <button className="text-[15px] leading-none">+</button>
-                </div>
-
-                <button
-                  onClick={() =>
-                    agregarAlCarrito(
-                      grupo.nombre +
-                        " " +
-                        productoSeleccionado.Tamaño +
-                        " " +
-                        (productoSeleccionado.Fragancias ||
-                          productoSeleccionado.Color ||
-                          ""),
-                      Number(
-                        productoSeleccionado.Oferta?.trim().toLowerCase() ===
-                          "si"
-                          ? productoSeleccionado["Precio oferta"]
-                          : productoSeleccionado.Precio
-                      )
+              <button
+                onClick={() =>
+                  agregarAlCarrito(
+                    grupo.nombre +
+                      " " +
+                      productoSeleccionado.Tamaño +
+                      " " +
+                      (productoSeleccionado.Fragancias ||
+                        productoSeleccionado.Color ||
+                        ""),
+                    Number(
+                      productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
+                        ? productoSeleccionado["Precio oferta"]
+                        : productoSeleccionado.Precio
                     )
-                  }
-                  className="h-9 bg-yellow-400 hover:bg-yellow-500 text-blue-950 rounded-lg text-[12px] font-bold transition whitespace-nowrap"
-                >
-                  🛒 Agregar
-                </button>
-              </div>
+                  )
+                }
+                className="mt-4 w-full h-9 bg-yellow-400 hover:bg-yellow-500 text-blue-950 rounded-lg text-[12px] font-bold transition whitespace-nowrap"
+              >
+                🛒 Agregar
+              </button>
             </div>
           );
         })}
