@@ -373,29 +373,42 @@ const productoDetalle =
     <div className="flex items-center gap-6 text-[13px] text-slate-700">
 
       <button className="flex items-center gap-2 hover:text-blue-800 transition">
-        <BadgePercent size={18} strokeWidth={2} className="text-blue-900" />
+        <BadgePercent
+          size={18}
+          strokeWidth={2}
+          className="text-blue-900"
+        />
         <span className="font-medium">Ofertas</span>
       </button>
 
       <a
-        href="https://wa.me/5493764354249"
+        href="https://www.instagram.com/atodo_trapo01/"
         target="_blank"
+        rel="noopener noreferrer"
         className="flex items-center gap-2 hover:text-blue-800 transition"
       >
-        <FaWhatsapp size={18} className="text-blue-900" />
-        <span className="font-medium">Contacto</span>
+        <FaInstagram
+          size={19}
+          className="text-blue-900"
+        />
+        <span className="font-medium">Instagram</span>
       </a>
 
       <button
         onClick={() => setMostrarCarrito(!mostrarCarrito)}
         className="relative flex items-center gap-2 hover:text-blue-800 transition"
       >
-        <ShoppingBasket size={20} strokeWidth={2} className="text-blue-900" />
+        <ShoppingBasket
+          size={20}
+          strokeWidth={2}
+          className="text-blue-900"
+        />
 
         <div className="flex flex-col leading-none">
           <span className="font-semibold text-[13px] text-slate-800">
             Carrito
           </span>
+
           <span className="text-[10px] text-gray-400">
             {carrito.length} productos
           </span>
@@ -428,14 +441,6 @@ const productoDetalle =
 
       <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
         Marcas
-      </a>
-
-      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
-        Ofertas
-      </a>
-
-      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
-        Contacto
       </a>
     </div>
 
