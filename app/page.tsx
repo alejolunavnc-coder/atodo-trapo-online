@@ -5,8 +5,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
+
 import TarjetaProducto from "./componentes/TarjetaProducto";
 import SelectorProducto from "./componentes/SelectorProducto";
+import BotonPaginaWeb from "./componentes/BotonPaginaWeb";
 
 import {
   Truck,
@@ -451,16 +453,16 @@ const productoDetalle =
 
       {/* Banner principal */}
 <section className="bg-slate-50 overflow-hidden">
-  <div className="max-w-7xl mx-auto px-6 pt-4 pb-6">
+  <div className="max-w-7xl mx-auto px-6 pt-1 pb-6">
 
-    <div className="relative rounded-[32px] bg-white border border-gray-100 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.08)]">
+    <div className="relative h-[300px] rounded-[32px] overflow-hidden shadow-none">
 
       <img
         src="/banner.png"
         alt="A Todo Trapo"
-        className="w-full h-[320px] object-cover object-center block"
+        className="absolute -top-16 left-0 w-full h-[360px] object-cover object-center"
       />
-
+        
       {/* Botón Ver productos */}
 <button
   className="absolute left-[54px] bottom-[25px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[15px] px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03]"
@@ -489,7 +491,7 @@ const productoDetalle =
 </section>
       
       {/* Beneficios */}
-<section className="bg-slate-50 -mt-3 pb-5">
+<section className="bg-slate-50 -mt-4 pb-5">
   <div className="max-w-7xl mx-auto px-6">
 
     <div className="bg-white border border-gray-100 rounded-[18px] overflow-hidden">
@@ -2313,6 +2315,11 @@ const productoDetalle =
   />
 </a>
 
+
+
+          {/* Últimas secciones de la página */}
+
+      <BotonPaginaWeb />
 
     </main>
   );
