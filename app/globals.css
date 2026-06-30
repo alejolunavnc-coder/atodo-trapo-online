@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+@keyframes cartBounce {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.18) translateY(-3px);
+  }
+
+  65% {
+    transform: scale(0.96) translateY(1px);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes cartBadgeBounce {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.35);
+  }
+
+  65% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}

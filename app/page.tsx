@@ -64,7 +64,7 @@ const [mostrarMas, setMostrarMas] = useState(false);
 const [vista, setVista] = useState("categorias");
 const [marca, setMarca] = useState("");
 const [categoria, setCategoria] = useState("");
-const [carrito, setCarrito] = useState<{ nombre: string; precio: number }[]>([]);
+const [carrito, setCarrito] = useState<any[]>([]);
 const [mostrarCarrito, setMostrarCarrito] = useState(false);
 const [carritoAnimado, setCarritoAnimado] = useState(false);
 const [productos, setProductos] = useState<Producto[]>([]);
@@ -82,6 +82,8 @@ const resultadosBusquedaRef = useRef<HTMLDivElement>(null);
 const [altoPanelDetalle, setAltoPanelDetalle] = useState(0);
 const [productoAbierto, setProductoAbierto] = useState<number | null>(null);
 const [productoBusquedaAbierto, setProductoBusquedaAbierto] = useState<number | null>(null);
+const ofertasRef = useRef<HTMLElement>(null);
+const [bannerActual, setBannerActual] = useState(0);
 
 /* useEffect */
 
@@ -129,12 +131,29 @@ useEffect(() => {
 
 /* Funciones */
 
-function agregarAlCarrito(nombre: string, precio: number) {
+function agregarAlCarrito(producto: any) {
   setCarrito([
     ...carrito,
     {
-      nombre,
-      precio,
+      categoria: producto.Categoría || "",
+      marca: producto.Marca || "",
+      nombre: producto.Nombre || "",
+      linea: producto.Linea || "",
+      tamano: producto.Tamaño || "",
+      color: producto.Color || "",
+      fragancia: producto.Fragancias || "",
+      imagen: producto.Imagen || "",
+
+      precio: Number(
+        producto.Oferta?.trim().toLowerCase() === "si"
+          ? producto["Precio oferta"]
+          : producto.Precio
+      ),
+
+      precioOriginal:
+        producto.Oferta?.trim().toLowerCase() === "si"
+          ? Number(producto.Precio)
+          : null,
     },
   ]);
 
@@ -349,7 +368,6 @@ const productoDetalle =
 {/* Franja sticky: logo + buscador + acciones */}
 <header className="hidden md:block sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-[0_8px_30px_rgba(15,23,42,0.10)]">
   <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-8">
-
     <img
       src="/logo.png"
       alt="A Todo Trapo"
@@ -372,13 +390,24 @@ const productoDetalle =
 
     <div className="flex items-center gap-6 text-[13px] text-slate-700">
 
-      <button className="flex items-center gap-2 hover:text-blue-800 transition">
+      <button
+        onClick={() =>
+          ofertasRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
+        className="flex items-center gap-2 hover:text-blue-800 transition"
+      >
         <BadgePercent
           size={18}
           strokeWidth={2}
           className="text-blue-900"
         />
-        <span className="font-medium">Ofertas</span>
+
+        <span className="font-medium">
+          Ofertas
+        </span>
       </button>
 
       <a
@@ -391,62 +420,410 @@ const productoDetalle =
           size={19}
           className="text-blue-900"
         />
-        <span className="font-medium">Instagram</span>
+
+        <span className="font-medium">
+          Instagram
+        </span>
       </a>
 
       <button
-        onClick={() => setMostrarCarrito(!mostrarCarrito)}
-        className="relative flex items-center gap-2 hover:text-blue-800 transition"
-      >
-        <ShoppingBasket
-          size={20}
-          strokeWidth={2}
-          className="text-blue-900"
-        />
+  onClick={() => setMostrarCarrito(true)}
+  className={`relative flex items-center gap-2 hover:text-blue-800 transition ${
+    carritoAnimado ? "animate-[cartBounce_0.45s_ease-out]" : ""
+  }`}
+>
+  <ShoppingBasket
+    size={20}
+    strokeWidth={2}
+    className="text-blue-900"
+  />
 
-        <div className="flex flex-col leading-none">
-          <span className="font-semibold text-[13px] text-slate-800">
-            Carrito
-          </span>
+  <div className="flex flex-col leading-none">
+    <span className="font-semibold text-[13px] text-slate-800">
+      Carrito
+    </span>
 
-          <span className="text-[10px] text-gray-400">
-            {carrito.length} productos
-          </span>
-        </div>
+    <span className="text-[10px] text-gray-400">
+      {carrito.length} productos
+    </span>
+  </div>
 
-        {carrito.length > 0 && (
-          <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-yellow-400 text-[9px] text-blue-950 flex items-center justify-center font-bold">
-            {carrito.length}
-          </span>
-        )}
-      </button>
+  {carrito.length > 0 && (
+    <span
+      className={`absolute -top-2 -right-2 w-4 h-4 rounded-full bg-yellow-400 text-[9px] text-blue-950 flex items-center justify-center font-bold ${
+        carritoAnimado ? "animate-[cartBadgeBounce_0.45s_ease-out]" : ""
+      }`}
+    >
+      {carrito.length}
+    </span>
+  )}
+</button>
 
     </div>
   </div>
 </header>
+
+{/* Panel lateral del carrito PC */}
+{mostrarCarrito && (
+  <div className="hidden md:block fixed inset-0 z-[999]">
+    <div
+      onClick={() => setMostrarCarrito(false)}
+      className="absolute inset-0 bg-slate-950/35 backdrop-blur-[2px]"
+    />
+
+    <aside className="absolute right-0 top-0 h-full w-[460px] bg-white shadow-2xl rounded-l-[28px] overflow-hidden animate-[cartSlideIn_0.25s_ease-out]">
+      <div className="h-full flex flex-col">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              🛒 Mi carrito
+            </h2>
+
+            <p className="text-sm text-gray-500 mt-1">
+              {carrito.length === 0
+                ? "Todavía no agregaste productos"
+                : `${carrito.length} productos agregados`}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setMostrarCarrito(false)}
+            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xl flex items-center justify-center transition"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5 bg-gray-50/60">
+          {carrito.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-4xl mb-4">
+                🧺
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800">
+                Tu carrito está vacío
+              </h3>
+
+              <p className="text-sm text-gray-500 mt-2 max-w-[260px]">
+                Agregá productos al carrito y después coordiná tu pedido por WhatsApp.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {carrito.map((producto, index) => {
+                const productoInfo: any =
+                  (producto as any).imagen || (producto as any).precioOriginal
+                    ? producto
+                    : productos.find((item: any) => {
+                        const nombreCarrito = producto.nombre.toLowerCase();
+                        const nombreProducto = String(item.Nombre || "").toLowerCase();
+                        const tamanoProducto = String(item.Tamaño || "").toLowerCase();
+                        const colorProducto = String(item.Color || "").toLowerCase();
+                        const fraganciaProducto = String(item.Fragancias || "").toLowerCase();
+
+                        const precioFinal =
+                          item.Oferta?.trim().toLowerCase() === "si"
+                            ? Number(item["Precio oferta"])
+                            : Number(item.Precio);
+
+                        return (
+                          nombreCarrito.includes(nombreProducto) &&
+                          (!tamanoProducto || nombreCarrito.includes(tamanoProducto)) &&
+                          (!colorProducto || nombreCarrito.includes(colorProducto)) &&
+                          (!fraganciaProducto || nombreCarrito.includes(fraganciaProducto)) &&
+                          precioFinal === producto.precio
+                        );
+                      });
+
+                const imagenProducto =
+                  (producto as any).imagen || productoInfo?.Imagen || "";
+
+                const precioOriginal =
+                  (producto as any).precioOriginal ||
+                  (productoInfo?.Oferta?.trim().toLowerCase() === "si"
+                    ? Number(productoInfo.Precio)
+                    : null);
+
+                const ahorro =
+                  precioOriginal && precioOriginal > producto.precio
+                    ? precioOriginal - producto.precio
+                    : 0;
+
+                return (
+                  <div
+                    key={index}
+                    className="bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+                  >
+                    <div className="flex gap-3">
+                      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                        {imagenProducto ? (
+                          <img
+                            src={imagenProducto}
+                            alt={producto.nombre}
+                            className="w-full h-full object-contain p-1.5"
+                          />
+                        ) : (
+                          <span className="text-2xl">🛒</span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between gap-3">
+                          <div>
+  {(producto.marca || producto.categoria) && (
+    <p className="text-[11px] font-bold text-blue-950 uppercase tracking-wide mb-0.5">
+      {producto.marca || producto.categoria}
+    </p>
+  )}
+
+  <p className="text-sm font-bold text-slate-800 leading-snug line-clamp-2">
+    {producto.nombre || "Producto"}
+  </p>
+
+  <p className="text-xs text-gray-500 mt-1 leading-snug">
+    {[producto.linea, producto.tamano, producto.fragancia || producto.color]
+      .filter(Boolean)
+      .join(" · ")}
+  </p>
+</div>
+
+                          <button
+                            onClick={() =>
+                              setCarrito(carrito.filter((_, i) => i !== index))
+                            }
+                            className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold transition shrink-0"
+                          >
+                            ×
+                          </button>
+                        </div>
+
+                        <div className="flex items-end justify-between mt-3">
+                          <div>
+                            {precioOriginal && precioOriginal > producto.precio && (
+                              <p className="text-xs text-gray-400 line-through">
+                                ${precioOriginal.toLocaleString("es-AR")}
+                              </p>
+                            )}
+
+                            <p className="text-lg font-bold text-green-700 leading-none">
+                              ${producto.precio.toLocaleString("es-AR")}
+                            </p>
+
+                            {ahorro > 0 && (
+                              <p className="text-xs font-semibold text-green-600 mt-1">
+                                Ahorrás ${ahorro.toLocaleString("es-AR")}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="text-xs text-gray-400">
+                            Cantidad: 1
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {carrito.length > 0 && (
+          <div className="border-t border-gray-100 px-6 py-5 bg-white">
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">Subtotal</span>
+                <span className="font-semibold text-slate-800">
+                  $
+                  {carrito
+                    .reduce((total, producto) => total + producto.precio, 0)
+                    .toLocaleString("es-AR")}
+                </span>
+              </div>
+
+              {(() => {
+                const ahorroTotal = carrito.reduce((totalAhorro, producto) => {
+                  const productoInfo: any =
+                    (producto as any).precioOriginal
+                      ? producto
+                      : productos.find((item: any) => {
+                          const nombreCarrito = producto.nombre.toLowerCase();
+                          const nombreProducto = String(item.Nombre || "").toLowerCase();
+                          const tamanoProducto = String(item.Tamaño || "").toLowerCase();
+                          const colorProducto = String(item.Color || "").toLowerCase();
+                          const fraganciaProducto = String(item.Fragancias || "").toLowerCase();
+
+                          const precioFinal =
+                            item.Oferta?.trim().toLowerCase() === "si"
+                              ? Number(item["Precio oferta"])
+                              : Number(item.Precio);
+
+                          return (
+                            nombreCarrito.includes(nombreProducto) &&
+                            (!tamanoProducto || nombreCarrito.includes(tamanoProducto)) &&
+                            (!colorProducto || nombreCarrito.includes(colorProducto)) &&
+                            (!fraganciaProducto || nombreCarrito.includes(fraganciaProducto)) &&
+                            precioFinal === producto.precio
+                          );
+                        });
+
+                  const precioOriginal =
+                    (producto as any).precioOriginal ||
+                    (productoInfo?.Oferta?.trim().toLowerCase() === "si"
+                      ? Number(productoInfo.Precio)
+                      : null);
+
+                  const ahorro =
+                    precioOriginal && precioOriginal > producto.precio
+                      ? precioOriginal - producto.precio
+                      : 0;
+
+                  return totalAhorro + ahorro;
+                }, 0);
+
+                return ahorroTotal > 0 ? (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-green-600 font-semibold">
+                      Ahorrás
+                    </span>
+                    <span className="font-bold text-green-600">
+                      ${ahorroTotal.toLocaleString("es-AR")}
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">Envío</span>
+                <span className="font-semibold text-blue-900">
+                  A coordinar
+                </span>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4 flex items-center justify-between mb-4">
+              <span className="text-base font-bold text-slate-900">
+                Total
+              </span>
+
+              <span className="text-3xl font-black text-slate-900">
+                $
+                {carrito
+                  .reduce((total, producto) => total + producto.precio, 0)
+                  .toLocaleString("es-AR")}
+              </span>
+            </div>
+
+            <a
+  href={`https://wa.me/5491123193387?text=${encodeURIComponent(
+    "¡Hola! 👋\n\n" +
+      "Quiero realizar el siguiente pedido:\n\n" +
+      "🛒 Pedido:\n\n" +
+      carrito
+        .map(
+          (producto, index) =>
+            `${index + 1}. ${[
+  producto.marca,
+  producto.nombre,
+  producto.linea,
+  producto.tamano,
+  producto.fragancia || producto.color,
+]
+  .filter(Boolean)
+  .join(" - ")}\n   $${producto.precio.toLocaleString("es-AR")}`
+        )
+        .join("\n\n") +
+      "\n\n💰 Total: $" +
+      carrito
+        .reduce((total, producto) => total + producto.precio, 0)
+        .toLocaleString("es-AR") +
+      "\n\n📍 Mi dirección:\n\n________________________"
+  )}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block text-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-2xl transition shadow-lg text-base"
+>
+  💬 Finalizar pedido por WhatsApp
+</a>
+
+            <button
+              onClick={() => setCarrito([])}
+              className="w-full mt-3 border border-red-100 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-2xl transition text-sm"
+            >
+              Vaciar carrito
+            </button>
+          </div>
+        )}
+      </div>
+    </aside>
+  </div>
+)}
 
 {/* Menú normal */}
 <nav className="hidden md:block bg-white border-b border-gray-200">
   <div className="max-w-7xl mx-auto h-[54px] px-6 flex items-center justify-between">
 
     <div className="flex items-center gap-10 ml-[80px] text-[14px] font-semibold text-[#162a63]">
-      <a href="#" className="relative font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+
+      <button
+        onClick={() =>
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          })
+        }
+        className="relative font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
+      >
         Inicio
         <span className="absolute left-0 -bottom-[17px] w-full h-[3px] bg-yellow-400 rounded-full"></span>
-      </a>
+      </button>
 
-      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
-        Productos
-      </a>
+      <button
+        onClick={() => {
+          setCategoria("Pinturas");
+          setVista("productos");
 
-      <a href="#" className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
-        Marcas
-      </a>
+          setTimeout(() => {
+            document
+              .getElementById("productos")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }, 50);
+        }}
+        className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
+      >
+        Pinturas
+      </button>
+
+      <button
+        onClick={() => {
+          setCategoria("Piscina");
+          setVista("productos");
+
+          setTimeout(() => {
+            document
+              .getElementById("productos")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }, 50);
+        }}
+        className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
+      >
+        Piscina
+      </button>
+
     </div>
 
     <a
       href="https://wa.me/5493764354249"
       target="_blank"
+      rel="noopener noreferrer"
       className="flex items-center gap-2 bg-[#1FAF5A] hover:bg-[#198F49] text-white px-5 py-2 rounded-xl text-[14px] font-semibold transition shadow-sm"
     >
       <FaWhatsapp size={17} />
@@ -459,39 +836,50 @@ const productoDetalle =
       {/* Banner principal */}
 <section className="bg-slate-50 overflow-hidden">
   <div className="max-w-7xl mx-auto px-6 pt-1 pb-6">
-
     <div className="relative h-[300px] rounded-[32px] overflow-hidden shadow-none">
+      {[
+        "/banner.png",
+        "/banner-2.png",
+        "/banner-3.png",
+        "/banner-4.png",
+      ].map((banner, index) => (
+        <img
+          key={index}
+          src={banner}
+          alt="A Todo Trapo"
+          className={`absolute -top-16 left-0 w-full h-[360px] object-cover object-center transition-opacity duration-500 ${
+            bannerActual === index ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
 
-      <img
-        src="/banner.png"
-        alt="A Todo Trapo"
-        className="absolute -top-16 left-0 w-full h-[360px] object-cover object-center"
-      />
-        
-      {/* Botón Ver productos */}
-<button
-  className="absolute left-[54px] bottom-[25px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[15px] px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03]"
->
-  Ver productos
+      {/* Botón Ver más */}
+      <button
+        onClick={() =>
+          setBannerActual((actual) =>
+            actual === 3 ? 0 : actual + 1
+          )
+        }
+        className="absolute left-[54px] bottom-[25px] inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold text-[14px] px-4 py-2.5 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03]"
+      >
+        Ver más
 
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M9 5l7 7-7 7"
-    />
-  </svg>
-</button>
-
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
     </div>
-
   </div>
 </section>
       
@@ -855,32 +1243,18 @@ const productoDetalle =
                 )}
 
                 <button
-                  type="button"
-                  data-product-control
-                  onClick={(e) => {
-                    e.stopPropagation();
-
-                    agregarAlCarrito(
-                      nombreTarjeta +
-                        " " +
-                        productoSeleccionado.Tamaño +
-                        " " +
-                        (productoSeleccionado.Fragancias ||
-                          productoSeleccionado.Color ||
-                          ""),
-                      Number(
-                        productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-                          ? productoSeleccionado["Precio oferta"]
-                          : productoSeleccionado.Precio
-                      )
-                    );
-                  }}
-                  className={`w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${
-                    tieneOpciones ? "mt-4" : "mt-2"
-                  }`}
-                >
-                  🛒 Agregar
-                </button>
+  type="button"
+  data-product-control
+  onClick={(e) => {
+    e.stopPropagation();
+    agregarAlCarrito(productoSeleccionado);
+  }}
+  className={`w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${
+    tieneOpciones ? "mt-4" : "mt-2"
+  }`}
+>
+  🛒 Agregar
+</button>
               </div>
 
             </div>
@@ -1051,7 +1425,7 @@ const productoDetalle =
 {/* Productos */}
 {vista === "productos" && (
   <>
-    <section className="pb-10">
+    <section id="productos" className="pb-10 scroll-mt-32">
       <div className="flex items-center justify-between mb-7">
         <div>
           <h3 className="text-[30px] font-extrabold text-blue-950 tracking-[-0.03em] leading-tight">
@@ -1317,32 +1691,18 @@ const productoDetalle =
                   )}
 
                   <button
-                    type="button"
-                    data-product-control
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      agregarAlCarrito(
-                        nombreTarjeta +
-                          " " +
-                          productoSeleccionado.Tamaño +
-                          " " +
-                          (productoSeleccionado.Fragancias ||
-                            productoSeleccionado.Color ||
-                            ""),
-                        Number(
-                          productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-                            ? productoSeleccionado["Precio oferta"]
-                            : productoSeleccionado.Precio
-                        )
-                      );
-                    }}
-                    className={`w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${
-                      tieneOpciones ? "mt-4" : "mt-2"
-                    }`}
-                  >
-                    🛒 Agregar
-                  </button>
+  type="button"
+  data-product-control
+  onClick={(e) => {
+    e.stopPropagation();
+    agregarAlCarrito(productoSeleccionado);
+  }}
+  className={`w-full h-10 bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-[14px] font-extrabold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${
+    tieneOpciones ? "mt-4" : "mt-2"
+  }`}
+>
+  🛒 Agregar
+</button>
                 </div>
               </div>
             </div>
@@ -1354,7 +1714,10 @@ const productoDetalle =
 )}
 
 {/* Ofertas destacadas */}
-<section className="hidden md:block mt-8 pb-10">
+<section
+  ref={ofertasRef}
+  className="hidden md:block mt-8 pb-10 scroll-mt-28"
+>
   <div className="bg-white border border-gray-100 rounded-[26px] shadow-sm p-6">
 
     <div className="flex items-center gap-5 mb-5">
@@ -1603,26 +1966,11 @@ const productoDetalle =
               </div>
 
               <button
-                onClick={() =>
-                  agregarAlCarrito(
-                    grupo.nombre +
-                      " " +
-                      productoSeleccionado.Tamaño +
-                      " " +
-                      (productoSeleccionado.Fragancias ||
-                        productoSeleccionado.Color ||
-                        ""),
-                    Number(
-                      productoSeleccionado.Oferta?.trim().toLowerCase() === "si"
-                        ? productoSeleccionado["Precio oferta"]
-                        : productoSeleccionado.Precio
-                    )
-                  )
-                }
-                className="mt-4 w-full h-9 bg-yellow-400 hover:bg-yellow-500 text-blue-950 rounded-lg text-[12px] font-bold transition whitespace-nowrap"
-              >
-                🛒 Agregar
-              </button>
+  onClick={() => agregarAlCarrito(productoSeleccionado)}
+  className="mt-4 w-full h-9 bg-yellow-400 hover:bg-yellow-500 text-blue-950 rounded-lg text-[12px] font-bold transition whitespace-nowrap"
+>
+  🛒 Agregar
+</button>
             </div>
           );
         })}
@@ -1820,30 +2168,7 @@ const productoDetalle =
 </footer>
 
 
-      <button
-  onClick={() => {
-  setMostrarBusqueda(!mostrarBusqueda);
-
-  setTimeout(() => {
-    inputBusquedaRef.current?.focus();
-  }, 100);
-}}
-  className="fixed bottom-44 right-6 text-4xl z-50 hover:scale-110 transition"
->
-  🔍
-</button>
-{mostrarBusqueda && (
-  <div className="fixed bottom-56 right-4 z-50">
-    <input
-  ref={inputBusquedaRef}
-  type="text"
-  placeholder="🔍 Buscar producto..."
-  value={busqueda}
-  onChange={(e) => setBusqueda(e.target.value)}
-  className="w-72 md:w-80 bg-white text-black border border-gray-300 px-4 py-3 rounded-xl shadow-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
-/>
-  </div>
-)}
+      {/* Botón flotante búsqueda eliminado */}
 
 {/* Modal detalle del producto */}
 
@@ -2111,20 +2436,7 @@ const productoDetalle =
 
       {productoDetalle && (
   <button
-    onClick={() =>
-      agregarAlCarrito(
-        grupoDetalle.grupo.nombre +
-          " " +
-          productoDetalle.Tamaño +
-          " " +
-          (productoDetalle.Fragancias || productoDetalle.Color || ""),
-        Number(
-          productoDetalle.Oferta?.trim().toLowerCase() === "si"
-            ? productoDetalle["Precio oferta"]
-            : productoDetalle.Precio
-        )
-      )
-    }
+    onClick={() => agregarAlCarrito(productoDetalle)}
     className="mt-3 w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold text-base py-2.5 rounded-2xl"
   >
     🛒 Agregar
@@ -2140,87 +2452,7 @@ const productoDetalle =
 
 
 
-      {/* Botón flotante carrito */}
-<button
-  onClick={() => setMostrarCarrito(!mostrarCarrito)}
-  className={`fixed ${
-  detalleAbierto ? "hidden" : "bottom-24"
-} right-4 z-[60] bg-gradient-to-br from-teal-600 to-teal-800 hover:from-teal-700 hover:to-teal-900 text-white w-14 h-14 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex items-center justify-center text-2xl transition-all duration-300 ${
-  carritoAnimado ? "scale-125" : "scale-100"
-}`}
->
-  <svg
-  xmlns="http://www.w3.org/2000/svg"
-  fill="none"
-  viewBox="0 0 24 24"
-  strokeWidth={2.2}
-  stroke="currentColor"
-  className="w-7 h-7"
->
-  <path
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    d="M2.25 3h1.386a1.5 1.5 0 011.464 1.175L5.383 6m0 0h13.867l-1.313 6.126a1.5 1.5 0 01-1.466 1.174H7.189a1.5 1.5 0 01-1.466-1.174L5.383 6zm2.367 11.25a.75.75 0 100 1.5.75.75 0 000-1.5zm9 0a.75.75 0 100 1.5.75.75 0 000-1.5z"
-  />
-</svg>
-  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center shadow-lg">
-  {carrito.length}
-</span>
-</button>
-
-{mostrarCarrito && !detalleAbierto && (
-  <div className="fixed bottom-44 right-6 bg-white shadow-2xl rounded-2xl p-4 w-52 z-[70] max-h-80 overflow-y-auto">
-    <h3 className="font-bold text-lg text-black mb-2">
-      🛒 Carrito
-    </h3>
-
-    <p className="text-sm text-gray-500 mb-3">
-      {carrito.length} productos
-    </p>
-
-    <div className="text-black text-left">
-      {carrito.map((producto, index) => (
-        <div
-          key={index}
-          className="mb-2 border-b pb-2 flex justify-between items-center"
-        >
-          <div>
-            <p className="text-[10px] text-black leading-tight">
-              {producto.nombre}
-            </p>
-
-            <p className="text-green-700 font-bold text-sm">
-              ${producto.precio.toLocaleString("es-AR")}
-            </p>
-          </div>
-
-          <button
-            onClick={() =>
-              setCarrito(carrito.filter((_, i) => i !== index))
-            }
-            className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg"
-          >
-            ×
-          </button>
-        </div>
-      ))}
-
-      <p className="text-lg font-bold text-black mt-3">
-        Total: $
-        {carrito
-          .reduce((total, producto) => total + producto.precio, 0)
-          .toLocaleString("es-AR")}
-      </p>
-
-      <button
-        onClick={() => setCarrito([])}
-        className="mt-3 bg-red-500 text-white text-sm px-3 py-2 rounded-xl w-full"
-      >
-        Vaciar carrito
-      </button>
-    </div>
-  </div>
-)}
+      {/* Botón flotante carrito eliminado en PC */}
 
 {/* Botón volver flotante */}
 {vista !== "categorias" && !detalleAbierto && (
@@ -2277,35 +2509,7 @@ const productoDetalle =
   </button>
 )}
 
-      {/* Botón flotante WhatsApp */}
-<a
-  href={
-    carrito.length === 0
-      ? "https://wa.me/5493786519078?text=Hola,%20quiero%20hacer%20una%20consulta"
-      : `https://wa.me/5493786519078?text=${encodeURIComponent(
-          "Hola, quiero consultar stock de:\n\n" +
-            carrito
-              .map(
-                (producto, index) =>
-                  `${index + 1}. ${producto.nombre} - $${producto.precio.toLocaleString("es-AR")}`
-              )
-              .join("\n") +
-            "\n\nTotal: $" +
-            carrito
-              .reduce((total, producto) => total + producto.precio, 0)
-              .toLocaleString("es-AR")
-        )}`
-  }
-  target="_blank"
-  rel="noopener noreferrer"
-  className="fixed bottom-4 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.30)] transition hover:scale-110"
->
-  <img
-    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-    alt="WhatsApp"
-    className="w-8 h-8"
-  />
-</a>
+      {/* Botón flotante WhatsApp eliminado */}
 
 
 
