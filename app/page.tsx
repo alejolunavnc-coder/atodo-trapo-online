@@ -838,20 +838,20 @@ const productoDetalle =
   <div className="max-w-7xl mx-auto px-6 pt-1 pb-6">
     <div className="relative h-[300px] rounded-[32px] overflow-hidden shadow-none">
       {[
-        "/banner.png",
-        "/banner-2.png",
-        "/banner-3.png",
-        "/banner-4.png",
+        "/banners/banner.png",
+        "/banners/banner2.png",
+        "/banners/banner-3.png",
+        "/banners/banner-4.png",
       ].map((banner, index) => (
         <img
-          key={index}
-          src={banner}
-          alt="A Todo Trapo"
-          className={`absolute -top-16 left-0 w-full h-[360px] object-cover object-center transition-opacity duration-500 ${
-            bannerActual === index ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
+  key={index}
+  src={banner}
+  alt="A Todo Trapo"
+  className={`absolute -top-16 left-0 w-full h-[360px] object-cover object-center transition-opacity duration-500 ${
+    bannerActual === index ? "opacity-100" : "opacity-0"
+  }`}
+  />
+))}
 
       {/* Botón Ver más */}
       <button
