@@ -84,6 +84,8 @@ const [productoAbierto, setProductoAbierto] = useState<number | null>(null);
 const [productoBusquedaAbierto, setProductoBusquedaAbierto] = useState<number | null>(null);
 const ofertasRef = useRef<HTMLElement>(null);
 const [bannerActual, setBannerActual] = useState(0);
+const [posicionAntesBusqueda, setPosicionAntesBusqueda] = useState(0);
+const [busquedaActiva, setBusquedaActiva] = useState(false);
 
 /* useEffect */
 
@@ -379,7 +381,14 @@ const productoDetalle =
         type="text"
         placeholder="Buscá productos, marcas, líneas..."
         value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
+        onChange={(e) => {
+  if (!busquedaActiva) {
+    setPosicionAntesBusqueda(window.scrollY);
+    setBusquedaActiva(true);
+  }
+
+  setBusqueda(e.target.value);
+}}
         className="w-full h-11 border border-gray-200 rounded-l-full px-6 text-[15px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-700 transition"
       />
 
@@ -718,28 +727,19 @@ const productoDetalle =
 
             <a
   href={`https://wa.me/5491123193387?text=${encodeURIComponent(
-    "¡Hola! 👋\n\n" +
-      "Quiero realizar el siguiente pedido:\n\n" +
-      "🛒 Pedido:\n\n" +
-      carrito
-        .map(
-          (producto, index) =>
-            `${index + 1}. ${[
-  producto.marca,
-  producto.nombre,
-  producto.linea,
-  producto.tamano,
-  producto.fragancia || producto.color,
-]
-  .filter(Boolean)
-  .join(" - ")}\n   $${producto.precio.toLocaleString("es-AR")}`
-        )
-        .join("\n\n") +
-      "\n\n💰 Total: $" +
-      carrito
-        .reduce((total, producto) => total + producto.precio, 0)
-        .toLocaleString("es-AR") +
-      "\n\n📍 Mi dirección:\n\n________________________"
+    "Hola!\n" +
+"Quiero realizar el siguiente pedido:\n\n" +
+carrito
+  .map(
+    (producto, index) =>
+      `${index + 1}. ${producto.nombre}\n   $${producto.precio.toLocaleString("es-AR")}`
+  )
+  .join("\n\n") +
+"\n\nTotal: $" +
+carrito
+  .reduce((total, producto) => total + producto.precio, 0)
+  .toLocaleString("es-AR") +
+"\n\nMi dirección es: "
   )}`}
   target="_blank"
   rel="noopener noreferrer"
@@ -764,9 +764,7 @@ const productoDetalle =
 {/* Menú normal */}
 <nav className="hidden md:block bg-white border-b border-gray-200">
   <div className="max-w-7xl mx-auto h-[54px] px-6 flex items-center justify-between">
-
     <div className="flex items-center gap-10 ml-[80px] text-[14px] font-semibold text-[#162a63]">
-
       <button
         onClick={() =>
           window.scrollTo({
@@ -780,56 +778,88 @@ const productoDetalle =
         <span className="absolute left-0 -bottom-[17px] w-full h-[3px] bg-yellow-400 rounded-full"></span>
       </button>
 
-      <button
-        onClick={() => {
-          setCategoria("Pinturas");
-          setVista("productos");
+      {["Pinturas", "Piscina"].map((categoriaMenu) => {
+        const marcasCategoria = [
+          ...new Set(
+            productos
+              .filter((p) => p.Categoría?.trim() === categoriaMenu)
+              .map((p) => p.Marca?.trim())
+          ),
+        ].filter(Boolean);
 
-          setTimeout(() => {
-            document
-              .getElementById("productos")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-          }, 50);
-        }}
-        className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
-      >
-        Pinturas
-      </button>
+        const tieneMarcas = marcasCategoria.length > 0;
 
-      <button
-        onClick={() => {
-          setCategoria("Piscina");
-          setVista("productos");
+        if (tieneMarcas) {
+          return (
+            <div
+              key={categoriaMenu}
+              className="relative group h-[54px] flex items-center"
+            >
+              <button className="flex items-center gap-1 font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
+                {categoriaMenu}
+                <span className="text-[10px] mt-0.5">▼</span>
+              </button>
 
-          setTimeout(() => {
-            document
-              .getElementById("productos")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-          }, 50);
-        }}
-        className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
-      >
-        Piscina
-      </button>
+              <div className="absolute left-0 top-[54px] w-56 bg-white border border-gray-100 rounded-2xl shadow-[0_18px_45px_rgba(15,23,42,0.16)] p-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-[80]">
+                {marcasCategoria.map((marca) => (
+                  <button
+                    key={marca}
+                    onClick={() => {
+                      setCategoria(categoriaMenu);
+                      setMarca(String(marca));
+                      setVista("productos");
 
+                      setTimeout(() => {
+                        document.getElementById("productos")?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }, 50);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium text-[#162a63] hover:bg-yellow-50 hover:text-[#0d3fb8] transition-all duration-200"
+                  >
+                    {marca}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <button
+            key={categoriaMenu}
+            onClick={() => {
+              setCategoria(categoriaMenu);
+              setMarca("");
+              setVista("productos");
+
+              setTimeout(() => {
+                document.getElementById("productos")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }, 50);
+            }}
+            className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
+          >
+            {categoriaMenu}
+          </button>
+        );
+      })}
     </div>
 
     <a
-      href="https://wa.me/5493764354249"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2 bg-[#1FAF5A] hover:bg-[#198F49] text-white px-5 py-2 rounded-xl text-[14px] font-semibold transition shadow-sm"
-    >
-      <FaWhatsapp size={17} />
-      <span>Consultanos por WhatsApp</span>
-    </a>
-
+  href={`https://wa.me/5491123193387?text=${encodeURIComponent(
+    "¡Hola! Tengo una consulta por un producto."
+  )}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-2 bg-[#1FAF5A] hover:bg-[#198F49] text-white px-5 py-2 rounded-xl text-[14px] font-semibold transition shadow-sm"
+>
+  <FaWhatsapp size={17} />
+  <span>Consultanos por WhatsApp</span>
+</a>
   </div>
 </nav>
 
@@ -1387,9 +1417,16 @@ const productoDetalle =
                 <button
                   key={marca}
                   onClick={() => {
-                    setMarca(marca);
-                    setVista("productos");
-                  }}
+  setMarca(marca);
+  setVista("productos");
+
+  setTimeout(() => {
+    document.getElementById("productos")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 50);
+}}
                   className="group relative bg-white border border-gray-200 rounded-[22px] h-[170px] w-full flex items-center justify-center overflow-hidden shadow-[0_10px_28px_rgba(15,23,42,0.07)] hover:shadow-[0_18px_40px_rgba(15,23,42,0.13)] hover:-translate-y-1 transition-all duration-300"
                 >
                   {/* Fondo */}
@@ -1991,14 +2028,16 @@ const productoDetalle =
           </p>
 
           <a
-            href="https://wa.me/5493786519078"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl text-[16px] font-bold transition mt-8 shadow-sm"
-          >
-            <FaWhatsapp size={21} />
-            Ir a WhatsApp
-          </a>
+  href={`https://wa.me/5493786519078?text=${encodeURIComponent(
+    "¡Hola! 👋 Tengo una consulta sobre las ofertas publicadas."
+  )}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl text-[16px] font-bold transition mt-8 shadow-sm"
+>
+  <FaWhatsapp size={21} />
+  Ir a WhatsApp
+</a>
         </div>
 
         <div className="absolute right-8 bottom-10 text-[120px] opacity-10">
@@ -2455,9 +2494,23 @@ const productoDetalle =
       {/* Botón flotante carrito eliminado en PC */}
 
 {/* Botón volver flotante */}
-{vista !== "categorias" && !detalleAbierto && (
+{(vista !== "categorias" || busqueda !== "") && !detalleAbierto && (
   <button
     onClick={() => {
+      if (busqueda !== "") {
+        setBusqueda("");
+        setBusquedaActiva(false);
+
+        setTimeout(() => {
+          window.scrollTo({
+            top: posicionAntesBusqueda,
+            behavior: "smooth",
+          });
+        }, 50);
+
+        return;
+      }
+
       if (vista === "productos") {
         if (categoria.toLowerCase().includes("pintura")) {
           setVista("marcas");
@@ -2465,7 +2518,10 @@ const productoDetalle =
           setTimeout(() => {
             document
               .getElementById("seccion-marcas")
-              ?.scrollIntoView({ behavior: "smooth", block: "center" });
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
           }, 100);
         } else {
           setVista("categorias");
@@ -2474,7 +2530,10 @@ const productoDetalle =
           setTimeout(() => {
             document
               .getElementById("seccion-categorias")
-              ?.scrollIntoView({ behavior: "smooth", block: "center" });
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
           }, 100);
         }
       } else if (vista === "marcas") {
@@ -2484,7 +2543,10 @@ const productoDetalle =
         setTimeout(() => {
           document
             .getElementById("seccion-categorias")
-            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
         }, 100);
       }
     }}
