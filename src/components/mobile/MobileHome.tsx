@@ -534,7 +534,7 @@ return (
       </div>
     </section>
 
-    {categoriaActiva !== "Ofertas" && (
+    {categoriaActiva === "Inicio" && (
       <section className="px-4 pt-4">
         <div className="relative overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
           {["/bannercel/banner1.png", "/bannercel/banner2.png", "/bannercel/banner3.png"].map(
