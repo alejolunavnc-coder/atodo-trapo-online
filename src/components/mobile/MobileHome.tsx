@@ -158,42 +158,49 @@ const colores = esInicio
 // [Categorías]
 
   const categoriasReales = Array.from(
-    new Set(
-      productos
-        .map((producto) => producto.Categoría?.trim())
-        .filter((categoria): categoria is string => Boolean(categoria))
-    )
-  );
+  new Set(
+    productos
+      .map((producto) => producto.Categoría?.trim())
+      .filter((categoria): categoria is string => Boolean(categoria))
+  )
+);
 
-  const categorias = ["Inicio", "Ofertas", ...categoriasReales];
+const categorias = ["Inicio", "Ofertas", ...categoriasReales];
 
-  const categoriasMobile = categorias.map((nombre) => {
-    const iconos: any = {
-      Inicio: Home,
-      Ofertas: Flame,
-      Pinturas: PaintBucket,
-      Aromatizantes: Droplets,
-      Aromas: Droplets,
-      Limpieza: SprayCan,
-      Piscinas: Droplets,
-      Herramientas: Wrench,
-      Plagas: Bug,
-    };
+const categoriasMobile = categorias.map((nombre) => {
+  const iconosImagen: any = {
+    Inicio: "inicio",
+    Ofertas: "ofertas",
+    Pinturas: "pinturas",
+    Aromatizantes: "aromatizantes",
+    Limpieza: "limpieza",
+    Piscina: "piscina",
+    Piscinas: "piscina",
+    Herramientas: "herramientas",
+    Plagas: "CONTROLPLAGAS",
+    "Control Plagas": "CONTROLPLAGAS",
+    "Control de Plagas": "CONTROLPLAGAS",
+    Jardinería: "jardineria",
+    Jardineria: "jardineria",
+    Electricidad: "electricidad",
+    Accesorios: "accesorios",
+    Plasticos: "plasticos",
+    Plásticos: "plasticos",
+    Auto: "auto",
+  };
 
-    return {
-      nombre,
-      icono: iconos[nombre] || Grid2X2,
-    };
-  });
+  return {
+    nombre,
+    iconoImagen: iconosImagen[nombre] || "inicio",
+  };
+});
 
-  const categoriasFila1 = categoriasMobile.filter((_, index) => index % 2 === 0);
-  const categoriasFila2 = categoriasMobile.filter((_, index) => index % 2 !== 0);
+const categoriasCarrusel = categoriasMobile;
 
-  const esCategoriaProductos =
-    categoriaActiva !== "Inicio" && categoriaActiva !== "Ofertas";
+const esCategoriaProductos =
+  categoriaActiva !== "Inicio" && categoriaActiva !== "Ofertas";
 
-  const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
-
+const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
 // [Subcategorías]
 
   const subcategoriasPinturas = [
@@ -444,17 +451,13 @@ return (
 <section
   className={`${
     categoriaActiva === "Inicio" && !hayBusquedaMobile
-  ? "px-4 pt-3 pb-1"
-  : "relative z-20 -mt-4 px-4 pb-1"
+      ? "px-4 pt-3 pb-1"
+      : "relative z-20 -mt-4 px-4 pb-1"
   }`}
 >
   <div className="flex items-center gap-2">
     <div className="flex h-11 flex-1 items-center gap-3 rounded-full bg-white px-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-gray-100">
-      <Search
-        size={19}
-        strokeWidth={2.3}
-        className="shrink-0 text-gray-400"
-      />
+      <Search size={19} strokeWidth={2.3} className="shrink-0 text-gray-400" />
 
       <input
         type="text"
@@ -465,137 +468,112 @@ return (
       />
 
       {busquedaMobile && (
-        <button
-          onClick={() => setBusquedaMobile("")}
-          className="text-[16px] font-bold text-gray-400"
-        >
+        <button onClick={() => setBusquedaMobile("")} className="text-[16px] font-bold text-gray-400">
           ×
         </button>
       )}
     </div>
 
     <button
-  onClick={iniciarBusquedaPorVoz}
-  className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-300 active:scale-95 ${
-    escuchando ? "bg-red-500 animate-pulse" : "bg-[#123A72]"
-  }`}
->
-  <Mic size={18} strokeWidth={2.5} />
-</button>
+      onClick={iniciarBusquedaPorVoz}
+      className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-300 active:scale-95 ${
+        escuchando ? "bg-red-500 animate-pulse" : "bg-[#123A72]"
+      }`}
+    >
+      <Mic size={18} strokeWidth={2.5} />
+    </button>
   </div>
 </section>
 
-  {/* [Categorías + Banner] */}
+{/* [Categorías + Banner] */}
 
-      {!esCategoriaProductos && !hayBusquedaMobile && (
-        <>
-          <section className="relative px-4 pt-2">
-            <div className="overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex w-max gap-2 pr-4">
-                {categoriasFila1.map(({ nombre, icono: Icono }) => {
-                  const activa = categoriaActiva === nombre;
+{!hayBusquedaMobile && !esPinturas && (
+  <>
+    <section className="relative px-4 pt-2">
+      <div className="overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex w-max gap-3 pr-6">
+          {categoriasCarrusel.map(({ nombre, iconoImagen }) => {
+            const activa = categoriaActiva === nombre;
 
-                  return (
-                    <button
-                      key={nombre}
-                      onClick={() => {
-                        setCategoriaActiva(nombre);
-                        setSubcategoriaActiva("Todas");
-                      }}
-                      className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[10px] font-black transition active:scale-95 ${
-                        activa
-                          ? "bg-[#123A72] text-white shadow-md"
-                          : "bg-white text-gray-700 shadow-sm ring-1 ring-gray-100"
-                      }`}
-                    >
-                      <Icono
-                        size={14}
-                        strokeWidth={2.3}
-                        className={activa ? "text-white" : "text-[#123A72]"}
-                      />
-
-                      <span className="whitespace-nowrap">{nombre}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto py-1 pl-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex w-max gap-2 pr-10">
-                {categoriasFila2.map(({ nombre, icono: Icono }) => {
-                  const activa = categoriaActiva === nombre;
-
-                  return (
-                    <button
-                      key={nombre}
-                      onClick={() => {
-                        setCategoriaActiva(nombre);
-                        setSubcategoriaActiva("Todas");
-                      }}
-                      className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[10px] font-black transition active:scale-95 ${
-                        activa
-                          ? "bg-[#123A72] text-white shadow-md"
-                          : "bg-white text-gray-700 shadow-sm ring-1 ring-gray-100"
-                      }`}
-                    >
-                      <Icono
-                        size={14}
-                        strokeWidth={2.3}
-                        className={activa ? "text-white" : "text-[#123A72]"}
-                      />
-
-                      <span className="whitespace-nowrap">{nombre}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          <section className="px-4 pt-4">
-            <div className="relative overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
-              {[
-                "/bannercel/banner1.png",
-                "/bannercel/banner2.png",
-                "/bannercel/banner3.png",
-              ].map((banner, index) => (
-                <img
-                  key={index}
-                  src={banner}
-                  alt="Banner"
-                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
-                    bannerActual === index ? "opacity-100" : "opacity-0"
-                  }`}
-                />
-              ))}
-
-              <div className="aspect-[16/7]" />
-
+            return (
               <button
-                onClick={() =>
-                  setBannerActual((actual) => (actual === 2 ? 0 : actual + 1))
-                }
-                className="absolute left-5 bottom-3 rounded-full bg-white px-4 py-2 text-[10px] font-black text-[#123A72] shadow-lg transition active:scale-95"
+                key={nombre}
+                onClick={() => {
+                  setCategoriaActiva(nombre);
+                  setSubcategoriaActiva("Todas");
+                }}
+                className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 text-center transition-all duration-150 active:scale-90"
               >
-                Ver más
-              </button>
-
-              <div className="absolute bottom-4 right-5 flex gap-2">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className={`h-2 rounded-full transition-all ${
-                      bannerActual === i ? "w-6 bg-white" : "w-2 bg-white/50"
-                    }`}
+                <div
+                  className={`flex h-[52px] w-[52px] items-center justify-center rounded-full border transition-all duration-150 ${
+                    activa
+                      ? "scale-105 border-[#F8A400] bg-[#F8A400] shadow-[0_10px_20px_rgba(248,164,0,0.28)]"
+                      : "border-gray-100 bg-white shadow-[0_4px_10px_rgba(0,0,0,0.07)]"
+                  }`}
+                >
+                  <Image
+                    src={`/iconoscel/${iconoImagen}.png`}
+                    alt={nombre}
+                    width={30}
+                    height={30}
+                    className="object-contain"
                   />
-                ))}
-              </div>
-            </div>
-          </section>
-        </>
-      )}
+                </div>
 
+                <span
+                  className={`line-clamp-2 text-[9px] font-black leading-tight ${
+                    activa ? "text-[#F8A400]" : "text-gray-800"
+                  }`}
+                >
+                  {nombre}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    {categoriaActiva !== "Ofertas" && (
+      <section className="px-4 pt-4">
+        <div className="relative overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
+          {["/bannercel/banner1.png", "/bannercel/banner2.png", "/bannercel/banner3.png"].map(
+            (banner, index) => (
+              <img
+                key={index}
+                src={banner}
+                alt="Banner"
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+                  bannerActual === index ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            )
+          )}
+
+          <div className="aspect-[16/7]" />
+
+          <button
+            onClick={() => setBannerActual((actual) => (actual === 2 ? 0 : actual + 1))}
+            className="absolute bottom-3 left-5 rounded-full bg-white px-4 py-2 text-[10px] font-black text-[#123A72] shadow-lg transition active:scale-95"
+          >
+            Ver más
+          </button>
+
+          <div className="absolute bottom-4 right-5 flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-all ${
+                  bannerActual === i ? "w-6 bg-white" : "w-2 bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </>
+)}
   {/* [Subcategorías] */}
 
 {esCategoriaProductos && (
@@ -694,10 +672,19 @@ return (
             {tituloSeccion}
           </h2>
 
-          <button className="flex items-center gap-1 text-[10px] font-black text-[#123A72]">
-            Ver todas
-            <span className="text-lg leading-none">›</span>
-          </button>
+          {categoriaActiva !== "Ofertas" && (
+  <button
+    onClick={() => {
+      setCategoriaActiva("Ofertas");
+      setSubcategoriaActiva("Todas");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }}
+    className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
+  >
+    Ver todas
+    <span className="text-lg leading-none">›</span>
+  </button>
+)}
         </section>
       )}
 
