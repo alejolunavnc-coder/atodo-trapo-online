@@ -186,7 +186,7 @@ const categoriasMobile = categorias.map((nombre) => {
     Accesorios: "accesorios",
     Plasticos: "plasticos",
     Plásticos: "plasticos",
-    Auto: "auto",
+    Autos: "auto",
   };
 
   return {
