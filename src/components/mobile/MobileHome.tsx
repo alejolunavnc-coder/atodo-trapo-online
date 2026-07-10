@@ -167,33 +167,49 @@ const colores = esInicio
 
 const categorias = ["Inicio", "Ofertas", ...categoriasReales];
 
-const categoriasMobile = categorias.map((nombre) => {
-  const iconosImagen: any = {
-    Inicio: "inicio",
-    Ofertas: "ofertas",
-    Pinturas: "pinturas",
-    Aromatizantes: "aromatizantes",
-    Limpieza: "limpieza",
-    Piscina: "piscina",
-    Piscinas: "piscina",
-    Herramientas: "herramientas",
-    Plagas: "controlplagas",
-    "Control Plagas": "controlplagas",
-    "Control de Plagas": "controlplagas",
-    Jardinería: "jardineria",
-    Jardineria: "jardineria",
-    Electricidad: "electricidad",
-    Accesorios: "accesorios",
-    Plasticos: "plasticos",
-    Plásticos: "plasticos",
-    Autos: "auto",
-  };
+const ordenCategoriasMobile = [
+  "Inicio",
+  "Pinturas",
+  "Piscinas",
+  "Ofertas",
+  "Limpieza",
+  "Auto y Moto",
+  "Aromatizantes",
+  "Plásticos",
+  "Jardinería",
+  "Control Plagas",
+  "Accesorios",
+];
 
-  return {
+const iconosImagen: Record<string, string> = {
+  Inicio: "inicio",
+  Pinturas: "pinturas",
+  Piscinas: "piscina",
+  Ofertas: "ofertas",
+  Limpieza: "limpieza",
+  "Auto y Moto": "auto-y-moto",
+  Aromatizantes: "aromatizantes",
+  Plásticos: "plasticos",
+  Plasticos: "plasticos",
+  Jardinería: "jardineria",
+  Jardineria: "jardineria",
+  "Control Plagas": "control-plagas",
+  Accesorios: "accesorios",
+};
+
+const categoriasMobile = ordenCategoriasMobile
+  .filter((nombre) => {
+    if (nombre === "Inicio" || nombre === "Ofertas") return true;
+
+    return categorias.some(
+      (categoria) =>
+        categoria.trim().toLowerCase() === nombre.trim().toLowerCase()
+    );
+  })
+  .map((nombre) => ({
     nombre,
     iconoImagen: iconosImagen[nombre] || "inicio",
-  };
-});
+  }));
 
 const categoriasCarrusel = categoriasMobile;
 
@@ -487,7 +503,7 @@ return (
 
 {/* [Categorías + Banner] */}
 
-{!hayBusquedaMobile && !esPinturas && (
+{!hayBusquedaMobile && (
   <>
     <section className="relative px-4 pt-2">
       <div className="overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -576,91 +592,127 @@ return (
 )}
   {/* [Subcategorías] */}
 
-{esCategoriaProductos && (
+{esCategoriaProductos && esPinturas && (
   <section className="px-4 pt-2">
-    <div className="mb-3 flex items-center gap-3">
-      <button
-        onClick={() => {
-          setCategoriaActiva("Inicio");
-          setSubcategoriaActiva("Todas");
-        }}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#123A72] shadow-sm ring-1 ring-blue-50 active:scale-95"
-      >
-        ←
-      </button>
+    <div className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex w-max gap-2.5 pr-4">
+        {subcategoriasPinturas.map((subcategoria) => {
+          const activa = subcategoriaActiva === subcategoria;
 
-      <div>
-        <h2 className="text-[21px] font-black leading-none tracking-[-0.05em] text-[#123A72]">
-          {categoriaActiva}
-        </h2>
+          const imagenesSubcategorias: Record<string, string> = {
+            Todas: "pintura-int-ext.png",
 
-        <p className="mt-1 text-[10px] font-semibold text-gray-500">
-          Elegí una subcategoría
-        </p>
-      </div>
-    </div>
+            Aerosol: "aerosoles.png",
+            Aerosoles: "aerosoles.png",
 
-    {esPinturas && (
-      <div className="mt-2 overflow-x-auto pb-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max gap-3 pr-4">
-          {subcategoriasPinturas.map((subcategoria) => {
-            const activa = subcategoriaActiva === subcategoria;
+            Enduido: "enduidos.png",
+            Enduidos: "enduidos.png",
 
-            const iconosSubcategorias: any = {
-              Todas: PaintBucket,
-              Latex: Droplets,
-              Látex: Droplets,
-              Esmaltes: Paintbrush,
-              Impermeabilizante: ShieldCheck,
-              Impermeabilizantes: ShieldCheck,
-              Piscinas: Waves,
-              "P/ Piscinas": Waves,
-              Accesorios: Wrench,
-              Rodillos: Brush,
-              Pinceles: Brush,
-              Adhesivos: Package,
-              Diluyentes: FlaskConical,
-              Texturado: PaintBucket,
-            };
+            Madera: "madera.png",
+            Maderas: "madera.png",
 
-            const nombresCortos: any = {
-              Impermeabilizante: "Impermea.",
-              Impermeabilizantes: "Impermea.",
-              "P/ Piscinas": "Piscinas",
-            };
+            Exterior: "pintura-exterior.png",
+            "Pintura Exterior": "pintura-exterior.png",
 
-            const Icono = iconosSubcategorias[subcategoria] || PaintBucket;
-            const nombreVisible = nombresCortos[subcategoria] || subcategoria;
+            "Interior/Exterior": "pintura-int-ext.png",
+            "Interior Exterior": "pintura-int-ext.png",
+            "Int/Ext": "pintura-int-ext.png",
+            "Pintura Int/Ext": "pintura-int-ext.png",
+            "Pintura Interior/Exterior": "pintura-int-ext.png",
 
-            return (
-              <button
-                key={subcategoria}
-                onClick={() => setSubcategoriaActiva(subcategoria)}
-                className="flex w-[66px] shrink-0 flex-col items-center gap-1.5 text-center transition active:scale-95"
-              >
-                <div
-                  className={`flex h-[58px] w-[58px] items-center justify-center rounded-full border transition-all duration-200 ${
-                    activa
-                      ? "border-[#F8A400] bg-[#F8A400] text-white shadow-[0_8px_18px_rgba(248,164,0,0.24)]"
-                      : "border-gray-100 bg-white text-[#123A72] shadow-[0_4px_10px_rgba(0,0,0,0.06)]"
+            Interior: "pintura-interior.png",
+            "Pintura Interior": "pintura-interior.png",
+
+            Piscina: "piscinas.png",
+            Piscinas: "piscinas.png",
+            "P/ Piscinas": "piscinas.png",
+            "Pinturas para Piscinas": "piscinas.png",
+
+            Piso: "pisos.png",
+            Pisos: "pisos.png",
+            "Pintura para Pisos": "pisos.png",
+
+            Sellador: "sellador-fijador.png",
+            Fijador: "sellador-fijador.png",
+            "Sellador Fijador": "sellador-fijador.png",
+            "Selladores y Fijadores": "sellador-fijador.png",
+
+            Sintético: "sintetico-3-en-1.png",
+            Sintetico: "sintetico-3-en-1.png",
+            "Sintético 3 en 1": "sintetico-3-en-1.png",
+            "Sintetico 3 en 1": "sintetico-3-en-1.png",
+
+            Texturado: "texturado.png",
+            Texturados: "texturado.png",
+
+            "Pinceles y Rodillos": "pinceles-y-rodillos.png",
+            "Pinceles & Rodillos": "pinceles-y-rodillos.png",
+            "Pinceles-Rodillos": "pinceles-y-rodillos.png",
+            "Pinceles/Rodillos": "pinceles-y-rodillos.png",
+          };
+
+          const nombresVisibles: Record<string, string> = {
+            Todas: "Todas",
+
+            "P/ Piscinas": "Piscinas",
+            "Pinturas para Piscinas": "Piscinas",
+
+            "Pintura Interior/Exterior": "Interior / Exterior",
+            "Pintura Int/Ext": "Interior / Exterior",
+
+            "Selladores y Fijadores": "Sellador / Fijador",
+
+            "Sintetico 3 en 1": "Sintético 3 en 1",
+
+            "Pinceles & Rodillos": "Pinceles y Rodillos",
+            "Pinceles-Rodillos": "Pinceles y Rodillos",
+            "Pinceles/Rodillos": "Pinceles y Rodillos",
+          };
+
+          const imagen =
+            imagenesSubcategorias[subcategoria] || "pintura-int-ext.png";
+
+          const nombreVisible =
+            nombresVisibles[subcategoria] || subcategoria;
+
+          return (
+            <button
+              key={subcategoria}
+              onClick={() => setSubcategoriaActiva(subcategoria)}
+              className={`group w-[92px] shrink-0 overflow-hidden rounded-[16px] border bg-white text-left shadow-sm transition-all duration-200 active:scale-95 ${
+                activa
+                  ? "border-[#F8A400] shadow-[0_8px_20px_rgba(248,164,0,0.18)] ring-2 ring-[#F8A400]/20"
+                  : "border-gray-100"
+              }`}
+            >
+              <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
+                <img
+                  src={`/iconos/subcategorias/${imagen}`}
+                  alt={nombreVisible}
+                  className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                    activa ? "scale-[1.03]" : ""
                   }`}
-                >
-                  <Icono size={24} strokeWidth={2.1} />
-                </div>
+                />
 
+                {activa && (
+                  <div className="absolute inset-0 bg-[#F8A400]/10" />
+                )}
+              </div>
+
+              <div className="flex min-h-[42px] items-center px-2 py-1.5">
                 <span
-                  className={`line-clamp-2 text-[9.5px] font-black leading-tight ${
-                    activa ? "text-[#F8A400]" : "text-gray-800"
+                  className={`line-clamp-2 text-[9px] font-black leading-[1.05] ${
+                    activa ? "text-[#F8A400]" : "text-[#123A72]"
                   }`}
                 >
                   {nombreVisible}
                 </span>
-              </button>
-            );
-          })}
-        </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
-    )}
+    </div>
   </section>
 )}
 
