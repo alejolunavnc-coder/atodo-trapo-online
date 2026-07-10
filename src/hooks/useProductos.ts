@@ -10,39 +10,65 @@ export default function useProductos({
   coloresSeleccionados,
   fraganciasSeleccionadas,
 }: any) {
-  const productosEnOferta = productos.filter((producto: Producto) => {
-    const ofertaTexto = producto.Oferta?.trim().toLowerCase();
-    const precioOferta = Number(
-      String(producto["Precio oferta"] || "")
+  const precioNumero = (valor: any) =>
+    Number(
+      String(valor || "")
         .replace(/\$/g, "")
         .replace(/\./g, "")
         .replace(",", ".")
         .trim()
-    );
+    ) || 0;
+
+  const tieneOferta = (producto: Producto) => {
+    const ofertaTexto = producto.Oferta?.trim().toLowerCase();
+    const precioOferta = precioNumero(producto["Precio oferta"]);
 
     return ofertaTexto === "si" || ofertaTexto === "sí" || precioOferta > 0;
-  });
+  };
 
-  const esPinturas = categoria?.trim().toLowerCase().includes("pintura");
+  const productosEnOferta = productos.filter((producto: Producto) =>
+    tieneOferta(producto)
+  );
+
+  const categoriaActual = String(categoria || "")
+    .trim()
+    .toLowerCase();
+
+  const esOfertas = categoriaActual === "ofertas";
+  const esPinturas = categoriaActual.includes("pintura");
 
   const productosFiltrados = productos.filter((producto: Producto) => {
+    /*
+      La categoría Ofertas no depende de la columna Categoría.
+      Muestra cualquier producto que tenga oferta.
+    */
+    if (esOfertas) {
+      return tieneOferta(producto);
+    }
+
     const mismaCategoria =
-      producto.Categoría?.trim().toLowerCase() ===
-      categoria?.trim().toLowerCase();
+      producto.Categoría?.trim().toLowerCase() === categoriaActual;
 
     if (!mismaCategoria) return false;
 
     if (!esPinturas) return true;
 
-    const subcategoriaActual = (subcategoria || "").trim().toLowerCase();
+    const subcategoriaActual = String(subcategoria || "")
+      .trim()
+      .toLowerCase();
 
-if (subcategoriaActual === "" || subcategoriaActual === "todas") {
-  return true;
-}
+    if (
+      subcategoriaActual === "" ||
+      subcategoriaActual === "todas"
+    ) {
+      return true;
+    }
 
-return (
-  (producto.Subcategoría || "").trim().toLowerCase() === subcategoriaActual
-);
+    return (
+      String(producto.Subcategoría || "")
+        .trim()
+        .toLowerCase() === subcategoriaActual
+    );
   });
 
   type GrupoProducto = {
@@ -54,24 +80,29 @@ return (
 
   const agrupar = (lista: Producto[]): GrupoProducto[] =>
     Object.values(
-      lista.reduce((acc: Record<string, GrupoProducto>, producto: Producto) => {
-        const nombre = producto.Nombre || "Producto sin nombre";
-        const linea = producto.Linea || "";
-        const marca = producto.Marca || "";
-        const clave = `${linea}-${nombre}`;
+      lista.reduce(
+        (acc: Record<string, GrupoProducto>, producto: Producto) => {
+          const nombre = producto.Nombre || "Producto sin nombre";
+          const linea = producto.Linea || "";
+          const marca = producto.Marca || "";
 
-if (!acc[clave]) {
-  acc[clave] = {
-    nombre,
-    linea,
-    marca,
-    items: [],
-  };
-}
+          const clave = `${linea}-${nombre}-${marca}`;
 
-        acc[clave].items.push(producto);
-        return acc;
-      }, {})
+          if (!acc[clave]) {
+            acc[clave] = {
+              nombre,
+              linea,
+              marca,
+              items: [],
+            };
+          }
+
+          acc[clave].items.push(producto);
+
+          return acc;
+        },
+        {}
+      )
     );
 
   const productosBuscados = agrupar(
@@ -96,7 +127,7 @@ if (!acc[clave]) {
         (producto.Categoría || "")
       )
         .toLowerCase()
-        .includes(busqueda.trim().toLowerCase())
+        .includes(String(busqueda || "").trim().toLowerCase())
     )
   );
 
@@ -106,25 +137,37 @@ if (!acc[clave]) {
 
   const productoDetalle = grupoDetalle
     ? grupoDetalle.grupo.items.find((item: any) => {
-        if (grupoDetalle.grupo.items.some((i: any) => i.Color?.trim())) {
+        if (
+          grupoDetalle.grupo.items.some((i: any) =>
+            i.Color?.trim()
+          )
+        ) {
           return (
             item.Tamaño ===
-              (tamanosSeleccionados["detalle" + grupoDetalle.index] ||
-                grupoDetalle.grupo.items[0].Tamaño) &&
+              (tamanosSeleccionados[
+                "detalle" + grupoDetalle.index
+              ] || grupoDetalle.grupo.items[0].Tamaño) &&
             item.Color ===
-              (coloresSeleccionados["detalle" + grupoDetalle.index] ||
-                grupoDetalle.grupo.items[0].Color)
+              (coloresSeleccionados[
+                "detalle" + grupoDetalle.index
+              ] || grupoDetalle.grupo.items[0].Color)
           );
         }
 
-        if (grupoDetalle.grupo.items.some((i: any) => i.Fragancias?.trim())) {
+        if (
+          grupoDetalle.grupo.items.some((i: any) =>
+            i.Fragancias?.trim()
+          )
+        ) {
           return (
             item.Tamaño ===
-              (tamanosSeleccionados["detalle" + grupoDetalle.index] ||
-                grupoDetalle.grupo.items[0].Tamaño) &&
+              (tamanosSeleccionados[
+                "detalle" + grupoDetalle.index
+              ] || grupoDetalle.grupo.items[0].Tamaño) &&
             item.Fragancias ===
-              (fraganciasSeleccionadas["detalle" + grupoDetalle.index] ||
-                grupoDetalle.grupo.items[0].Fragancias)
+              (fraganciasSeleccionadas[
+                "detalle" + grupoDetalle.index
+              ] || grupoDetalle.grupo.items[0].Fragancias)
           );
         }
 

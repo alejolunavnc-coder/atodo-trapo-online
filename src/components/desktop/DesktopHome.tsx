@@ -175,6 +175,7 @@ export default function DesktopHome() {
   vista={vista}
   busqueda={busqueda}
   productos={productos}
+  categoria={categoria}
   setCategoria={setCategoria}
   setMarca={setSubcategoria}
   setVista={setVista}

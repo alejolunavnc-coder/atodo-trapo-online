@@ -79,7 +79,7 @@ export default function ResultadosBusqueda({
 
           const nombreTarjeta = grupo.nombre;
           const lineaTarjeta = grupo.linea;
-          const placaTarjeta = grupo.nombre;
+          const placaTarjeta = grupo.marca || productoSeleccionado?.Marca || "";
           const estaAbierto = productoBusquedaAbierto === index;
 
           const tieneFragancias = grupo.items.some((i: any) =>
@@ -135,15 +135,15 @@ export default function ResultadosBusqueda({
                   className="relative z-10 cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <TarjetaProducto
-                    nombre={nombreTarjeta}
-                    linea={lineaTarjeta}
-                    marca={placaTarjeta}
-                    imagen={productoSeleccionado?.Imagen}
-                    aromas={productoSeleccionado?.Aromas}
-                    precio={productoSeleccionado?.Precio}
-                    precioOferta={productoSeleccionado?.["Precio oferta"]}
-                    oferta={productoSeleccionado?.Oferta}
-                  />
+  nombre={nombreTarjeta}
+  linea={lineaTarjeta}
+  marca={placaTarjeta}
+  imagen={productoSeleccionado?.Imagen}
+  aromas={productoSeleccionado?.Aromas}
+  precio={productoSeleccionado?.Precio}
+  precioOferta={productoSeleccionado?.["Precio oferta"]}
+  oferta={productoSeleccionado?.Oferta}
+/>
                 </div>
 
                 <div
