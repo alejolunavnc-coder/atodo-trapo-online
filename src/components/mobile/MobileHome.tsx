@@ -551,20 +551,27 @@ return (
     </section>
 
     {categoriaActiva === "Inicio" && (
-      <section className="px-4 pt-4">
-        <div className="relative overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
-          {["/bannercel/banner1.png", "/bannercel/banner2.png", "/bannercel/banner3.png"].map(
-            (banner, index) => (
-              <img
-                key={index}
-                src={banner}
-                alt="Banner"
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
-                  bannerActual === index ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            )
-          )}
+  <section className="px-4 pt-4">
+    <div
+      onClick={() =>
+        setBannerActual((actual) => (actual === 2 ? 0 : actual + 1))
+      }
+      className="relative cursor-pointer overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"
+    >
+      {[
+        "/bannercel/banner1.png",
+        "/bannercel/banner2.png",
+        "/bannercel/banner3.png",
+      ].map((banner, index) => (
+        <img
+          key={index}
+          src={banner}
+          alt="Banner"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+            bannerActual === index ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
 
           <div className="aspect-[16/7]" />
 
