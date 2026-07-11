@@ -36,10 +36,10 @@ export default function TarjetaProducto({
       : 0;
 
   return (
-    <div className="relative flex items-center gap-4 min-h-[104px]">
+    <div className="relative flex min-h-[104px] items-center gap-4">
       {marca?.trim() && (
         <div className="absolute -top-2 left-0 z-10">
-          <span className="inline-flex items-center bg-blue-950 text-white text-[8px] font-extrabold uppercase tracking-[0.10em] px-2.5 py-0.5 rounded-full shadow-sm">
+          <span className="inline-flex items-center rounded-full bg-blue-950 px-2.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.10em] text-white shadow-sm">
             {marca}
           </span>
         </div>
@@ -47,35 +47,41 @@ export default function TarjetaProducto({
 
       {estaEnOferta && porcentaje > 0 && (
         <div className="absolute -top-2 right-0 z-10">
-          <span className="inline-flex items-center bg-yellow-400 text-blue-950 text-[9px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
+          <span className="inline-flex items-center rounded-full bg-yellow-400 px-2.5 py-0.5 text-[9px] font-black text-blue-950 shadow-sm">
             -{porcentaje}%
           </span>
         </div>
       )}
 
-      <div className="w-[125px] h-[104px] flex items-center justify-center shrink-0 pt-4 pr-4 border-r border-gray-200/70">
+      <div className="flex h-[104px] w-[125px] shrink-0 items-center justify-center border-r border-gray-200/70 pr-4 pt-4">
         {imagen?.trim() ? (
           <img
             src={imagen.trim()}
             alt={marca || nombre}
-            className="max-h-[100px] max-w-[112px] object-contain transition-transform duration-300 group-hover:scale-[1.04] drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)]"
+            className="max-h-[100px] max-w-[112px] object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="w-[100px] h-[82px] flex items-center justify-center text-[11px] text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="flex h-[82px] w-[100px] items-center justify-center rounded-xl border border-dashed border-gray-200 text-[11px] text-gray-400">
             Sin imagen
           </div>
         )}
       </div>
 
-      <div className="flex-1 pr-8 -mt-8">
+      <div className="-mt-8 flex-1 pr-8">
         {nombre?.trim() && (
-          <h3 className="text-[15px] font-extrabold text-blue-950 leading-tight tracking-[-0.03em]">
+          <h3 className="text-[15px] font-extrabold leading-tight tracking-[-0.03em] text-blue-950">
             {nombre}
           </h3>
         )}
 
+        {linea?.trim() && (
+          <p className="mt-0.5 line-clamp-1 text-[11px] font-medium leading-tight text-gray-500">
+            {linea}
+          </p>
+        )}
+
         {aromas?.trim() && (
-          <div className="mt-1 inline-flex items-center bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+          <div className="mt-1 inline-flex items-center rounded-full bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-violet-700">
             🌸 {aromas}
           </div>
         )}
@@ -84,22 +90,22 @@ export default function TarjetaProducto({
           <div className="mt-1">
             {estaEnOferta && precio && precioOferta ? (
               <>
-                <p className="text-[11px] text-red-500 line-through font-semibold">
+                <p className="text-[11px] font-semibold text-red-500 line-through">
                   ${precioNormal.toLocaleString("es-AR")}
                 </p>
 
-                <p className="text-[23px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+                <p className="text-[23px] font-black leading-tight tracking-[-0.05em] text-blue-950">
                   ${precioConOferta.toLocaleString("es-AR")}
                 </p>
 
                 {ahorro > 0 && (
-                  <p className="text-[11px] font-extrabold text-green-600 mt-0.5">
+                  <p className="mt-0.5 text-[11px] font-extrabold text-green-600">
                     Ahorrás ${ahorro.toLocaleString("es-AR")}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-[24px] font-black text-blue-950 tracking-[-0.05em] leading-tight">
+              <p className="text-[24px] font-black leading-tight tracking-[-0.05em] text-blue-950">
                 ${Number(precioFinal).toLocaleString("es-AR")}
               </p>
             )}
@@ -107,7 +113,7 @@ export default function TarjetaProducto({
         )}
       </div>
 
-      <div className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-950 text-[26px] font-light transition-transform duration-300 group-hover:rotate-180">
+      <div className="absolute right-5 top-1/2 -translate-y-1/2 text-[26px] font-light text-blue-950 transition-transform duration-300 group-hover:rotate-180">
         ⌄
       </div>
     </div>

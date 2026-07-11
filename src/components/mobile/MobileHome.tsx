@@ -725,42 +725,60 @@ return (
 
   {/* [Título sección] */}
 
-      {!esCategoriaProductos && !hayBusquedaMobile && (
-        <section className="flex items-center justify-between px-4 pt-4">
-          <h2 className="text-[20px] font-black tracking-[-0.05em] text-gray-950">
-            {tituloSeccion}
-          </h2>
+{!esCategoriaProductos && !hayBusquedaMobile && (
+  <section className="flex items-center justify-between px-4 pt-4">
+    <h2 className="text-[20px] font-black tracking-[-0.05em] text-gray-950">
+      {tituloSeccion}
+    </h2>
 
-          {categoriaActiva !== "Ofertas" && (
-  <button
-    onClick={() => {
-      setCategoriaActiva("Ofertas");
-      setSubcategoriaActiva("Todas");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }}
-    className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
-  >
-    Ver todas
-    <span className="text-lg leading-none">›</span>
-  </button>
+    {categoriaActiva !== "Ofertas" && (
+      <button
+        onClick={() => {
+          setCategoriaActiva("Ofertas");
+          setSubcategoriaActiva("Todas");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
+      >
+        Ver todas
+        <span className="text-lg leading-none">›</span>
+      </button>
+    )}
+  </section>
 )}
-        </section>
-      )}
 
-  {/* [Productos] */}
+{/* [Ofertas destacadas / Productos] */}
 
-      <section className="bg-white px-2 pt-2 pb-6">
-  <div className="grid grid-cols-3 gap-2">
+<section className="bg-white px-2 pt-2 pb-6">
+  <div
+    className={
+      categoriaActiva === "Inicio" && !hayBusquedaMobile
+        ? "flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        : "grid grid-cols-3 gap-2"
+    }
+  >
     {gruposMobile.map((grupo: any, index: number) => {
       const producto = grupo.items[0];
+
       const precio = precioNumero(producto.Precio);
-const precioOferta = precioNumero(producto["Precio oferta"]);
-const precioFinal = precioOferta > 0 ? precioOferta : precio;
+
+      const precioOferta = precioNumero(
+        producto["Precio oferta"]
+      );
+
+      const precioFinal =
+        precioOferta > 0 ? precioOferta : precio;
 
       const descuento =
         precio > 0 && precioOferta > 0
-          ? Math.round(((precio - precioOferta) / precio) * 100)
+          ? Math.round(
+              ((precio - precioOferta) / precio) * 100
+            )
           : 0;
+
+      const esCarruselInicio =
+        categoriaActiva === "Inicio" &&
+        !hayBusquedaMobile;
 
       return (
         <button
@@ -769,7 +787,11 @@ const precioFinal = precioOferta > 0 ? precioOferta : precio;
             setProductoAbierto(grupo);
             setCantidadDetalle(1);
           }}
-          className="min-w-0 rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] active:scale-[0.98]"
+          className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
+            esCarruselInicio
+              ? "w-[calc((100vw-32px)/3)] shrink-0 snap-start"
+              : "min-w-0"
+          }`}
         >
           <div className="relative flex aspect-square items-end justify-center rounded-xl bg-gray-50 pt-5 pb-0.5">
             {grupo.marca && (
@@ -784,18 +806,14 @@ const precioFinal = precioOferta > 0 ? precioOferta : precio;
               </span>
             )}
 
-
             {producto.Imagen && (
-  <img
-  src={producto.Imagen}
-  alt={producto.nombre}
-  className="relative z-10 h-[81%] w-[81%] object-contain"
-/>
-)}
-
+              <img
+                src={producto.Imagen}
+                alt={grupo.nombre}
+                className="relative z-10 h-[81%] w-[81%] object-contain"
+              />
+            )}
           </div>
-
-          
 
           <p className="mt-1 line-clamp-2 min-h-0 text-[10px] font-black leading-tight text-gray-900">
             {grupo.nombre}
