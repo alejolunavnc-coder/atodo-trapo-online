@@ -19,6 +19,18 @@ export default function useProductos({
         .trim()
     ) || 0;
 
+  const estaSinStock = (producto: Producto) => {
+    const stock = String((producto as any).Stock || "")
+      .trim()
+      .toLowerCase();
+
+    return stock === "x";
+  };
+
+  const productosDisponibles = productos.filter(
+    (producto: Producto) => !estaSinStock(producto)
+  );
+
   const tieneOferta = (producto: Producto) => {
     const ofertaTexto = producto.Oferta?.trim().toLowerCase();
     const precioOferta = precioNumero(producto["Precio oferta"]);
@@ -26,8 +38,8 @@ export default function useProductos({
     return ofertaTexto === "si" || ofertaTexto === "sí" || precioOferta > 0;
   };
 
-  const productosEnOferta = productos.filter((producto: Producto) =>
-    tieneOferta(producto)
+  const productosEnOferta = productosDisponibles.filter(
+    (producto: Producto) => tieneOferta(producto)
   );
 
   const categoriaActual = String(categoria || "")
@@ -37,39 +49,37 @@ export default function useProductos({
   const esOfertas = categoriaActual === "ofertas";
   const esPinturas = categoriaActual.includes("pintura");
 
-  const productosFiltrados = productos.filter((producto: Producto) => {
-    /*
-      La categoría Ofertas no depende de la columna Categoría.
-      Muestra cualquier producto que tenga oferta.
-    */
-    if (esOfertas) {
-      return tieneOferta(producto);
-    }
+  const productosFiltrados = productosDisponibles.filter(
+    (producto: Producto) => {
+      if (esOfertas) {
+        return tieneOferta(producto);
+      }
 
-    const mismaCategoria =
-      producto.Categoría?.trim().toLowerCase() === categoriaActual;
+      const mismaCategoria =
+        producto.Categoría?.trim().toLowerCase() === categoriaActual;
 
-    if (!mismaCategoria) return false;
+      if (!mismaCategoria) return false;
 
-    if (!esPinturas) return true;
+      if (!esPinturas) return true;
 
-    const subcategoriaActual = String(subcategoria || "")
-      .trim()
-      .toLowerCase();
-
-    if (
-      subcategoriaActual === "" ||
-      subcategoriaActual === "todas"
-    ) {
-      return true;
-    }
-
-    return (
-      String(producto.Subcategoría || "")
+      const subcategoriaActual = String(subcategoria || "")
         .trim()
-        .toLowerCase() === subcategoriaActual
-    );
-  });
+        .toLowerCase();
+
+      if (
+        subcategoriaActual === "" ||
+        subcategoriaActual === "todas"
+      ) {
+        return true;
+      }
+
+      return (
+        String(producto.Subcategoría || "")
+          .trim()
+          .toLowerCase() === subcategoriaActual
+      );
+    }
+  );
 
   type GrupoProducto = {
     nombre: string;
@@ -106,7 +116,7 @@ export default function useProductos({
     );
 
   const productosBuscados = agrupar(
-    productos.filter((producto: Producto) =>
+    productosDisponibles.filter((producto: Producto) =>
       (
         (producto.Nombre || "") +
         " " +
@@ -180,6 +190,7 @@ export default function useProductos({
     : null;
 
   return {
+    productosDisponibles,
     productosEnOferta,
     productosFiltrados,
     productosBuscados,

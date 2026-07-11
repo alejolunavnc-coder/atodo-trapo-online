@@ -1,4 +1,5 @@
 export type Producto = {
+  Stock?: string;
   Categoría: string;
   Subcategoría: string;
   Marca: string;

@@ -111,19 +111,27 @@ const colores = esInicio
 
   useEffect(() => {
     const normalizarProductos = (filas: Record<string, string>[]) => {
-      const productosNormalizados = filas.map((fila) => {
-        const producto: Record<string, string> = {};
+  const productosNormalizados = filas
+    .map((fila) => {
+      const producto: Record<string, string> = {};
 
-        Object.entries(fila).forEach(([clave, valor]) => {
-          const claveLimpia = clave.replace(/^\uFEFF/, "").trim();
-          producto[claveLimpia] = valor;
-        });
-
-        return producto as Producto;
+      Object.entries(fila).forEach(([clave, valor]) => {
+        const claveLimpia = clave.replace(/^\uFEFF/, "").trim();
+        producto[claveLimpia] = valor;
       });
 
-      setProductos(productosNormalizados);
-    };
+      return producto as Producto;
+    })
+    .filter((producto) => {
+      const stock = String((producto as any).Stock || "")
+        .trim()
+        .toLowerCase();
+
+      return stock !== "x";
+    });
+
+  setProductos(productosNormalizados);
+};
 
     const cargarProductos = async () => {
       try {
