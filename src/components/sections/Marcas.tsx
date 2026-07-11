@@ -98,7 +98,7 @@ export default function Marcas({
       .trim();
 
   const imagenesSubcategorias: Record<string, string> = {
-    todas: "pintura-int-ext.png",
+    todas: "todas.png",
 
     aerosol: "aerosoles.png",
     aerosoles: "aerosoles.png",

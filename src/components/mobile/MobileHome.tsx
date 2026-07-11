@@ -607,7 +607,7 @@ return (
           const activa = subcategoriaActiva === subcategoria;
 
           const imagenesSubcategorias: Record<string, string> = {
-            Todas: "pintura-int-ext.png",
+            todas: "todas.png",
 
             Aerosol: "aerosoles.png",
             Aerosoles: "aerosoles.png",
