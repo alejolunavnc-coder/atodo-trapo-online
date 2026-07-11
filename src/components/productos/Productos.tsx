@@ -60,10 +60,13 @@ export default function Productos({
           ];
 
           const primerTamano =
-            opcionesTamanos[0] || grupo.items[0]?.Tamaño || "";
+  opcionesTamanos[0] || grupo.items[0]?.Tamaño || "";
 
-          const tamanioActual =
-            tamanosSeleccionados[index] || primerTamano;
+const tamanioGuardado = tamanosSeleccionados[index];
+
+const tamanioActual = opcionesTamanos.includes(tamanioGuardado)
+  ? tamanioGuardado
+  : primerTamano;
 
           const itemsDelTamano = grupo.items.filter(
             (item: any) =>
