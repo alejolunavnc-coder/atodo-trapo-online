@@ -35,15 +35,14 @@ export default function ProductoCardPC({
           className="relative z-10 cursor-pointer hover:-translate-y-1 transition-all duration-300"
         >
           <TarjetaProducto
-            nombre={nombre}
-            linea={linea}
-            marca={marca}
-            imagen={imagen}
-            aromas={aromas}
-            precio={precio}
-            precioOferta={precioOferta}
-            oferta={oferta}
-          />
+  nombre={nombre}
+  linea={linea}
+  marca={marca}
+  imagen={imagen}
+  aromas={aromas}
+  precio={precio}
+  precioOferta={precioOferta}
+/>
         </div>
 
         {children}
