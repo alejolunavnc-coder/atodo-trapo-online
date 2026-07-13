@@ -2,7 +2,7 @@
 
 // [Imports]
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 import Image from "next/image";
 import Papa from "papaparse";
@@ -89,6 +89,9 @@ export default function MobileHome() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ubicacionAbierta, setUbicacionAbierta] = useState(false);
   const [calculadoraAbierta, setCalculadoraAbierta] = useState(false);
+
+  const ofertasCarruselRef =
+    useRef<HTMLDivElement | null>(null);
 
 // [Paleta dinámica]
 
@@ -373,6 +376,75 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
   : productosFiltradosMobile;
 
 const gruposMobile = agruparProductosMobile(productosBuscadosMobile);
+
+useEffect(() => {
+  const esCarruselDeOfertas =
+    categoriaActiva === "Inicio" &&
+    !hayBusquedaMobile;
+
+  const carrusel = ofertasCarruselRef.current;
+
+  if (
+    !esCarruselDeOfertas ||
+    !carrusel ||
+    gruposMobile.length <= 3
+  ) {
+    return;
+  }
+
+  const intervalo = window.setInterval(() => {
+    const tarjetas =
+      carrusel.querySelectorAll<HTMLElement>(
+        "[data-oferta-mobile]"
+      );
+
+    const primeraTarjeta = tarjetas[0];
+
+    if (!primeraTarjeta) {
+      return;
+    }
+
+    const espacioEntreTarjetas = 8;
+
+    const desplazamiento =
+      primeraTarjeta.offsetWidth +
+      espacioEntreTarjetas;
+
+    const limite =
+      carrusel.scrollWidth -
+      carrusel.clientWidth;
+
+    const siguientePosicion =
+      carrusel.scrollLeft +
+      desplazamiento;
+
+    if (
+      siguientePosicion >=
+      limite - 4
+    ) {
+      carrusel.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+
+      return;
+    }
+
+    carrusel.scrollBy({
+      left: desplazamiento,
+      behavior: "smooth",
+    });
+  }, 3000);
+
+  return () => {
+    window.clearInterval(intervalo);
+  };
+}, [
+  categoriaActiva,
+  hayBusquedaMobile,
+  gruposMobile.length,
+]);
+
   const cantidadCarrito = carrito.reduce(
   (total, item) => total + item.cantidad,
   0
@@ -826,6 +898,7 @@ return (
 
 <section className="bg-white px-2 pt-2 pb-6">
   <div
+    ref={ofertasCarruselRef}
     className={
       categoriaActiva === "Inicio" && !hayBusquedaMobile
         ? "flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -863,6 +936,7 @@ return (
       return (
         <button
           key={`${grupo.linea}-${grupo.nombre}-${index}`}
+          data-oferta-mobile={esCarruselInicio ? "true" : undefined}
           onClick={() => {
             setProductoAbierto(grupo);
             setCantidadDetalle(1);
