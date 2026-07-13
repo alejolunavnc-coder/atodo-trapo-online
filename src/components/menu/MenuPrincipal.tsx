@@ -1,3 +1,4 @@
+import { Calculator, Sparkles } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { contactoConfig } from "@/src/config/contacto";
 import type { Producto } from "@/src/types/producto";
@@ -7,18 +8,16 @@ type MenuPrincipalProps = {
   setCategoria: (categoria: string) => void;
   setMarca: (marca: string) => void;
   setVista: (vista: string) => void;
+  onAbrirCalculadoraPintura: () => void;
 };
 
 export default function MenuPrincipal({
-  productos,
-  setCategoria,
-  setMarca,
-  setVista,
+  onAbrirCalculadoraPintura,
 }: MenuPrincipalProps) {
   return (
-    <nav className="hidden md:block bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto h-[54px] px-6 flex items-center justify-between">
-        <div className="flex items-center gap-10 ml-[80px] text-[14px] font-semibold text-[#162a63]">
+    <nav className="hidden border-b border-gray-200 bg-white md:block">
+      <div className="mx-auto flex h-[54px] max-w-7xl items-center justify-between px-6">
+        <div className="ml-[80px] flex items-center gap-7 text-[14px] font-semibold text-[#162a63]">
           <button
             onClick={() =>
               window.scrollTo({
@@ -26,81 +25,33 @@ export default function MenuPrincipal({
                 behavior: "smooth",
               })
             }
-            className="relative font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
+            className="relative font-semibold text-[#162a63] transition-colors duration-200 hover:text-[#0d3fb8]"
           >
             Inicio
-            <span className="absolute left-0 -bottom-[17px] w-full h-[3px] bg-yellow-400 rounded-full"></span>
+
+            <span className="absolute left-0 -bottom-[17px] h-[3px] w-full rounded-full bg-yellow-400" />
           </button>
 
-          {["Pinturas", "Piscina"].map((categoriaMenu) => {
-            const marcasCategoria = [
-              ...new Set(
-                productos
-                  .filter((p) => p.Categoría?.trim() === categoriaMenu)
-                  .map((p) => p.Marca?.trim())
-              ),
-            ].filter(Boolean);
+          <button
+            type="button"
+            onClick={onAbrirCalculadoraPintura}
+            className="group relative flex h-10 items-center gap-3 overflow-hidden rounded-[14px] bg-[#F8C400] px-4 text-[#081B43] shadow-[0_8px_20px_rgba(15,23,42,0.16)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FFD21A] hover:shadow-[0_12px_28px_rgba(15,23,42,0.22)] active:scale-[0.98] animate-[latidoCalculadora_2.2s_ease-in-out_infinite]"
+          >
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/85 shadow-sm">
+              <Calculator size={17} strokeWidth={2.4} />
+            </span>
 
-            const tieneMarcas = marcasCategoria.length > 0;
+            <span className="text-[14px] font-black tracking-[-0.02em]">
+              Calculadora de pintura
+            </span>
 
-            if (tieneMarcas) {
-              return (
-                <div
-                  key={categoriaMenu}
-                  className="relative group h-[54px] flex items-center"
-                >
-                  <button className="flex items-center gap-1 font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200">
-                    {categoriaMenu}
-                    <span className="text-[10px] mt-0.5">▼</span>
-                  </button>
+            <span className="flex items-center gap-1 rounded-full bg-[#081B43] px-2 py-1 text-[8px] font-black uppercase tracking-[0.12em] text-white">
+              <Sparkles size={10} strokeWidth={2.6} />
+              Nuevo
+            </span>
 
-                  <div className="absolute left-0 top-[54px] w-56 bg-white border border-gray-100 rounded-2xl shadow-[0_18px_45px_rgba(15,23,42,0.16)] p-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-[80]">
-                    {marcasCategoria.map((marca) => (
-                      <button
-                        key={String(marca)}
-                        onClick={() => {
-                          setCategoria(categoriaMenu);
-                          setMarca(String(marca));
-                          setVista("productos");
-
-                          setTimeout(() => {
-                            document.getElementById("productos")?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "start",
-                            });
-                          }, 50);
-                        }}
-                        className="w-full text-left px-4 py-3 rounded-xl text-[14px] font-medium text-[#162a63] hover:bg-yellow-50 hover:text-[#0d3fb8] transition-all duration-200"
-                      >
-                        {String(marca)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <button
-                key={categoriaMenu}
-                onClick={() => {
-                  setCategoria(categoriaMenu);
-                  setMarca("");
-                  setVista("productos");
-
-                  setTimeout(() => {
-                    document.getElementById("productos")?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }, 50);
-                }}
-                className="font-semibold text-[#162a63] hover:text-[#0d3fb8] transition-colors duration-200"
-              >
-                {categoriaMenu}
-              </button>
-            );
-          })}
+            <span className="pointer-events-none absolute inset-y-0 left-[-45%] w-[30%] skew-x-[-20deg] bg-white/30 blur-[1px] transition-all duration-700 group-hover:left-[120%]" />
+          </button>
         </div>
 
         <a
@@ -109,7 +60,7 @@ export default function MenuPrincipal({
           )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-[#1FAF5A] hover:bg-[#198F49] text-white px-5 py-2 rounded-xl text-[14px] font-semibold transition shadow-sm"
+          className="flex items-center gap-2 rounded-xl bg-[#1FAF5A] px-5 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#198F49]"
         >
           <FaWhatsapp size={17} />
           <span>Consultanos por WhatsApp</span>

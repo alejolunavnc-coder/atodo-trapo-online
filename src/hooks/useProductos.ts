@@ -20,7 +20,7 @@ export default function useProductos({
     ) || 0;
 
   const estaSinStock = (producto: Producto) => {
-    const stock = String((producto as any).Stock || "")
+    const stock = String(producto.Stock || "")
       .trim()
       .toLowerCase();
 
@@ -32,10 +32,16 @@ export default function useProductos({
   );
 
   const tieneOferta = (producto: Producto) => {
-    const ofertaTexto = producto.Oferta?.trim().toLowerCase();
-    const precioOferta = precioNumero(producto["Precio oferta"]);
+    const precio = precioNumero(producto.Precio);
+    const precioOferta = precioNumero(
+      producto["Precio oferta"]
+    );
 
-    return ofertaTexto === "si" || ofertaTexto === "sí" || precioOferta > 0;
+    return (
+      precioOferta > 0 &&
+      precio > 0 &&
+      precioOferta < precio
+    );
   };
 
   const productosEnOferta = productosDisponibles.filter(
@@ -56,13 +62,16 @@ export default function useProductos({
       }
 
       const mismaCategoria =
-        producto.Categoría?.trim().toLowerCase() === categoriaActual;
+        producto.Categoría?.trim().toLowerCase() ===
+        categoriaActual;
 
       if (!mismaCategoria) return false;
 
       if (!esPinturas) return true;
 
-      const subcategoriaActual = String(subcategoria || "")
+      const subcategoriaActual = String(
+        subcategoria || ""
+      )
         .trim()
         .toLowerCase();
 
@@ -88,11 +97,18 @@ export default function useProductos({
     items: Producto[];
   };
 
-  const agrupar = (lista: Producto[]): GrupoProducto[] =>
+  const agrupar = (
+    lista: Producto[]
+  ): GrupoProducto[] =>
     Object.values(
       lista.reduce(
-        (acc: Record<string, GrupoProducto>, producto: Producto) => {
-          const nombre = producto.Nombre || "Producto sin nombre";
+        (
+          acc: Record<string, GrupoProducto>,
+          producto: Producto
+        ) => {
+          const nombre =
+            producto.Nombre || "Producto sin nombre";
+
           const linea = producto.Linea || "";
           const marca = producto.Marca || "";
 
@@ -116,74 +132,92 @@ export default function useProductos({
     );
 
   const productosBuscados = agrupar(
-    productosDisponibles.filter((producto: Producto) =>
-      (
-        (producto.Nombre || "") +
-        " " +
-        (producto.Marca || "") +
-        " " +
-        (producto.Linea || "") +
-        " " +
-        (producto.Subcategoría || "") +
-        " " +
-        (producto.Color || "") +
-        " " +
-        (producto.Fragancias || "") +
-        " " +
-        (producto.Aromas || "") +
-        " " +
-        (producto.Tamaño || "") +
-        " " +
-        (producto.Categoría || "")
-      )
-        .toLowerCase()
-        .includes(String(busqueda || "").trim().toLowerCase())
+    productosDisponibles.filter(
+      (producto: Producto) =>
+        (
+          (producto.Nombre || "") +
+          " " +
+          (producto.Marca || "") +
+          " " +
+          (producto.Linea || "") +
+          " " +
+          (producto.Subcategoría || "") +
+          " " +
+          (producto.Color || "") +
+          " " +
+          (producto.Fragancias || "") +
+          " " +
+          (producto.Aromas || "") +
+          " " +
+          (producto.Tamaño || "") +
+          " " +
+          (producto.Categoría || "")
+        )
+          .toLowerCase()
+          .includes(
+            String(busqueda || "")
+              .trim()
+              .toLowerCase()
+          )
     )
   );
 
-  const productosAgrupados = agrupar(productosFiltrados);
+  const productosAgrupados = agrupar(
+    productosFiltrados
+  );
 
-  const ofertasAgrupadas = agrupar(productosEnOferta);
+  const ofertasAgrupadas = agrupar(
+    productosEnOferta
+  );
 
   const productoDetalle = grupoDetalle
     ? grupoDetalle.grupo.items.find((item: any) => {
         if (
-          grupoDetalle.grupo.items.some((i: any) =>
-            i.Color?.trim()
+          grupoDetalle.grupo.items.some(
+            (i: any) => i.Color?.trim()
           )
         ) {
           return (
             item.Tamaño ===
               (tamanosSeleccionados[
                 "detalle" + grupoDetalle.index
-              ] || grupoDetalle.grupo.items[0].Tamaño) &&
+              ] ||
+                grupoDetalle.grupo.items[0]
+                  .Tamaño) &&
             item.Color ===
               (coloresSeleccionados[
                 "detalle" + grupoDetalle.index
-              ] || grupoDetalle.grupo.items[0].Color)
+              ] ||
+                grupoDetalle.grupo.items[0].Color)
           );
         }
 
         if (
-          grupoDetalle.grupo.items.some((i: any) =>
-            i.Fragancias?.trim()
+          grupoDetalle.grupo.items.some(
+            (i: any) => i.Fragancias?.trim()
           )
         ) {
           return (
             item.Tamaño ===
               (tamanosSeleccionados[
                 "detalle" + grupoDetalle.index
-              ] || grupoDetalle.grupo.items[0].Tamaño) &&
+              ] ||
+                grupoDetalle.grupo.items[0]
+                  .Tamaño) &&
             item.Fragancias ===
               (fraganciasSeleccionadas[
                 "detalle" + grupoDetalle.index
-              ] || grupoDetalle.grupo.items[0].Fragancias)
+              ] ||
+                grupoDetalle.grupo.items[0]
+                  .Fragancias)
           );
         }
 
         return (
           item.Tamaño ===
-          (tamanosSeleccionados["detalle" + grupoDetalle.index] ||
+          (tamanosSeleccionados[
+            "detalle" + grupoDetalle.index
+          ] ||
             grupoDetalle.grupo.items[0].Tamaño)
         );
       })

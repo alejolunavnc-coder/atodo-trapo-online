@@ -27,6 +27,8 @@ export default function OfertasDestacadas({
 }: Props) {
   const carruselRef = useRef<HTMLDivElement>(null);
   const reposicionandoRef = useRef(false);
+  const carruselPausadoRef = useRef(false);
+  const pausaTemporalHastaRef = useRef(0);
 
   const ofertasCarrusel =
     ofertasAgrupadas.length > 0
@@ -59,6 +61,65 @@ export default function OfertasDestacadas({
       cancelAnimationFrame(frame);
     };
   }, [ofertasAgrupadas.length]);
+
+  useEffect(() => {
+    const carrusel = carruselRef.current;
+
+    if (!carrusel || ofertasAgrupadas.length === 0) {
+      return;
+    }
+
+    let frameAnimacion = 0;
+    let tiempoAnterior = performance.now();
+
+    const anchoBloque =
+      ofertasAgrupadas.length * pasoTarjeta;
+
+    const animarCarrusel = (tiempoActual: number) => {
+      const tiempoTranscurrido = Math.min(
+        tiempoActual - tiempoAnterior,
+        40
+      );
+
+      tiempoAnterior = tiempoActual;
+
+      const puedeMoverse =
+        !carruselPausadoRef.current &&
+        tiempoActual >= pausaTemporalHastaRef.current;
+
+      if (puedeMoverse) {
+        carrusel.scrollLeft += tiempoTranscurrido * 0.035;
+
+        if (carrusel.scrollLeft > anchoBloque * 1.5) {
+          reposicionandoRef.current = true;
+          carrusel.scrollLeft -= anchoBloque;
+
+          requestAnimationFrame(() => {
+            reposicionandoRef.current = false;
+          });
+        }
+      }
+
+      frameAnimacion = requestAnimationFrame(
+        animarCarrusel
+      );
+    };
+
+    frameAnimacion = requestAnimationFrame(
+      animarCarrusel
+    );
+
+    return () => {
+      cancelAnimationFrame(frameAnimacion);
+    };
+  }, [ofertasAgrupadas.length]);
+
+  const pausarTemporalmente = (
+    duracion = 4500
+  ) => {
+    pausaTemporalHastaRef.current =
+      performance.now() + duracion;
+  };
 
   const mantenerCarruselInfinito = () => {
     const carrusel = carruselRef.current;
@@ -98,6 +159,8 @@ export default function OfertasDestacadas({
   const moverCarrusel = (
     direccion: "izquierda" | "derecha"
   ) => {
+    pausarTemporalmente();
+
     carruselRef.current?.scrollBy({
       left:
         direccion === "derecha"
@@ -152,7 +215,29 @@ export default function OfertasDestacadas({
             <div
               ref={carruselRef}
               onScroll={mantenerCarruselInfinito}
-              className="overflow-x-auto scroll-smooth px-12 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              onMouseEnter={() => {
+                carruselPausadoRef.current = true;
+              }}
+              onMouseLeave={() => {
+                carruselPausadoRef.current = false;
+                pausaTemporalHastaRef.current = 0;
+              }}
+              onTouchStart={() => {
+                carruselPausadoRef.current = true;
+              }}
+              onTouchEnd={() => {
+                carruselPausadoRef.current = false;
+                pausarTemporalmente();
+              }}
+              onWheel={() => pausarTemporalmente()}
+              onFocusCapture={() => {
+                carruselPausadoRef.current = true;
+              }}
+              onBlurCapture={() => {
+                carruselPausadoRef.current = false;
+                pausaTemporalHastaRef.current = 0;
+              }}
+              className="overflow-x-auto px-12 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <div className="flex w-max gap-4">
                 {ofertasCarrusel.map((grupo, indexCarrusel) => {

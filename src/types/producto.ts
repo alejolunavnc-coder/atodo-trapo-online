@@ -9,7 +9,6 @@ export type Producto = {
   Color: string;
   Precio: string;
   "Precio oferta": string;
-  Oferta: string;
   Imagen: string;
   Fragancias: string;
   Aromas: string;

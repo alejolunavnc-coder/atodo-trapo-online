@@ -78,7 +78,12 @@ function obtenerPrecio(producto: Producto) {
     producto["Precio oferta"]
   );
 
-  return precioOferta > 0 ? precioOferta : precio;
+  const tieneOferta =
+    precioOferta > 0 &&
+    precio > 0 &&
+    precioOferta < precio;
+
+  return tieneOferta ? precioOferta : precio;
 }
 
 function productoTieneStock(producto: Producto) {

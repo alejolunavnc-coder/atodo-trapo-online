@@ -220,13 +220,10 @@ function productoEnOferta(producto: Producto) {
   const precio = obtenerPrecio(producto);
   const precioOferta = obtenerPrecioOferta(producto);
 
-  const ofertaMarcada =
-    normalizarTexto(producto.Oferta) === "si";
-
   return (
     precioOferta > 0 &&
-    precioOferta < precio &&
-    (ofertaMarcada || precioOferta > 0)
+    precio > 0 &&
+    precioOferta < precio
   );
 }
 

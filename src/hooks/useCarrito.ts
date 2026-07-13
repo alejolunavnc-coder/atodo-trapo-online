@@ -3,7 +3,29 @@ export default function useCarrito(
   setCarrito: any,
   setCarritoAnimado: any
 ) {
+  const precioNumero = (valor: any) =>
+    Number(
+      String(valor || "")
+        .replace(/\$/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim()
+    ) || 0;
+
   function agregarAlCarrito(producto: any) {
+    const precioNormal = precioNumero(
+      producto.Precio
+    );
+
+    const precioOferta = precioNumero(
+      producto["Precio oferta"]
+    );
+
+    const tieneOferta =
+      precioOferta > 0 &&
+      precioNormal > 0 &&
+      precioOferta < precioNormal;
+
     const nuevoProducto = {
       categoria: producto.Categoría || "",
       marca: producto.Marca || "",
@@ -15,16 +37,13 @@ export default function useCarrito(
       imagen: producto.Imagen || "",
       cantidad: 1,
 
-      precio: Number(
-        producto.Oferta?.trim().toLowerCase() === "si"
-          ? producto["Precio oferta"]
-          : producto.Precio
-      ),
+      precio: tieneOferta
+        ? precioOferta
+        : precioNormal,
 
-      precioOriginal:
-        producto.Oferta?.trim().toLowerCase() === "si"
-          ? Number(producto.Precio)
-          : null,
+      precioOriginal: tieneOferta
+        ? precioNormal
+        : null,
     };
 
     const productoExistente = carrito.find(
@@ -44,12 +63,19 @@ export default function useCarrito(
           item.tamano === nuevoProducto.tamano &&
           item.color === nuevoProducto.color &&
           item.fragancia === nuevoProducto.fragancia
-            ? { ...item, cantidad: (item.cantidad || 1) + 1 }
+            ? {
+                ...item,
+                cantidad:
+                  (item.cantidad || 1) + 1,
+              }
             : item
         )
       );
     } else {
-      setCarrito([...carrito, nuevoProducto]);
+      setCarrito([
+        ...carrito,
+        nuevoProducto,
+      ]);
     }
 
     setCarritoAnimado(true);
@@ -60,7 +86,11 @@ export default function useCarrito(
   }
 
   function eliminarDelCarrito(index: number) {
-    setCarrito(carrito.filter((_: any, i: number) => i !== index));
+    setCarrito(
+      carrito.filter(
+        (_: any, i: number) => i !== index
+      )
+    );
   }
 
   function vaciarCarrito() {
@@ -69,7 +99,9 @@ export default function useCarrito(
 
   const totalCarrito = carrito.reduce(
     (total: number, producto: any) =>
-      total + producto.precio * (producto.cantidad || 1),
+      total +
+      producto.precio *
+        (producto.cantidad || 1),
     0
   );
 
@@ -79,14 +111,25 @@ export default function useCarrito(
     carrito
       .map(
         (producto: any, index: number) =>
-          `${index + 1}. ${producto.marca ? producto.marca + " - " : ""}${
-            producto.nombre
-          }${producto.cantidad > 1 ? ` x${producto.cantidad}` : ""}\n` +
-          `   ${[producto.tamano, producto.fragancia || producto.color]
+          `${index + 1}. ${
+            producto.marca
+              ? producto.marca + " - "
+              : ""
+          }${producto.nombre}${
+            producto.cantidad > 1
+              ? ` x${producto.cantidad}`
+              : ""
+          }\n` +
+          `   ${[
+            producto.tamano,
+            producto.fragancia ||
+              producto.color,
+          ]
             .filter(Boolean)
             .join(" · ")}\n` +
           `   $${(
-            producto.precio * (producto.cantidad || 1)
+            producto.precio *
+            (producto.cantidad || 1)
           ).toLocaleString("es-AR")}`
       )
       .join("\n\n") +

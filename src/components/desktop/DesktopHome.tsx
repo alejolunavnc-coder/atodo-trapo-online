@@ -27,6 +27,7 @@ import DetalleProducto from "@/src/components/detalle/DetalleProducto";
 import MenuPrincipal from "@/src/components/menu/MenuPrincipal";
 import DesktopShell from "@/src/components/desktop/home/DesktopShell";
 import DesktopCatalogSection from "@/src/components/desktop/home/DesktopCatalogSection";
+import CalculadoraPinturaPC from "@/src/components/desktop/calculadora/CalculadoraPinturaPC";
 
 /* Componente principal */
 
@@ -56,6 +57,7 @@ export default function DesktopHome() {
   const [bannerActual, setBannerActual] = useState(0);
   const [posicionAntesBusqueda, setPosicionAntesBusqueda] = useState(0);
   const [busquedaActiva, setBusquedaActiva] = useState(false);
+  const [calculadoraPinturaAbierta, setCalculadoraPinturaAbierta] =useState(false);
   const {
     agregarAlCarrito,
     vaciarCarrito,
@@ -135,19 +137,102 @@ export default function DesktopHome() {
       />
 
       {/* Menú normal */}
-      <MenuPrincipal
+
+<MenuPrincipal
   productos={productos}
   setCategoria={setCategoria}
   setMarca={setSubcategoria}
   setVista={setVista}
+  onAbrirCalculadoraPintura={() => {
+    setCalculadoraPinturaAbierta(true);
+
+    setTimeout(() => {
+      document
+        .getElementById("calculadora-pintura-pc")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }, 50);
+  }}
 />
 
-      <BannerPrincipal
-        bannerActual={bannerActual}
-        setBannerActual={setBannerActual}
-      />
+{!calculadoraPinturaAbierta && (
+  <>
+    <BannerPrincipal
+      bannerActual={bannerActual}
+      setBannerActual={setBannerActual}
+    />
 
-      <Beneficios />
+    <Beneficios />
+  </>
+)}
+
+{calculadoraPinturaAbierta && (
+  <section
+    id="calculadora-pintura-pc"
+    className="mx-auto min-h-[650px] max-w-7xl scroll-mt-36 px-6 py-8"
+  >
+    <div className="rounded-[28px] border border-gray-200 bg-white p-8 shadow-[0_18px_50px_rgba(15,23,42,0.10)]">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-[0.16em] text-yellow-500">
+            Herramienta gratuita
+          </p>
+
+          <h1 className="mt-2 text-[32px] font-black tracking-[-0.04em] text-blue-950">
+            Calculadora de pintura
+          </h1>
+
+          <p className="mt-2 text-[15px] font-medium text-gray-500">
+            Calculá cuánta pintura necesitás para tu espacio.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCalculadoraPinturaAbierta(false);
+
+            setTimeout(() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }, 50);
+          }}
+          className="flex h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-[13px] font-black text-blue-950 shadow-sm transition hover:bg-gray-50"
+        >
+          ← Volver al inicio
+        </button>
+      </div>
+
+      <div className="mt-8">
+  <CalculadoraPinturaPC
+  productos={productos}
+  onContinuar={(datosPasoUno) => {
+    console.log("Datos del Paso 1 PC:", datosPasoUno);
+  }}
+  onAgregarAlCarrito={(items) => {
+    items.forEach(({ producto, cantidad }) => {
+      for (let unidad = 0; unidad < cantidad; unidad += 1) {
+        agregarAlCarrito(producto);
+      }
+    });
+
+    setCarritoAnimado(true);
+
+    setTimeout(() => {
+      setCarritoAnimado(false);
+      setCalculadoraPinturaAbierta(false);
+      setMostrarCarrito(true);
+    }, 600);
+  }}
+/>
+</div>
+    </div>
+  </section>
+)}
 
       {/* Contenedor principal del catálogo */}
 

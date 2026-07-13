@@ -142,7 +142,6 @@ export default function ResultadosBusqueda({
   aromas={productoSeleccionado?.Aromas}
   precio={productoSeleccionado?.Precio}
   precioOferta={productoSeleccionado?.["Precio oferta"]}
-  oferta={productoSeleccionado?.Oferta}
 />
                 </div>
 

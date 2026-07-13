@@ -256,9 +256,6 @@ const tamanioActual = opcionesTamanos.includes(tamanioGuardado)
                         "Precio oferta"
                       ]
                     }
-                    oferta={
-                      productoSeleccionado?.Oferta
-                    }
                   />
                 </div>
 

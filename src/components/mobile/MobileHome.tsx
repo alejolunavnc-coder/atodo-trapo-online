@@ -259,10 +259,16 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
       .toLowerCase();
 
   const tieneOferta = (producto: Producto) => {
-    const precioOferta = precioNumero(producto["Precio oferta"]);
-    const ofertaTexto = normalizarTexto(producto.Oferta);
+    const precio = precioNumero(producto.Precio);
+    const precioOferta = precioNumero(
+      producto["Precio oferta"]
+    );
 
-    return precioOferta > 0 || ofertaTexto === "si" || ofertaTexto === "sí";
+    return (
+      precioOferta > 0 &&
+      precio > 0 &&
+      precioOferta < precio
+    );
   };
 
   const agruparProductosMobile = (lista: Producto[]) =>
@@ -395,8 +401,14 @@ const agregarRecomendacionCalculadora = (
       const precioOferta = precioNumero(
         producto["Precio oferta"]
       );
-      const precioFinal =
-        precioOferta > 0 ? precioOferta : precio;
+      const tienePrecioOferta =
+        precioOferta > 0 &&
+        precio > 0 &&
+        precioOferta < precio;
+
+      const precioFinal = tienePrecioOferta
+        ? precioOferta
+        : precio;
 
       const tamano = producto.Tamaño?.trim() || "";
       const variante =
@@ -428,10 +440,9 @@ const agregarRecomendacionCalculadora = (
         precio: precioFinal,
         precioOriginal: precio,
         precioOferta,
-        ahorro:
-          precio > 0 && precioOferta > 0
-            ? precio - precioOferta
-            : 0,
+        ahorro: tienePrecioOferta
+          ? precio - precioOferta
+          : 0,
         cantidad,
       };
 
@@ -830,15 +841,20 @@ return (
         producto["Precio oferta"]
       );
 
-      const precioFinal =
-        precioOferta > 0 ? precioOferta : precio;
+      const tienePrecioOferta =
+        precioOferta > 0 &&
+        precio > 0 &&
+        precioOferta < precio;
 
-      const descuento =
-        precio > 0 && precioOferta > 0
-          ? Math.round(
-              ((precio - precioOferta) / precio) * 100
-            )
-          : 0;
+      const precioFinal = tienePrecioOferta
+        ? precioOferta
+        : precio;
+
+      const descuento = tienePrecioOferta
+        ? Math.round(
+            ((precio - precioOferta) / precio) * 100
+          )
+        : 0;
 
       const esCarruselInicio =
         categoriaActiva === "Inicio" &&
@@ -890,7 +906,7 @@ return (
           )}
 
           <div className="mt-1 leading-none">
-            {precioOferta > 0 && precio > 0 && (
+            {tienePrecioOferta && (
               <p className="text-[8px] font-bold leading-none text-red-500 line-through">
                 ${formatoPrecio(precio)}
               </p>
@@ -960,14 +976,24 @@ return (
 
   const precio = precioNumero(producto.Precio);
   const precioOferta = precioNumero(producto["Precio oferta"]);
-  const precioFinal = precioOferta > 0 ? precioOferta : precio;
+  const tienePrecioOferta =
+    precioOferta > 0 &&
+    precio > 0 &&
+    precioOferta < precio;
 
-  const descuento =
-    precio > 0 && precioOferta > 0
-      ? Math.round(((precio - precioOferta) / precio) * 100)
-      : 0;
+  const precioFinal = tienePrecioOferta
+    ? precioOferta
+    : precio;
 
-  const ahorro = precio > 0 && precioOferta > 0 ? precio - precioOferta : 0;
+  const descuento = tienePrecioOferta
+    ? Math.round(
+        ((precio - precioOferta) / precio) * 100
+      )
+    : 0;
+
+  const ahorro = tienePrecioOferta
+    ? precio - precioOferta
+    : 0;
   const textoAromas =
   (producto as any)["Aromas"]?.trim() ||
   (producto as any)["Aroma"]?.trim() ||
@@ -1045,9 +1071,9 @@ const mostrarChapitaAromas = !tieneFragancias && textoAromas;
                 ${formatoPrecio(precioFinal)}
               </p>
 
-              {(precioOferta > 0 && precio > 0) || ahorro > 0 ? (
+              {tienePrecioOferta ? (
                 <div className="mt-1 flex items-center gap-2">
-                  {precioOferta > 0 && precio > 0 && (
+                  {tienePrecioOferta && (
                     <p className="text-[10px] font-bold leading-none text-gray-400 line-through">
                       ${formatoPrecio(precio)}
                     </p>

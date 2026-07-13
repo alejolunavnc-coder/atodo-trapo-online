@@ -37,7 +37,11 @@ export default function CarritoLateral({
               <p className="text-sm text-gray-500 mt-1">
                 {carrito.length === 0
                   ? "Todavía no agregaste productos"
-                  : `${carrito.length} productos agregados`}
+                  : `${carrito.reduce(
+                      (total, producto) =>
+                        total + ((producto as any).cantidad || 1),
+                      0
+                    )} productos agregados`}
               </p>
             </div>
 
@@ -137,12 +141,18 @@ export default function CarritoLateral({
                               )}
 
                               <p className="text-lg font-bold text-green-700 leading-none">
-                                ${producto.precio.toLocaleString("es-AR")}
+                                ${(
+                                  producto.precio *
+                                  ((producto as any).cantidad || 1)
+                                ).toLocaleString("es-AR")}
                               </p>
 
                               {ahorro > 0 && (
                                 <p className="text-xs font-semibold text-green-600 mt-1">
-                                  Ahorrás ${ahorro.toLocaleString("es-AR")}
+                                  Ahorrás ${(
+                                    ahorro *
+                                    ((producto as any).cantidad || 1)
+                                  ).toLocaleString("es-AR")}
                                 </p>
                               )}
                             </div>
@@ -168,7 +178,13 @@ export default function CarritoLateral({
                   <span className="font-semibold text-slate-800">
                     $
                     {carrito
-                      .reduce((total, producto) => total + producto.precio, 0)
+                      .reduce(
+                        (total, producto) =>
+                          total +
+                          producto.precio *
+                            ((producto as any).cantidad || 1),
+                        0
+                      )
                       .toLocaleString("es-AR")}
                   </span>
                 </div>
@@ -181,7 +197,11 @@ export default function CarritoLateral({
                         ? producto.precioOriginal - producto.precio
                         : 0;
 
-                    return totalAhorro + ahorro;
+                    return (
+                      totalAhorro +
+                      ahorro *
+                        ((producto as any).cantidad || 1)
+                    );
                   }, 0);
 
                   return ahorroTotal > 0 ? (
@@ -212,7 +232,13 @@ export default function CarritoLateral({
                 <span className="text-3xl font-black text-slate-900">
                   $
                   {carrito
-                    .reduce((total, producto) => total + producto.precio, 0)
+                    .reduce(
+                      (total, producto) =>
+                        total +
+                        producto.precio *
+                          ((producto as any).cantidad || 1),
+                      0
+                    )
                     .toLocaleString("es-AR")}
                 </span>
               </div>
@@ -229,7 +255,13 @@ export default function CarritoLateral({
                       .join("\n\n") +
                     "\n\nTotal: $" +
                     carrito
-                      .reduce((total, producto) => total + producto.precio, 0)
+                      .reduce(
+                        (total, producto) =>
+                          total +
+                          producto.precio *
+                            ((producto as any).cantidad || 1),
+                        0
+                      )
                       .toLocaleString("es-AR") +
                     "\n\nMi dirección es: "
                 )}`}

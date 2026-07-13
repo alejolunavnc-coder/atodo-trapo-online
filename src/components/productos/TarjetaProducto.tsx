@@ -6,8 +6,19 @@ type TarjetaProductoProps = {
   aromas?: string;
   precio?: string;
   precioOferta?: string;
-  oferta?: string;
 };
+
+function precioNumero(valor: unknown) {
+  return (
+    Number(
+      String(valor ?? "")
+        .replace(/\$/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim()
+    ) || 0
+  );
+}
 
 export default function TarjetaProducto({
   nombre,
@@ -17,27 +28,29 @@ export default function TarjetaProducto({
   aromas,
   precio,
   precioOferta,
-  oferta,
 }: TarjetaProductoProps) {
+  const precioNormal = precioNumero(precio);
+  const precioConOferta = precioNumero(precioOferta);
+
   const estaEnOferta =
-    oferta?.trim().toLowerCase() === "si" ||
-    oferta?.trim().toLowerCase() === "sí";
+    precioConOferta > 0 &&
+    precioNormal > 0 &&
+    precioConOferta < precioNormal;
 
-  const precioNormal = Number(precio);
-  const precioConOferta = Number(precioOferta);
+  const precioFinal = estaEnOferta
+    ? precioConOferta
+    : precioNormal;
 
-  const precioFinal =
-    estaEnOferta && precioOferta ? precioOferta : precio;
-
-  const ahorro =
-    estaEnOferta && precioNormal && precioConOferta
-      ? precioNormal - precioConOferta
-      : 0;
+  const ahorro = estaEnOferta
+    ? precioNormal - precioConOferta
+    : 0;
 
   const porcentaje =
-    estaEnOferta && precioNormal && precioConOferta
+    estaEnOferta && precioNormal > 0
       ? Math.ceil(
-          ((precioNormal - precioConOferta) / precioNormal) * 100
+          ((precioNormal - precioConOferta) /
+            precioNormal) *
+            100
         )
       : 0;
 
@@ -88,8 +101,7 @@ export default function TarjetaProducto({
           </h3>
         )}
 
-        {(linea?.trim() ||
-          (estaEnOferta && precio && precioOferta)) && (
+        {(linea?.trim() || estaEnOferta) && (
           <div className="mt-1 flex min-w-0 items-center gap-2">
             {linea?.trim() && (
               <p className="min-w-0 truncate text-[11px] font-medium leading-tight text-gray-500">
@@ -97,7 +109,7 @@ export default function TarjetaProducto({
               </p>
             )}
 
-            {estaEnOferta && precio && precioOferta && (
+            {estaEnOferta && (
               <p className="shrink-0 text-[11px] font-semibold leading-tight text-red-500 line-through">
                 ${precioNormal.toLocaleString("es-AR")}
               </p>
@@ -111,23 +123,15 @@ export default function TarjetaProducto({
           </div>
         )}
 
-        {precioFinal && (
+        {precioFinal > 0 && (
           <div className="mt-2">
-            {estaEnOferta && precioOferta ? (
-              <>
-                <p className="text-[24px] font-black leading-none tracking-[-0.05em] text-blue-950">
-                  ${precioConOferta.toLocaleString("es-AR")}
-                </p>
+            <p className="text-[24px] font-black leading-none tracking-[-0.05em] text-blue-950">
+              ${precioFinal.toLocaleString("es-AR")}
+            </p>
 
-                {ahorro > 0 && (
-                  <p className="mt-1 text-[11px] font-extrabold leading-none text-green-600">
-                    Ahorrás ${ahorro.toLocaleString("es-AR")}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-[24px] font-black leading-none tracking-[-0.05em] text-blue-950">
-                ${Number(precioFinal).toLocaleString("es-AR")}
+            {estaEnOferta && ahorro > 0 && (
+              <p className="mt-1 text-[11px] font-extrabold leading-none text-green-600">
+                Ahorrás ${ahorro.toLocaleString("es-AR")}
               </p>
             )}
           </div>
