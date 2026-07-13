@@ -171,6 +171,14 @@ function coincidePorPalabras(
 }
 
 
+function obtenerAplicacionesCalculadora(valor: unknown) {
+  return String(valor ?? "")
+    .split(/[|,;]/)
+    .map((aplicacion) => normalizarTexto(aplicacion))
+    .filter(Boolean);
+}
+
+
 
 function productoTieneStock(producto: Producto) {
 
@@ -312,31 +320,35 @@ export default function CalculadoraPaso2({
 
 
 
-      const aplicacionProducto = normalizarTexto(
-  producto["Aplicación calculadora"]
-);
+      const aplicacionesProducto =
+        obtenerAplicacionesCalculadora(
+          producto["Aplicación calculadora"]
+        );
 
-const manos = convertirNumero(producto.Manos);
+      const manos = convertirNumero(producto.Manos);
 
-const poderCubritivo = convertirNumero(
-  producto["Poder cubritivo"]
-);
+      const poderCubritivo = convertirNumero(
+        producto["Poder cubritivo"]
+      );
 
-const tieneDatosTecnicos =
-  grupoProducto !== "" &&
-  aplicacionProducto !== "" &&
-  manos > 0 &&
-  poderCubritivo > 0;
+      const tieneDatosTecnicos =
+        grupoProducto !== "" &&
+        aplicacionesProducto.length > 0 &&
+        manos > 0 &&
+        poderCubritivo > 0;
 
-const coincideGrupo = coincidePorPalabras(
-  grupoProducto,
-  grupoBuscado
-);
+      const coincideGrupo = coincidePorPalabras(
+        grupoProducto,
+        grupoBuscado
+      );
 
-const coincideAplicacion = coincidePorPalabras(
-  aplicacionProducto,
-  aplicacionBuscada
-);
+      const coincideAplicacion =
+        aplicacionesProducto.some((aplicacion) =>
+          coincidePorPalabras(
+            aplicacion,
+            aplicacionBuscada
+          )
+        );
 
 
 

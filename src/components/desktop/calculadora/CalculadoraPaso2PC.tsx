@@ -104,6 +104,14 @@ function coincidePorPalabras(
   );
 }
 
+
+function obtenerAplicacionesCalculadora(valor: unknown) {
+  return String(valor ?? "")
+    .split(/[|,;]/)
+    .map((aplicacion) => normalizarTexto(aplicacion))
+    .filter(Boolean);
+}
+
 function productoTieneStock(producto: Producto) {
   return normalizarTexto(producto.Stock) !== "x";
 }
@@ -295,9 +303,10 @@ export default function CalculadoraPaso2PC({
             producto["Grupo calculadora"]
           );
 
-          const aplicacionProducto = normalizarTexto(
-            producto["Aplicación calculadora"]
-          );
+          const aplicacionesProducto =
+            obtenerAplicacionesCalculadora(
+              producto["Aplicación calculadora"]
+            );
 
           const manos = convertirNumero(
             producto.Manos
@@ -314,13 +323,17 @@ export default function CalculadoraPaso2PC({
             );
 
           const coincideAplicacion =
-            coincidePorPalabras(
-              aplicacionProducto,
-              aplicacionBuscada
+            aplicacionesProducto.some(
+              (aplicacion) =>
+                coincidePorPalabras(
+                  aplicacion,
+                  aplicacionBuscada
+                )
             );
 
           return (
             grupoProducto !== "" &&
+            aplicacionesProducto.length > 0 &&
             manos > 0 &&
             poderCubritivo > 0 &&
             coincideGrupo &&
