@@ -188,6 +188,7 @@ const ordenCategoriasMobile = [
   "Auto y Moto",
   "Aromatizantes",
   "Plásticos",
+  "Iluminación",
   "Jardinería",
   "Control Plagas",
   "Accesorios",
@@ -203,6 +204,8 @@ const iconosImagen: Record<string, string> = {
   Aromatizantes: "aromatizantes",
   Plásticos: "plasticos",
   Plasticos: "plasticos",
+  Iluminación: "iluminacion",
+  Iluminacion: "iluminacion",
   Jardinería: "jardineria",
   Jardineria: "jardineria",
   "Control Plagas": "control-plagas",
@@ -375,6 +378,103 @@ const gruposMobile = agruparProductosMobile(productosBuscadosMobile);
     ? "Ofertas"
     : categoriaActiva;
 
+
+// [Agregar recomendación de la calculadora al carrito]
+
+const agregarRecomendacionCalculadora = (
+  items: Array<{
+    producto: Producto;
+    cantidad: number;
+  }>
+) => {
+  setCarrito((actual) => {
+    let siguiente = [...actual];
+
+    items.forEach(({ producto, cantidad }) => {
+      const precio = precioNumero(producto.Precio);
+      const precioOferta = precioNumero(
+        producto["Precio oferta"]
+      );
+      const precioFinal =
+        precioOferta > 0 ? precioOferta : precio;
+
+      const tamano = producto.Tamaño?.trim() || "";
+      const variante =
+        producto.Fragancias?.trim() ||
+        producto.Color?.trim() ||
+        "";
+
+      const tipoVariante = producto.Fragancias?.trim()
+        ? "Fragancia"
+        : "Color";
+
+      const nombre =
+        producto.Nombre || "Producto sin nombre";
+
+      const linea = (producto as any).Linea || "";
+      const marca = producto.Marca || "";
+
+      const clave = `${linea}-${nombre}-${tamano}-${variante}`;
+
+      const itemCarrito = {
+        clave,
+        nombre,
+        linea,
+        marca,
+        imagen: producto.Imagen,
+        tamano,
+        variante,
+        tipoVariante,
+        precio: precioFinal,
+        precioOriginal: precio,
+        precioOferta,
+        ahorro:
+          precio > 0 && precioOferta > 0
+            ? precio - precioOferta
+            : 0,
+        cantidad,
+      };
+
+      const existente = siguiente.find(
+        (item) => item.clave === clave
+      );
+
+      if (existente) {
+        siguiente = siguiente.map((item) =>
+          item.clave === clave
+            ? {
+                ...item,
+                cantidad: item.cantidad + cantidad,
+                precio: precioFinal,
+                precioOriginal: precio,
+                precioOferta,
+                ahorro: itemCarrito.ahorro,
+              }
+            : item
+        );
+      } else {
+        siguiente.push(itemCarrito);
+      }
+    });
+
+    return siguiente;
+  });
+};
+
+const finalizarCalculadora = () => {
+  setCalculadoraAbierta(false);
+  setCategoriaActiva("Inicio");
+  setSubcategoriaActiva("Todas");
+  setBusquedaMobile("");
+
+  window.setTimeout(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, 80);
+};
+
 // [Vista calculadora]
 
 if (calculadoraAbierta) {
@@ -386,6 +486,8 @@ if (calculadoraAbierta) {
       onContinuar={(datosPasoUno) => {
         console.log("Datos del Paso 1:", datosPasoUno);
       }}
+      onAgregarAlCarrito={agregarRecomendacionCalculadora}
+      onFinalizado={finalizarCalculadora}
     />
   );
 }
@@ -424,7 +526,7 @@ return (
         value={busquedaMobile}
         onChange={(e) => setBusquedaMobile(e.target.value)}
         placeholder="Buscar productos..."
-        className="flex-1 bg-transparent text-[12px] font-medium text-gray-800 placeholder:text-gray-400 outline-none"
+        className="flex-1 bg-transparent text-[16px] font-medium text-gray-800 placeholder:text-gray-400 outline-none"
       />
 
       {busquedaMobile && (

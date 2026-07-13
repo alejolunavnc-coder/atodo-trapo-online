@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -26,6 +26,13 @@ type CalculadoraPinturaProps = {
   onContinuar?: (datos: DatosPasoUno) => void;
   cantidadCarrito?: number;
   productos: Producto[];
+  onAgregarAlCarrito: (
+    items: Array<{
+      producto: Producto;
+      cantidad: number;
+    }>
+  ) => void;
+  onFinalizado: () => void;
 };
 
 type GrupoCalculadora =
@@ -35,7 +42,8 @@ type GrupoCalculadora =
   | "Metal"
   | "Pisos"
   | "Piscina"
-  | "Pisos atérmicos";
+  | "Pisos atérmicos"
+  | "Texturado";
 
 type Superficie = {
   id: number;
@@ -68,6 +76,7 @@ const GRUPOS: GrupoCalculadora[] = [
   "Pisos",
   "Piscina",
   "Pisos atérmicos",
+  "Texturado",
 ];
 
 const APLICACIONES: Record<GrupoCalculadora, string[]> = {
@@ -96,7 +105,42 @@ const APLICACIONES: Record<GrupoCalculadora, string[]> = {
   Piscina: ["Piscina de cemento", "Piscina de fibra"],
 
   "Pisos atérmicos": [],
+
+  Texturado: ["Rodillable", "Mediano", "Grueso"],
 };
+
+function normalizarTextoCalculadora(valor: unknown) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function palabrasClaveCalculadora(valor: unknown) {
+  return normalizarTextoCalculadora(valor)
+    .split(/[^a-z0-9]+/)
+    .filter((palabra) => palabra.length >= 3);
+}
+
+function coincideCalculadora(
+  textoProducto: unknown,
+  textoBuscado: unknown
+) {
+  const palabrasProducto =
+    palabrasClaveCalculadora(textoProducto);
+
+  const palabrasBuscadas =
+    palabrasClaveCalculadora(textoBuscado);
+
+  return palabrasBuscadas.some((palabra) =>
+    palabrasProducto.includes(palabra)
+  );
+}
+
+function productoDisponibleCalculadora(producto: Producto) {
+  return normalizarTextoCalculadora(producto.Stock) !== "x";
+}
 
 function convertirNumero(valor: string) {
   const numero = Number(valor.replace(",", "."));
@@ -108,6 +152,27 @@ function formatearDecimal(valor: number) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+}
+
+function etiquetasMedidas(
+  grupo: GrupoCalculadora | null,
+  aplicacion: string
+) {
+  const usaLados =
+    grupo === "Pisos" ||
+    grupo === "Pisos atérmicos" ||
+    aplicacion === "Techo" ||
+    aplicacion === "Terraza / Azotea";
+
+  return usaLados
+    ? {
+        primera: "Lado 1 (m)",
+        segunda: "Lado 2 (m)",
+      }
+    : {
+        primera: "Ancho (m)",
+        segunda: "Alto (m)",
+      };
 }
 
 function nombreSuperficie(
@@ -133,7 +198,12 @@ export default function CalculadoraPintura({
   onContinuar,
   cantidadCarrito = 0,
   productos,
+  onAgregarAlCarrito,
+  onFinalizado,
 }: CalculadoraPinturaProps) {
+
+  const aplicacionRef = useRef<HTMLElement | null>(null);
+  const superficiesRef = useRef<HTMLElement | null>(null);
 
   const [pasoActual, setPasoActual] = useState<1 | 2>(1);
   const [datosPasoUno, setDatosPasoUno] =
@@ -154,6 +224,8 @@ export default function CalculadoraPintura({
   ]);
 
   const [descuentos, setDescuentos] = useState<Descuento[]>([]);
+
+  const gruposDisponibles = GRUPOS;
 
   const aplicacionesDisponibles = grupoSeleccionado
     ? APLICACIONES[grupoSeleccionado]
@@ -224,6 +296,27 @@ export default function CalculadoraPintura({
     medidasCompletas &&
     descuentos.length === 0;
 
+  const primerDescuentoIncompleto = descuentos.findIndex(
+    (descuento) =>
+      descuento.nombre.trim() === "" ||
+      convertirNumero(descuento.ancho) <= 0 ||
+      convertirNumero(descuento.alto) <= 0
+  );
+
+  const hayDescuentoIncompleto =
+    primerDescuentoIncompleto >= 0;
+
+  function desplazarA(
+    referencia: React.RefObject<HTMLElement | null>
+  ) {
+    window.setTimeout(() => {
+      referencia.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  }
+
   function seleccionarGrupo(grupo: GrupoCalculadora) {
     setGrupoSeleccionado(grupo);
     setAplicacionSeleccionada("");
@@ -237,6 +330,17 @@ export default function CalculadoraPintura({
     ]);
 
     setDescuentos([]);
+
+    if (APLICACIONES[grupo].length > 0) {
+      desplazarA(aplicacionRef);
+    } else {
+      desplazarA(superficiesRef);
+    }
+  }
+
+  function seleccionarAplicacion(aplicacion: string) {
+    setAplicacionSeleccionada(aplicacion);
+    desplazarA(superficiesRef);
   }
 
   function actualizarSuperficie(
@@ -360,6 +464,8 @@ if (pasoActual === 2 && datosPasoUno) {
       onContinuar={(datosPasoDos: DatosPasoDos) => {
         console.log("Datos del Paso 2:", datosPasoDos);
       }}
+      onAgregarAlCarrito={onAgregarAlCarrito}
+      onFinalizado={onFinalizado}
     />
   );
 }
@@ -468,7 +574,7 @@ if (pasoActual === 2 && datosPasoUno) {
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            {GRUPOS.map((grupo) => {
+            {gruposDisponibles.map((grupo) => {
               const activo = grupoSeleccionado === grupo;
 
               return (
@@ -503,7 +609,8 @@ if (pasoActual === 2 && datosPasoUno) {
 
         {grupoSeleccionado && necesitaAplicacion && (
           <section
-            className={`rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition ${
+            ref={aplicacionRef}
+            className={`scroll-mt-3 rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition ${
               faltaAplicacion
                 ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/25"
                 : "border-gray-100"
@@ -538,7 +645,7 @@ if (pasoActual === 2 && datosPasoUno) {
                     key={aplicacion}
                     type="button"
                     onClick={() =>
-                      setAplicacionSeleccionada(aplicacion)
+                      seleccionarAplicacion(aplicacion)
                     }
                     className={`relative flex min-h-[52px] items-center justify-center rounded-[14px] border px-3 py-2 text-center transition active:scale-95 ${
                       activa
@@ -566,7 +673,8 @@ if (pasoActual === 2 && datosPasoUno) {
 
         {seleccionCompleta && (
           <section
-            className={`rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition ${
+            ref={superficiesRef}
+            className={`scroll-mt-3 rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition ${
               faltaMedidas
                 ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/25"
                 : "border-gray-100"
@@ -595,6 +703,11 @@ if (pasoActual === 2 && datosPasoUno) {
                 const metros =
                   convertirNumero(superficie.ancho) *
                   convertirNumero(superficie.alto);
+
+                const etiquetas = etiquetasMedidas(
+                  grupoSeleccionado,
+                  aplicacionFinal
+                );
 
                 const primerIndiceIncompleto =
                   superficies.findIndex(
@@ -651,7 +764,7 @@ if (pasoActual === 2 && datosPasoUno) {
                     <div className="grid grid-cols-2 gap-2">
                       <label className="block">
                         <span className="mb-1 block text-[9px] font-bold text-gray-500">
-                          Ancho (m)
+                          {etiquetas.primera}
                         </span>
 
                         <input
@@ -666,7 +779,7 @@ if (pasoActual === 2 && datosPasoUno) {
                             )
                           }
                           placeholder="0"
-                          className={`h-11 w-full rounded-[12px] border bg-white px-3 text-[14px] font-bold text-[#081B43] outline-none transition ${
+                          className={`h-11 w-full rounded-[12px] border bg-white px-3 text-[16px] font-bold text-[#081B43] outline-none transition ${
                             faltaAncho
                               ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/20"
                               : "border-gray-200 focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
@@ -676,7 +789,7 @@ if (pasoActual === 2 && datosPasoUno) {
 
                       <label className="block">
                         <span className="mb-1 block text-[9px] font-bold text-gray-500">
-                          Alto (m)
+                          {etiquetas.segunda}
                         </span>
 
                         <input
@@ -691,7 +804,7 @@ if (pasoActual === 2 && datosPasoUno) {
                             )
                           }
                           placeholder="0"
-                          className={`h-11 w-full rounded-[12px] border bg-white px-3 text-[14px] font-bold text-[#081B43] outline-none transition ${
+                          className={`h-11 w-full rounded-[12px] border bg-white px-3 text-[16px] font-bold text-[#081B43] outline-none transition ${
                             faltaAlto
                               ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/20"
                               : "border-gray-200 focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
@@ -727,7 +840,7 @@ if (pasoActual === 2 && datosPasoUno) {
         {seleccionCompleta && (
           <section
             className={`rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition ${
-              mostrarGuiaDescuentos
+              mostrarGuiaDescuentos || hayDescuentoIncompleto
                 ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/25"
                 : "border-gray-100"
             }`}
@@ -743,9 +856,9 @@ if (pasoActual === 2 && datosPasoUno) {
                 Descontar zonas
               </h2>
 
-              {mostrarGuiaDescuentos && (
+              {(mostrarGuiaDescuentos || hayDescuentoIncompleto) && (
                 <span className="ml-auto rounded-full bg-[#EAF8EC] px-2 py-1 text-[8px] font-black text-[#16813A]">
-                  Opcional
+                  {hayDescuentoIncompleto ? "Completá acá" : "Opcional"}
                 </span>
               )}
             </div>
@@ -762,10 +875,32 @@ if (pasoActual === 2 && datosPasoUno) {
                     convertirNumero(descuento.ancho) *
                     convertirNumero(descuento.alto);
 
+                  const esDescuentoSiguiente =
+                    indice === primerDescuentoIncompleto;
+
+                  const faltaNombreDescuento =
+                    esDescuentoSiguiente &&
+                    descuento.nombre.trim() === "";
+
+                  const faltaAnchoDescuento =
+                    esDescuentoSiguiente &&
+                    !faltaNombreDescuento &&
+                    convertirNumero(descuento.ancho) <= 0;
+
+                  const faltaAltoDescuento =
+                    esDescuentoSiguiente &&
+                    !faltaNombreDescuento &&
+                    !faltaAnchoDescuento &&
+                    convertirNumero(descuento.alto) <= 0;
+
                   return (
                     <div
                       key={descuento.id}
-                      className="rounded-[17px] border border-gray-200 bg-white p-3"
+                      className={`rounded-[17px] border bg-white p-3 transition ${
+                        esDescuentoSiguiente
+                          ? "border-[#1F9D55] bg-[#F4FCF7] ring-1 ring-[#1F9D55]/25"
+                          : "border-gray-200"
+                      }`}
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-[12px] font-black text-[#081B43]">
@@ -800,7 +935,11 @@ if (pasoActual === 2 && datosPasoUno) {
                             )
                           }
                           placeholder="Ejemplo: ventana"
-                          className="h-10 w-full rounded-[12px] border border-gray-200 px-3 text-[12px] font-bold text-[#081B43] outline-none transition focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                          className={`h-10 w-full rounded-[12px] border bg-white px-3 text-[16px] font-bold text-[#081B43] outline-none transition ${
+                            faltaNombreDescuento
+                              ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/20"
+                              : "border-gray-200 focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                          }`}
                         />
                       </label>
 
@@ -822,7 +961,11 @@ if (pasoActual === 2 && datosPasoUno) {
                               )
                             }
                             placeholder="0"
-                            className="h-10 w-full rounded-[12px] border border-gray-200 px-3 text-[12px] font-bold text-[#081B43] outline-none transition focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                            className={`h-10 w-full rounded-[12px] border bg-white px-3 text-[16px] font-bold text-[#081B43] outline-none transition ${
+                              faltaAnchoDescuento
+                                ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/20"
+                                : "border-gray-200 focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                            }`}
                           />
                         </label>
 
@@ -843,7 +986,11 @@ if (pasoActual === 2 && datosPasoUno) {
                               )
                             }
                             placeholder="0"
-                            className="h-10 w-full rounded-[12px] border border-gray-200 px-3 text-[12px] font-bold text-[#081B43] outline-none transition focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                            className={`h-10 w-full rounded-[12px] border bg-white px-3 text-[16px] font-bold text-[#081B43] outline-none transition ${
+                              faltaAltoDescuento
+                                ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/20"
+                                : "border-gray-200 focus:border-[#F8A400] focus:ring-2 focus:ring-[#F8A400]/20"
+                            }`}
                           />
                         </label>
                       </div>
@@ -1038,6 +1185,16 @@ function IconoGrupo({
   if (grupo === "Piscina") {
     return (
       <Waves
+        size={25}
+        strokeWidth={2}
+        className={clases}
+      />
+    );
+  }
+
+  if (grupo === "Texturado") {
+    return (
+      <PaintBucket
         size={25}
         strokeWidth={2}
         className={clases}

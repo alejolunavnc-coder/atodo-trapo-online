@@ -39,6 +39,7 @@ import type { Producto } from "@/src/types/producto";
 import type { DatosPasoUno } from "./CalculadoraPintura";
 
 import MobileHeaderCompartido from "./MobileHeaderCompartido";
+import CalculadoraPaso3 from "./CalculadoraPaso3";
 
 
 
@@ -83,6 +84,15 @@ type CalculadoraPasoDosProps = {
   onVolverPaso: () => void;
 
   onContinuar: (datos: DatosPasoDos) => void;
+
+  onAgregarAlCarrito: (
+    items: Array<{
+      producto: Producto;
+      cantidad: number;
+    }>
+  ) => void;
+
+  onFinalizado: () => void;
 
 };
 
@@ -254,6 +264,10 @@ export default function CalculadoraPaso2({
 
   onContinuar,
 
+  onAgregarAlCarrito,
+
+  onFinalizado,
+
 }: CalculadoraPasoDosProps) {
 
   const carruselRef = useRef<HTMLDivElement | null>(null);
@@ -265,6 +279,9 @@ export default function CalculadoraPaso2({
 
 
   const [cantidadManos, setCantidadManos] = useState<number>(0);
+
+  const [datosPasoDos, setDatosPasoDos] =
+    useState<DatosPasoDos | null>(null);
 
 
 
@@ -490,7 +507,7 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
 
 
-    onContinuar({
+    const datos: DatosPasoDos = {
 
       pintura: pinturaSeleccionada.productoBase,
 
@@ -501,6 +518,20 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
       poderCubritivo:
 
         pinturaSeleccionada.poderCubritivo,
+
+    };
+
+
+
+    setDatosPasoDos(datos);
+
+    onContinuar(datos);
+
+    window.scrollTo({
+
+      top: 0,
+
+      behavior: "smooth",
 
     });
 
@@ -515,6 +546,44 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
     cantidadManos > 0 &&
 
     pinturaSeleccionada.poderCubritivo > 0;
+
+
+
+  if (datosPasoDos) {
+
+    return (
+
+      <CalculadoraPaso3
+
+        datosPasoUno={datosPasoUno}
+
+        datosPasoDos={datosPasoDos}
+
+        cantidadCarrito={cantidadCarrito}
+
+        onVolverPaso={() => {
+
+          setDatosPasoDos(null);
+
+          window.scrollTo({
+
+            top: 0,
+
+            behavior: "smooth",
+
+          });
+
+        }}
+
+        onAgregarAlCarrito={onAgregarAlCarrito}
+
+        onFinalizado={onFinalizado}
+
+      />
+
+    );
+
+  }
 
 
 
@@ -1127,7 +1196,7 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
 
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white/95 px-3 pb-3 pt-2 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur">
 
         <button
 
@@ -1137,7 +1206,7 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
           disabled={!puedeContinuar}
 
-          className={`flex h-[54px] w-full items-center justify-center gap-3 rounded-[18px] text-[15px] font-black transition active:scale-[0.98] ${
+          className={`flex h-[56px] w-full touch-manipulation select-none items-center justify-center gap-3 rounded-[18px] text-[15px] font-black transition active:scale-[0.98] ${
 
             puedeContinuar
 

@@ -31,6 +31,11 @@ const categoriasOrdenadas = [
     icono: "plasticos.png",
   },
   {
+    categoria: "Iluminación",
+    nombre: "Iluminación",
+    icono: "iluminacion.png",
+  },
+  {
     categoria: "Jardinería",
     nombre: "Jardinería",
     icono: "jardineria.png",

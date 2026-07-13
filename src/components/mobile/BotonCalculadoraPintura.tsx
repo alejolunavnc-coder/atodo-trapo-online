@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, PaintBucket } from "lucide-react";
+import { Calculator, ChevronRight } from "lucide-react";
 
 type BotonCalculadoraPinturaProps = {
   onClick: () => void;
@@ -10,45 +10,34 @@ export default function BotonCalculadoraPintura({
   onClick,
 }: BotonCalculadoraPinturaProps) {
   return (
-    <section className="px-4 py-2">
+    <div className="bg-white px-3 pb-3 pt-1">
       <button
         type="button"
         onClick={onClick}
-        className="group flex w-full items-center gap-3 rounded-[20px] border border-gray-100 bg-white p-3 text-left shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-200 active:scale-[0.98]"
+        className="flex w-full items-center justify-between rounded-[20px] bg-[#123A72] px-4 py-3 text-left text-white shadow-[0_8px_22px_rgba(18,58,114,0.22)] transition active:scale-[0.98]"
       >
-        {/* [Icono] */}
-        <div className="relative flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full bg-[#123A72] shadow-[0_7px_16px_rgba(18,58,114,0.22)]">
-          <PaintBucket
-            size={27}
-            strokeWidth={2.1}
-            className="text-white"
-          />
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8A400] text-[#081B43]">
+            <Calculator size={22} strokeWidth={2.4} />
+          </div>
 
-          <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#F8A400]">
-            <Calculator
-              size={13}
-              strokeWidth={2.6}
-              className="text-[#123A72]"
-            />
+          <div>
+            <p className="text-[14px] font-black leading-tight">
+              Calculadora de pintura
+            </p>
+
+            <p className="mt-0.5 text-[9px] font-medium text-white/75">
+              Calculá cuántos litros necesitás
+            </p>
           </div>
         </div>
 
-        {/* [Textos] */}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-[14px] font-black leading-tight tracking-[-0.025em] text-[#123A72]">
-            Calculadora de pintura
-          </h3>
-
-          <p className="mt-1 text-[10px] font-medium leading-tight text-gray-500">
-            Calculá cuántos litros necesitás
-          </p>
-        </div>
-
-        {/* [Botón amarillo] */}
-        <div className="flex h-10 shrink-0 items-center justify-center rounded-full bg-[#F8A400] px-4 text-[11px] font-black text-[#123A72] shadow-[0_6px_14px_rgba(248,164,0,0.28)] transition-transform duration-200 group-active:scale-95">
-          Calcular
-        </div>
+        <ChevronRight
+          size={22}
+          strokeWidth={2.5}
+          className="shrink-0"
+        />
       </button>
-    </section>
+    </div>
   );
 }
