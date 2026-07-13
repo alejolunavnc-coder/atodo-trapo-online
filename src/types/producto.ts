@@ -13,4 +13,9 @@ export type Producto = {
   Imagen: string;
   Fragancias: string;
   Aromas: string;
+
+  "Grupo calculadora"?: string;
+  "Aplicación calculadora"?: string;
+  Manos?: string;
+  "Poder cubritivo"?: string;
 };
