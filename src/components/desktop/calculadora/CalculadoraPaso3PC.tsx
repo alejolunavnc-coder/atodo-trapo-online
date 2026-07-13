@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -351,6 +351,40 @@ export default function CalculadoraPaso3PC({
   onVolverPaso,
   onAgregarAlCarrito,
 }: CalculadoraPaso3PCProps) {
+  const listoRef = useRef<HTMLElement | null>(null);
+
+  const [vistaVisible, setVistaVisible] =
+    useState(false);
+
+  useEffect(() => {
+    const mostrar = window.setTimeout(() => {
+      setVistaVisible(true);
+    }, 40);
+
+    const posicionar = window.setTimeout(() => {
+      const elemento = listoRef.current;
+
+      if (!elemento) {
+        return;
+      }
+
+      const destino =
+        elemento.getBoundingClientRect().top +
+        window.scrollY -
+        88;
+
+      window.scrollTo({
+        top: destino,
+        behavior: "smooth",
+      });
+    }, 180);
+
+    return () => {
+      window.clearTimeout(mostrar);
+      window.clearTimeout(posicionar);
+    };
+  }, []);
+
   const resultado = useMemo<DatosPasoTresPC>(() => {
     const envasesDisponibles: EnvaseDisponible[] =
       datosPasoDos.variantes
@@ -465,7 +499,13 @@ export default function CalculadoraPaso3PC({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-6 transition-all duration-300 ease-out ${
+        vistaVisible
+          ? "translate-y-0 opacity-100"
+          : "translate-y-2 opacity-0"
+      }`}
+    >
       {/* [Pasos] */}
 
       <section className="rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm">
@@ -487,7 +527,10 @@ export default function CalculadoraPaso3PC({
 
       {/* [Felicidades] */}
 
-      <section className="flex items-center justify-center gap-3 rounded-[20px] border border-[#1F9D55]/30 bg-[#EAF8EC] px-5 py-4">
+      <section
+        ref={listoRef}
+        className="scroll-mt-6 flex items-center justify-center gap-3 rounded-[20px] border border-[#1F9D55]/30 bg-[#EAF8EC] px-5 py-4"
+      >
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1F9D55] text-white">
           <Check size={22} strokeWidth={3} />
         </div>

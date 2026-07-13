@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -255,6 +255,9 @@ export default function CalculadoraPaso2PC({
   onContinuar,
   onAgregarAlCarrito,
 }: CalculadoraPaso2PCProps) {
+  const pasosRef = useRef<HTMLElement | null>(null);
+  const manosRef = useRef<HTMLElement | null>(null);
+
   const [
     pinturaSeleccionadaId,
     setPinturaSeleccionadaId,
@@ -265,6 +268,12 @@ export default function CalculadoraPaso2PC({
 
   const [datosPasoDosGuardados, setDatosPasoDosGuardados] =
     useState<DatosPasoDosPC | null>(null);
+
+  const [vistaVisible, setVistaVisible] =
+    useState(false);
+
+  const [cambiandoPaso, setCambiandoPaso] =
+    useState(false);
 
   const pinturasCompatibles =
     useMemo<PinturaAgrupada[]>(() => {
@@ -379,6 +388,35 @@ export default function CalculadoraPaso2PC({
     ) ?? null;
 
   useEffect(() => {
+    const mostrar = window.setTimeout(() => {
+      setVistaVisible(true);
+    }, 40);
+
+    const posicionar = window.setTimeout(() => {
+      const pasos = pasosRef.current;
+
+      if (!pasos) {
+        return;
+      }
+
+      const destino =
+        pasos.getBoundingClientRect().top +
+        window.scrollY -
+        92;
+
+      window.scrollTo({
+        top: destino,
+        behavior: "smooth",
+      });
+    }, 180);
+
+    return () => {
+      window.clearTimeout(mostrar);
+      window.clearTimeout(posicionar);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!pinturaSeleccionada) {
       setCantidadManos(0);
       return;
@@ -387,6 +425,60 @@ export default function CalculadoraPaso2PC({
     setCantidadManos(
       pinturaSeleccionada.manosRecomendadas
     );
+
+    window.setTimeout(() => {
+      const elemento = manosRef.current;
+
+      if (!elemento) {
+        return;
+      }
+
+      const inicio = window.scrollY;
+
+      const destino =
+        elemento.getBoundingClientRect().top +
+        window.scrollY -
+        window.innerHeight * 0.58;
+
+      const distancia = destino - inicio;
+      const duracion = 850;
+      const tiempoInicial = performance.now();
+
+      const suavizar = (progreso: number) =>
+        progreso < 0.5
+          ? 4 * progreso * progreso * progreso
+          : 1 -
+            Math.pow(
+              -2 * progreso + 2,
+              3
+            ) /
+              2;
+
+      function animar(tiempoActual: number) {
+        const transcurrido =
+          tiempoActual - tiempoInicial;
+
+        const progreso = Math.min(
+          transcurrido / duracion,
+          1
+        );
+
+        window.scrollTo(
+          0,
+          inicio +
+            distancia *
+              suavizar(progreso)
+        );
+
+        if (progreso < 1) {
+          window.requestAnimationFrame(
+            animar
+          );
+        }
+      }
+
+      window.requestAnimationFrame(animar);
+    }, 250);
   }, [pinturaSeleccionada]);
 
   const puedeContinuar =
@@ -412,13 +504,12 @@ export default function CalculadoraPaso2PC({
         pinturaSeleccionada.poderCubritivo,
     };
 
-    setDatosPasoDosGuardados(datos);
-    onContinuar(datos);
+    setCambiandoPaso(true);
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.setTimeout(() => {
+      setDatosPasoDosGuardados(datos);
+      onContinuar(datos);
+    }, 280);
   }
 
   if (datosPasoDosGuardados) {
@@ -440,10 +531,19 @@ export default function CalculadoraPaso2PC({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-6 transition-all duration-300 ease-out ${
+        vistaVisible && !cambiandoPaso
+          ? "translate-y-0 opacity-100"
+          : "translate-y-2 opacity-0"
+      }`}
+    >
       {/* [Pasos] */}
 
-      <section className="rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm">
+      <section
+        ref={pasosRef}
+        className="scroll-mt-4 rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm"
+      >
         <div className="flex items-start">
           <PasoCompletado titulo="Medidas" />
 
@@ -630,7 +730,10 @@ export default function CalculadoraPaso2PC({
           {/* [Cantidad de manos] */}
 
           {pinturaSeleccionada && (
-            <section className="relative rounded-[24px] border border-[#1F9D55] bg-white p-6 shadow-sm ring-2 ring-[#1F9D55]/10">
+            <section
+              ref={manosRef}
+              className="relative scroll-mt-28 rounded-[24px] border border-[#1F9D55] bg-white p-6 shadow-sm ring-2 ring-[#1F9D55]/10"
+            >
               <div className="absolute right-5 top-5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1.5 text-[10px] font-black text-[#A35F00] shadow-sm">
                 Podés elegir
               </div>

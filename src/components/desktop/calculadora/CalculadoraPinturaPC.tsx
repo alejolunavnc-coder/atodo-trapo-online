@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Armchair,
@@ -168,6 +168,9 @@ export default function CalculadoraPinturaPC({
   const [pasoActual, setPasoActual] =
     useState<1 | 2>(1);
 
+  const [cambiandoPaso, setCambiandoPaso] =
+    useState(false);
+
   const [datosPasoUnoGuardados, setDatosPasoUnoGuardados] =
     useState<DatosPasoUnoPC | null>(null);
   const [grupoSeleccionado, setGrupoSeleccionado] =
@@ -185,6 +188,10 @@ export default function CalculadoraPinturaPC({
   ]);
 
   const [descuentos, setDescuentos] = useState<Descuento[]>([]);
+
+  const aplicacionRef = useRef<HTMLElement | null>(null);
+  const medidasRef = useRef<HTMLElement | null>(null);
+  const descuentosRef = useRef<HTMLElement | null>(null);
 
   const aplicacionesDisponibles = grupoSeleccionado
     ? APLICACIONES[grupoSeleccionado]
@@ -256,6 +263,116 @@ export default function CalculadoraPinturaPC({
         convertirNumero(descuento.ancho) > 0 &&
         convertirNumero(descuento.alto) > 0
     );
+
+  // [Sección activa]
+  // El borde verde marca siempre el próximo dato a completar.
+  // Las secciones ya terminadas conservan solamente la chapita "Completo".
+
+  const grupoActivo = !grupoCompleto;
+
+  const aplicacionActiva =
+    grupoCompleto &&
+    necesitaAplicacion &&
+    !aplicacionCompleta;
+
+  const medidasActivas =
+    grupoCompleto &&
+    aplicacionCompleta &&
+    !medidasCompletas;
+
+  const descuentosActivos =
+    grupoCompleto &&
+    aplicacionCompleta &&
+    medidasCompletas;
+
+  function moverSuaveA(
+    referencia: React.RefObject<HTMLElement | null>
+  ) {
+    window.setTimeout(() => {
+      const elemento = referencia.current;
+
+      if (!elemento) {
+        return;
+      }
+
+      const inicio = window.scrollY;
+
+      const destino =
+        elemento.getBoundingClientRect().top +
+        window.scrollY -
+        window.innerHeight * 0.58;
+
+      const distancia = destino - inicio;
+      const duracion = 850;
+      const tiempoInicial = performance.now();
+
+      const suavizar = (progreso: number) =>
+        progreso < 0.5
+          ? 4 * progreso * progreso * progreso
+          : 1 -
+            Math.pow(
+              -2 * progreso + 2,
+              3
+            ) /
+              2;
+
+      function animar(tiempoActual: number) {
+        const transcurrido =
+          tiempoActual - tiempoInicial;
+
+        const progreso = Math.min(
+          transcurrido / duracion,
+          1
+        );
+
+        window.scrollTo(
+          0,
+          inicio +
+            distancia *
+              suavizar(progreso)
+        );
+
+        if (progreso < 1) {
+          window.requestAnimationFrame(
+            animar
+          );
+        }
+      }
+
+      window.requestAnimationFrame(animar);
+    }, 250);
+  }
+
+  useEffect(() => {
+    if (!grupoSeleccionado) {
+      return;
+    }
+
+    if (necesitaAplicacion) {
+      moverSuaveA(aplicacionRef);
+      return;
+    }
+
+    moverSuaveA(medidasRef);
+  }, [grupoSeleccionado, necesitaAplicacion]);
+
+  useEffect(() => {
+    if (
+      necesitaAplicacion &&
+      aplicacionSeleccionada !== ""
+    ) {
+      moverSuaveA(medidasRef);
+    }
+  }, [
+    aplicacionSeleccionada,
+    necesitaAplicacion,
+  ]);
+
+  useEffect(() => {
+    if (medidasCompletas) {
+      moverSuaveA(descuentosRef);
+    }
+  }, [medidasCompletas]);
 
   function seleccionarGrupo(grupo: GrupoCalculadora) {
     setGrupoSeleccionado(grupo);
@@ -356,14 +473,14 @@ export default function CalculadoraPinturaPC({
       descuentos,
     };
 
-    setDatosPasoUnoGuardados(datos);
-    onContinuar?.(datos);
-    setPasoActual(2);
+    setCambiandoPaso(true);
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.setTimeout(() => {
+      setDatosPasoUnoGuardados(datos);
+      onContinuar?.(datos);
+      setPasoActual(2);
+      setCambiandoPaso(false);
+    }, 280);
   }
 
   if (pasoActual === 2 && datosPasoUnoGuardados) {
@@ -391,7 +508,13 @@ export default function CalculadoraPinturaPC({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-6 transition-all duration-300 ease-out ${
+        cambiandoPaso
+          ? "translate-y-2 opacity-0"
+          : "translate-y-0 opacity-100"
+      }`}
+    >
       {/* [Pasos] */}
 
       <section className="rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm">
@@ -426,7 +549,7 @@ export default function CalculadoraPinturaPC({
 
           <section
             className={`rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
-              grupoCompleto
+              grupoActivo
                 ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/15"
                 : "border-gray-200"
             }`}
@@ -492,8 +615,9 @@ export default function CalculadoraPinturaPC({
 
           {grupoSeleccionado && necesitaAplicacion && (
             <section
-              className={`rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
-                aplicacionCompleta
+              ref={aplicacionRef}
+              className={`scroll-mt-28 rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
+                aplicacionActiva
                   ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/15"
                   : "border-gray-200"
               }`}
@@ -549,8 +673,9 @@ export default function CalculadoraPinturaPC({
             (!necesitaAplicacion ||
               aplicacionSeleccionada !== "") && (
               <section
-                className={`rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
-                  medidasCompletas
+                ref={medidasRef}
+                className={`scroll-mt-28 rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
+                  medidasActivas
                     ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/15"
                     : "border-gray-200"
                 }`}
@@ -659,8 +784,9 @@ export default function CalculadoraPinturaPC({
             (!necesitaAplicacion ||
               aplicacionSeleccionada !== "") && (
               <section
-                className={`rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
-                  descuentosCompletos
+                ref={descuentosRef}
+                className={`scroll-mt-28 rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
+                  descuentosActivos
                     ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/15"
                     : "border-gray-200"
                 }`}
