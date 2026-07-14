@@ -353,6 +353,19 @@ const normalizarParaVoz = (valor: unknown) =>
     .trim()
     .toLowerCase();
 
+const normalizarFoneticamente = (valor: unknown) =>
+  normalizarParaVoz(valor)
+    .replace(/ch/g, "x")
+    .replace(/ll/g, "y")
+    .replace(/qu/g, "k")
+    .replace(/gue/g, "ge")
+    .replace(/gui/g, "gi")
+    .replace(/[csz]/g, "s")
+    .replace(/[bv]/g, "b")
+    .replace(/j/g, "g")
+    .replace(/h/g, "")
+    .replace(/[^a-z0-9]/g, "");
+
 const distanciaLevenshtein = (a: string, b: string) => {
   const matriz = Array.from(
     { length: a.length + 1 },
@@ -384,17 +397,25 @@ const distanciaLevenshtein = (a: string, b: string) => {
 
 const corregirBusquedaConProductos = (textoReconocido: string) => {
   const textoNormalizado = normalizarParaVoz(textoReconocido);
+  const textoFonetico = normalizarFoneticamente(textoReconocido);
 
   if (!textoNormalizado) {
     return textoReconocido.trim();
   }
 
-  const terminos = Array.from(
+  const marcas = Array.from(
+    new Set(
+      productos
+        .map((producto) => String(producto.Marca ?? "").trim())
+        .filter(Boolean)
+    )
+  );
+
+  const otrosTerminos = Array.from(
     new Set(
       productos
         .flatMap((producto) => [
           producto.Nombre,
-          producto.Marca,
           (producto as any).Linea,
           producto.Categoría,
           producto.Subcategoría,
@@ -404,6 +425,8 @@ const corregirBusquedaConProductos = (textoReconocido: string) => {
     )
   );
 
+  const terminos = [...marcas, ...otrosTerminos];
+
   const coincidenciaExacta = terminos.find(
     (termino) =>
       normalizarParaVoz(termino) === textoNormalizado
@@ -411,6 +434,33 @@ const corregirBusquedaConProductos = (textoReconocido: string) => {
 
   if (coincidenciaExacta) {
     return coincidenciaExacta;
+  }
+
+  const coincidenciaFoneticaExacta = marcas.find(
+    (marca) =>
+      normalizarFoneticamente(marca) === textoFonetico
+  );
+
+  if (coincidenciaFoneticaExacta) {
+    return coincidenciaFoneticaExacta;
+  }
+
+  const marcaCortaCompatible = marcas.find((marca) => {
+    const marcaFonetica = normalizarFoneticamente(marca);
+
+    return (
+      textoFonetico.length >= 2 &&
+      marcaFonetica.length <= 5 &&
+      Math.abs(marcaFonetica.length - textoFonetico.length) <= 1 &&
+      (
+        marcaFonetica.startsWith(textoFonetico) ||
+        textoFonetico.startsWith(marcaFonetica)
+      )
+    );
+  });
+
+  if (marcaCortaCompatible) {
+    return marcaCortaCompatible;
   }
 
   let mejorTermino = "";
@@ -436,7 +486,7 @@ const corregirBusquedaConProductos = (textoReconocido: string) => {
 
   const largo = textoNormalizado.length;
   const distanciaMaxima =
-    largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
+    largo <= 3 ? 1 : largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
 
   return mejorDistancia <= distanciaMaxima
     ? mejorTermino
