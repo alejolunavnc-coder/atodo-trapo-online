@@ -341,6 +341,106 @@ const cancelarBusquedaPorVoz = () => {
   setEscuchando(false);
 };
 
+
+const normalizarParaVoz = (valor: unknown) =>
+  String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+const distanciaLevenshtein = (a: string, b: string) => {
+  const matriz = Array.from(
+    { length: a.length + 1 },
+    () => Array(b.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= a.length; i += 1) {
+    matriz[i][0] = i;
+  }
+
+  for (let j = 0; j <= b.length; j += 1) {
+    matriz[0][j] = j;
+  }
+
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+
+      matriz[i][j] = Math.min(
+        matriz[i - 1][j] + 1,
+        matriz[i][j - 1] + 1,
+        matriz[i - 1][j - 1] + costo
+      );
+    }
+  }
+
+  return matriz[a.length][b.length];
+};
+
+const corregirBusquedaConProductos = (textoReconocido: string) => {
+  const textoNormalizado = normalizarParaVoz(textoReconocido);
+
+  if (!textoNormalizado) {
+    return textoReconocido.trim();
+  }
+
+  const terminos = Array.from(
+    new Set(
+      productos
+        .flatMap((producto) => [
+          producto.Nombre,
+          producto.Marca,
+          (producto as any).Linea,
+          producto.Categoría,
+          producto.Subcategoría,
+        ])
+        .map((valor) => String(valor ?? "").trim())
+        .filter(Boolean)
+    )
+  );
+
+  const coincidenciaExacta = terminos.find(
+    (termino) =>
+      normalizarParaVoz(termino) === textoNormalizado
+  );
+
+  if (coincidenciaExacta) {
+    return coincidenciaExacta;
+  }
+
+  let mejorTermino = "";
+  let mejorDistancia = Number.POSITIVE_INFINITY;
+
+  terminos.forEach((termino) => {
+    const terminoNormalizado = normalizarParaVoz(termino);
+
+    if (!terminoNormalizado) {
+      return;
+    }
+
+    const distancia = distanciaLevenshtein(
+      textoNormalizado,
+      terminoNormalizado
+    );
+
+    if (distancia < mejorDistancia) {
+      mejorDistancia = distancia;
+      mejorTermino = termino;
+    }
+  });
+
+  const largo = textoNormalizado.length;
+  const distanciaMaxima =
+    largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
+
+  return mejorDistancia <= distanciaMaxima
+    ? mejorTermino
+    : textoReconocido.trim();
+};
+
 const iniciarBusquedaPorVoz = () => {
   const SpeechRecognition =
     (window as any).SpeechRecognition ||
@@ -387,7 +487,10 @@ const iniciarBusquedaPorVoz = () => {
     const textoLimpio = textoCompleto.trim();
 
     if (textoLimpio) {
-      setBusquedaMobile(textoLimpio);
+      const textoCorregido =
+        corregirBusquedaConProductos(textoLimpio);
+
+      setBusquedaMobile(textoCorregido);
     }
 
     if (resultadoFinal) {
