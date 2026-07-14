@@ -27,6 +27,7 @@ type HeaderProps = {
   setMostrarCarrito: React.Dispatch<
     React.SetStateAction<boolean>
   >;
+  onVolverInicio: () => void;
 };
 
 export default function HeaderPC({
@@ -39,23 +40,13 @@ export default function HeaderPC({
   carrito,
   carritoAnimado,
   setMostrarCarrito,
+  onVolverInicio,
 }: HeaderProps) {
   const cantidadCarrito = carrito.reduce(
     (total: number, producto: any) =>
       total + (producto.cantidad || 1),
     0
   );
-
-  function volverAlInicio() {
-    setBusqueda("");
-    setBusquedaActiva(false);
-    setPosicionAntesBusqueda(0);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }
 
   return (
     <>
@@ -100,11 +91,11 @@ export default function HeaderPC({
 
       <header className="sticky top-0 z-50 hidden border-b border-gray-100 bg-white/95 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur-md md:block">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-8 px-6">
-          {/* [Logo - volver al inicio] */}
+          {/* [Logo - inicio global] */}
 
           <button
             type="button"
-            onClick={volverAlInicio}
+            onClick={onVolverInicio}
             aria-label="Volver al inicio"
             className="shrink-0 rounded-xl outline-none transition active:scale-[0.98]"
           >

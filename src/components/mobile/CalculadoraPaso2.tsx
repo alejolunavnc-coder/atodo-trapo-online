@@ -94,6 +94,8 @@ type CalculadoraPasoDosProps = {
 
   onFinalizado: () => void;
 
+  onVolverInicio: () => void;
+
 };
 
 
@@ -280,6 +282,8 @@ export default function CalculadoraPaso2({
   onAgregarAlCarrito,
 
   onFinalizado,
+
+  onVolverInicio,
 
 }: CalculadoraPasoDosProps) {
 
@@ -584,6 +588,8 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
         onFinalizado={onFinalizado}
 
+        onVolverInicio={onVolverInicio}
+
       />
 
     );
@@ -603,6 +609,8 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
       <MobileHeaderCompartido
 
         cantidadCarrito={cantidadCarrito}
+
+        onVolverInicio={onVolverInicio}
 
         mostrarBeneficios={true}
 

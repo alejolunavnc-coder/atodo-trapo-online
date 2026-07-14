@@ -1,4 +1,3 @@
-
 "use client";
 
 /* Imports */
@@ -126,6 +125,27 @@ export default function DesktopHome() {
         carrito={carrito}
         carritoAnimado={carritoAnimado}
         setMostrarCarrito={setMostrarCarrito}
+        onVolverInicio={() => {
+          setCalculadoraPinturaAbierta(false);
+          setVista("categorias");
+          setCategoria("");
+          setSubcategoria("Todas");
+          setBusqueda("");
+          setBusquedaActiva(false);
+          setPosicionAntesBusqueda(0);
+          setDetalleAbierto(false);
+          setGrupoDetalle(null);
+          setProductoAbierto(null);
+          setProductoBusquedaAbierto(null);
+          setMostrarCarrito(false);
+
+          window.setTimeout(() => {
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          }, 50);
+        }}
       />
 
       <CarritoLateral
@@ -431,5 +451,4 @@ export default function DesktopHome() {
   );
   
 }
-
 

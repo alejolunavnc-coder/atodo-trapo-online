@@ -881,18 +881,31 @@ const agregarRecomendacionCalculadora = (
   });
 };
 
-const finalizarCalculadora = () => {
+const volverAlInicioGlobal = () => {
+  cancelarBusquedaPorVoz();
+
   setCalculadoraAbierta(false);
   setCategoriaActiva("Inicio");
   setSubcategoriaActiva("Todas");
   setBusquedaMobile("");
+  setProductoAbierto(null);
+  setCantidadDetalle(1);
+  setMenuAbierto(false);
+  setCarritoAbierto(false);
+  setUbicacionAbierta(false);
+  setMostrarConfirmacionCarrito(false);
+  setProductoAgregado(false);
 
   window.setTimeout(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  }, 80);
+  }, 50);
+};
+
+const finalizarCalculadora = () => {
+  volverAlInicioGlobal();
 };
 
 // [Vista calculadora]
@@ -902,7 +915,8 @@ if (calculadoraAbierta) {
     <CalculadoraPintura
       productos={productos}
       cantidadCarrito={cantidadCarrito}
-      onVolver={() => setCalculadoraAbierta(false)}
+      onVolver={volverAlInicioGlobal}
+      onVolverInicio={volverAlInicioGlobal}
       onContinuar={(datosPasoUno) => {
         console.log("Datos del Paso 1:", datosPasoUno);
       }}
@@ -923,6 +937,7 @@ return (
   cantidadCarrito={cantidadCarrito}
   onAbrirMenu={() => setMenuAbierto(true)}
   onAbrirCarrito={() => setCarritoAbierto(true)}
+  onVolverInicio={volverAlInicioGlobal}
   mostrarBeneficios={
     categoriaActiva === "Inicio" && !hayBusquedaMobile
   }
