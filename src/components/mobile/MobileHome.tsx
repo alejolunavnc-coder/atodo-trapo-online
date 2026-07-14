@@ -366,6 +366,37 @@ const normalizarFoneticamente = (valor: unknown) =>
     .replace(/h/g, "")
     .replace(/[^a-z0-9]/g, "");
 
+const obtenerAliasMarca = (marca: string) => {
+  const base = normalizarParaVoz(marca);
+  const sinEspacios = base.replace(/\s+/g, "");
+
+  const alias = new Set<string>([
+    base,
+    sinEspacios,
+    normalizarFoneticamente(base),
+  ]);
+
+  // Variantes frecuentes del reconocimiento de voz para marcas extranjeras.
+  if (
+    base.includes("rust") &&
+    (base.includes("oleum") || base.includes("oleom"))
+  ) {
+    [
+      "rust oleum",
+      "rustoleum",
+      "rust oleom",
+      "ras oleum",
+      "rasoleum",
+      "rost oleum",
+      "rostoleum",
+      "rustolium",
+      "rast oleum",
+    ].forEach((valor) => alias.add(normalizarParaVoz(valor)));
+  }
+
+  return Array.from(alias);
+};
+
 const distanciaLevenshtein = (a: string, b: string) => {
   const matriz = Array.from(
     { length: a.length + 1 },
@@ -434,6 +465,22 @@ const corregirBusquedaConProductos = (textoReconocido: string) => {
 
   if (coincidenciaExacta) {
     return coincidenciaExacta;
+  }
+
+  const coincidenciaPorAlias = marcas.find((marca) =>
+    obtenerAliasMarca(marca).some((alias) => {
+      const aliasNormalizado = normalizarParaVoz(alias);
+      const aliasFonetico = normalizarFoneticamente(alias);
+
+      return (
+        aliasNormalizado === textoNormalizado ||
+        aliasFonetico === textoFonetico
+      );
+    })
+  );
+
+  if (coincidenciaPorAlias) {
+    return coincidenciaPorAlias;
   }
 
   const coincidenciaFoneticaExacta = marcas.find(
