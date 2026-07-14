@@ -264,6 +264,8 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
   const normalizarTexto = (valor: any) =>
     String(valor || "")
       .replace(/^\uFEFF/, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .trim()
       .toLowerCase();
 
