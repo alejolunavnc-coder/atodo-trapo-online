@@ -93,6 +93,9 @@ export default function MobileHome() {
   const ofertasCarruselRef =
     useRef<HTMLDivElement | null>(null);
 
+  const carruselOfertasPausadoRef =
+    useRef(false);
+
   const reconocimientoVozRef =
     useRef<any>(null);
 
@@ -714,11 +717,16 @@ const iniciarBusquedaPorVoz = () => {
 
 const gruposMobile = agruparProductosMobile(productosBuscadosMobile);
 
-useEffect(() => {
-  const esCarruselDeOfertas =
-    categoriaActiva === "Inicio" &&
-    !hayBusquedaMobile;
+const esCarruselDeOfertas =
+  categoriaActiva === "Inicio" &&
+  !hayBusquedaMobile;
 
+const gruposRenderMobile =
+  esCarruselDeOfertas && gruposMobile.length > 3
+    ? [...gruposMobile, ...gruposMobile]
+    : gruposMobile;
+
+useEffect(() => {
   const carrusel = ofertasCarruselRef.current;
 
   if (
@@ -729,56 +737,48 @@ useEffect(() => {
     return;
   }
 
-  const intervalo = window.setInterval(() => {
-    const tarjetas =
-      carrusel.querySelectorAll<HTMLElement>(
-        "[data-oferta-mobile]"
-      );
+  let animacionId = 0;
+  let ultimoTiempo = performance.now();
 
-    const primeraTarjeta = tarjetas[0];
+  const velocidadPixelesPorSegundo = 22;
 
-    if (!primeraTarjeta) {
-      return;
+  const animarCarrusel = (tiempoActual: number) => {
+    const tiempoTranscurrido = Math.min(
+      tiempoActual - ultimoTiempo,
+      40
+    );
+
+    ultimoTiempo = tiempoActual;
+
+    if (!carruselOfertasPausadoRef.current) {
+      carrusel.scrollLeft +=
+        (velocidadPixelesPorSegundo *
+          tiempoTranscurrido) /
+        1000;
+
+      const mitadDelCarrusel =
+        carrusel.scrollWidth / 2;
+
+      if (
+        mitadDelCarrusel > 0 &&
+        carrusel.scrollLeft >= mitadDelCarrusel
+      ) {
+        carrusel.scrollLeft -= mitadDelCarrusel;
+      }
     }
 
-    const espacioEntreTarjetas = 8;
+    animacionId =
+      window.requestAnimationFrame(animarCarrusel);
+  };
 
-    const desplazamiento =
-      primeraTarjeta.offsetWidth +
-      espacioEntreTarjetas;
-
-    const limite =
-      carrusel.scrollWidth -
-      carrusel.clientWidth;
-
-    const siguientePosicion =
-      carrusel.scrollLeft +
-      desplazamiento;
-
-    if (
-      siguientePosicion >=
-      limite - 4
-    ) {
-      carrusel.scrollTo({
-        left: 0,
-        behavior: "smooth",
-      });
-
-      return;
-    }
-
-    carrusel.scrollBy({
-      left: desplazamiento,
-      behavior: "smooth",
-    });
-  }, 3000);
+  animacionId =
+    window.requestAnimationFrame(animarCarrusel);
 
   return () => {
-    window.clearInterval(intervalo);
+    window.cancelAnimationFrame(animacionId);
   };
 }, [
-  categoriaActiva,
-  hayBusquedaMobile,
+  esCarruselDeOfertas,
   gruposMobile.length,
 ]);
 
@@ -1286,13 +1286,25 @@ return (
 <section className="bg-white px-2 pt-2 pb-6">
   <div
     ref={ofertasCarruselRef}
+    onPointerDown={() => {
+      carruselOfertasPausadoRef.current = true;
+    }}
+    onPointerUp={() => {
+      carruselOfertasPausadoRef.current = false;
+    }}
+    onPointerCancel={() => {
+      carruselOfertasPausadoRef.current = false;
+    }}
+    onPointerLeave={() => {
+      carruselOfertasPausadoRef.current = false;
+    }}
     className={
-      categoriaActiva === "Inicio" && !hayBusquedaMobile
-        ? "flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      esCarruselDeOfertas
+        ? "flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         : "grid grid-cols-3 gap-2"
     }
   >
-    {gruposMobile.map((grupo: any, index: number) => {
+    {gruposRenderMobile.map((grupo: any, index: number) => {
       const producto = grupo.items[0];
 
       const precio = precioNumero(producto.Precio);
@@ -1330,7 +1342,7 @@ return (
           }}
           className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
             esCarruselInicio
-              ? "w-[calc((100vw-32px)/3)] shrink-0 snap-start"
+              ? "w-[calc((100vw-32px)/3)] shrink-0"
               : "min-w-0"
           }`}
         >
