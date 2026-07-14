@@ -99,6 +99,9 @@ export default function MobileHome() {
   const detenerVozTimeoutRef =
     useRef<number | null>(null);
 
+  const textoVozPendienteRef =
+    useRef("");
+
 // [Paleta dinámica]
 
 
@@ -532,8 +535,13 @@ const corregirBusquedaConProductos = (textoReconocido: string) => {
   });
 
   const largo = textoNormalizado.length;
+
+  if (largo < 4) {
+    return textoReconocido.trim();
+  }
+
   const distanciaMaxima =
-    largo <= 3 ? 1 : largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
+    largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
 
   return mejorDistancia <= distanciaMaxima
     ? mejorTermino
@@ -562,12 +570,13 @@ const iniciarBusquedaPorVoz = () => {
   reconocimiento.lang = "es-AR";
   reconocimiento.continuous = false;
   reconocimiento.interimResults = true;
-  reconocimiento.maxAlternatives = 1;
+  reconocimiento.maxAlternatives = 3;
 
+  textoVozPendienteRef.current = "";
   setEscuchando(true);
 
   reconocimiento.onresult = (event: any) => {
-    let textoCompleto = "";
+    let mejorTexto = textoVozPendienteRef.current;
     let resultadoFinal = false;
 
     for (
@@ -575,21 +584,33 @@ const iniciarBusquedaPorVoz = () => {
       indice < event.results.length;
       indice += 1
     ) {
-      textoCompleto +=
-        event.results[indice][0]?.transcript || "";
+      const resultado = event.results[indice];
 
-      if (event.results[indice].isFinal) {
+      for (
+        let alternativa = 0;
+        alternativa < resultado.length;
+        alternativa += 1
+      ) {
+        const candidato =
+          String(
+            resultado[alternativa]?.transcript || ""
+          ).trim();
+
+        if (
+          candidato.length >
+          mejorTexto.length
+        ) {
+          mejorTexto = candidato;
+        }
+      }
+
+      if (resultado.isFinal) {
         resultadoFinal = true;
       }
     }
 
-    const textoLimpio = textoCompleto.trim();
-
-    if (textoLimpio) {
-      const textoCorregido =
-        corregirBusquedaConProductos(textoLimpio);
-
-      setBusquedaMobile(textoCorregido);
+    if (mejorTexto) {
+      textoVozPendienteRef.current = mejorTexto;
     }
 
     if (resultadoFinal) {
@@ -621,6 +642,17 @@ const iniciarBusquedaPorVoz = () => {
       detenerVozTimeoutRef.current = null;
     }
 
+    const textoEscuchado =
+      textoVozPendienteRef.current.trim();
+
+    if (textoEscuchado) {
+      const textoCorregido =
+        corregirBusquedaConProductos(textoEscuchado);
+
+      setBusquedaMobile(textoCorregido);
+    }
+
+    textoVozPendienteRef.current = "";
     reconocimientoVozRef.current = null;
     setEscuchando(false);
 
