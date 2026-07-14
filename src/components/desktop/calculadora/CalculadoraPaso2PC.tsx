@@ -607,11 +607,30 @@ export default function CalculadoraPaso2PC({
         datosPasoDos={datosPasoDosGuardados}
         onVolverPaso={() => {
           setDatosPasoDosGuardados(null);
+          setCambiandoPaso(false);
+          setConfirmandoPaso(false);
+          setVistaVisible(true);
 
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
+          window.setTimeout(() => {
+            const elemento =
+              finalPasoRef.current ??
+              manosRef.current ??
+              pasosRef.current;
+
+            if (!elemento) {
+              return;
+            }
+
+            const destino =
+              elemento.getBoundingClientRect().top +
+              window.scrollY -
+              110;
+
+            window.scrollTo({
+              top: destino,
+              behavior: "smooth",
+            });
+          }, 80);
         }}
         onAgregarAlCarrito={onAgregarAlCarrito}
       />

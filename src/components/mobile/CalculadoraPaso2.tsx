@@ -466,21 +466,7 @@ export default function CalculadoraPaso2({
 
   useEffect(() => {
 
-    if (!pinturaSeleccionada) {
-
-      setCantidadManos(0);
-
-      return;
-
-    }
-
-
-
-    setCantidadManos(
-
-      pinturaSeleccionada.manosRecomendadas
-
-    );
+    setCantidadManos(0);
 
   }, [pinturaSeleccionada]);
 
@@ -1070,25 +1056,45 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
 
 
-            <p className="mt-3 text-center text-[9px] font-medium leading-snug text-gray-500">
+            {cantidadManos === 0 ? (
 
-              Podés elegir la cantidad según el estado de la superficie.
+              <div className="mt-3 rounded-[14px] border border-blue-100 bg-blue-50 px-3 py-2.5 text-center">
 
-            </p>
+                <p className="text-[9px] font-black leading-snug text-[#081B43]">
 
+                  Elegí cuántas manos vas a aplicar.
 
+                  La opción verde es la recomendada por la marca.
 
-            {cantidadManos !==
+                </p>
 
-              pinturaSeleccionada.manosRecomendadas && (
+              </div>
 
-              <p className="mt-2 text-center text-[8px] font-semibold text-[#B36A00]">
+            ) : cantidadManos ===
 
-                Modificaste la recomendación del
+              pinturaSeleccionada.manosRecomendadas ? (
 
-                fabricante.
+              <div className="mt-3 rounded-[14px] bg-[#EAF8EC] px-3 py-2.5 text-center">
 
-              </p>
+                <p className="text-[9px] font-black leading-snug text-[#16813A]">
+
+                  Seleccionaste la recomendación de la marca.
+
+                </p>
+
+              </div>
+
+            ) : (
+
+              <div className="mt-3 rounded-[14px] bg-yellow-50 px-3 py-2.5 text-center">
+
+                <p className="text-[9px] font-black leading-snug text-[#B36A00]">
+
+                  Modificaste la recomendación del fabricante.
+
+                </p>
+
+              </div>
 
             )}
 
