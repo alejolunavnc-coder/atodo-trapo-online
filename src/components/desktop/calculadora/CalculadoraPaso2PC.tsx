@@ -418,29 +418,10 @@ export default function CalculadoraPaso2PC({
   useEffect(() => {
     const mostrar = window.setTimeout(() => {
       setVistaVisible(true);
-    }, 40);
-
-    const posicionar = window.setTimeout(() => {
-      const pasos = pasosRef.current;
-
-      if (!pasos) {
-        return;
-      }
-
-      const destino =
-        pasos.getBoundingClientRect().top +
-        window.scrollY -
-        92;
-
-      window.scrollTo({
-        top: destino,
-        behavior: "smooth",
-      });
-    }, 180);
+    }, 90);
 
     return () => {
       window.clearTimeout(mostrar);
-      window.clearTimeout(posicionar);
     };
   }, []);
 
@@ -591,13 +572,27 @@ export default function CalculadoraPaso2PC({
 
     window.setTimeout(() => {
       setCambiandoPaso(true);
-    }, 520);
+
+      const pasos = pasosRef.current;
+
+      if (pasos) {
+        const destino =
+          pasos.getBoundingClientRect().top +
+          window.scrollY -
+          92;
+
+        window.scrollTo({
+          top: Math.max(destino, 0),
+          behavior: "smooth",
+        });
+      }
+    }, 340);
 
     window.setTimeout(() => {
       setDatosPasoDosGuardados(datos);
       onContinuar(datos);
       setConfirmandoPaso(false);
-    }, 820);
+    }, 900);
   }
 
   if (datosPasoDosGuardados) {
@@ -621,13 +616,17 @@ export default function CalculadoraPaso2PC({
               return;
             }
 
+            const rect = elemento.getBoundingClientRect();
+
             const destino =
-              elemento.getBoundingClientRect().top +
+              rect.top +
               window.scrollY -
-              110;
+              (window.innerHeight -
+                rect.height -
+                44);
 
             window.scrollTo({
-              top: destino,
+              top: Math.max(destino, 0),
               behavior: "smooth",
             });
           }, 80);
@@ -639,10 +638,10 @@ export default function CalculadoraPaso2PC({
 
   return (
     <div
-      className={`space-y-6 transition-all duration-300 ease-out ${
+      className={`space-y-6 transition-opacity duration-500 ease-in-out ${
         vistaVisible && !cambiandoPaso
-          ? "translate-y-0 opacity-100"
-          : "translate-y-2 opacity-0"
+          ? "opacity-100"
+          : "pointer-events-none opacity-0"
       }`}
     >
       {/* [Pasos] */}

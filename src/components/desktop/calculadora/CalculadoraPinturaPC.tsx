@@ -192,6 +192,7 @@ export default function CalculadoraPinturaPC({
 
   const [descuentos, setDescuentos] = useState<Descuento[]>([]);
 
+  const pasosRef = useRef<HTMLElement | null>(null);
   const aplicacionRef = useRef<HTMLElement | null>(null);
   const medidasRef = useRef<HTMLElement | null>(null);
   const descuentosRef = useRef<HTMLElement | null>(null);
@@ -480,7 +481,21 @@ export default function CalculadoraPinturaPC({
 
     window.setTimeout(() => {
       setCambiandoPaso(true);
-    }, 520);
+
+      const pasos = pasosRef.current;
+
+      if (pasos) {
+        const destino =
+          pasos.getBoundingClientRect().top +
+          window.scrollY -
+          92;
+
+        window.scrollTo({
+          top: Math.max(destino, 0),
+          behavior: "smooth",
+        });
+      }
+    }, 340);
 
     window.setTimeout(() => {
       setDatosPasoUnoGuardados(datos);
@@ -488,7 +503,7 @@ export default function CalculadoraPinturaPC({
       setPasoActual(2);
       setCambiandoPaso(false);
       setConfirmandoPaso(false);
-    }, 820);
+    }, 900);
   }
 
   if (pasoActual === 2 && datosPasoUnoGuardados) {
@@ -517,15 +532,18 @@ export default function CalculadoraPinturaPC({
 
   return (
     <div
-      className={`space-y-6 transition-all duration-300 ease-out ${
+      className={`space-y-6 transition-opacity duration-500 ease-in-out ${
         cambiandoPaso
-          ? "translate-y-2 opacity-0"
-          : "translate-y-0 opacity-100"
+          ? "pointer-events-none opacity-0"
+          : "opacity-100"
       }`}
     >
       {/* [Pasos] */}
 
-      <section className="rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm">
+      <section
+        ref={pasosRef}
+        className="rounded-[24px] border border-gray-200 bg-white px-8 py-5 shadow-sm"
+      >
         <div className="flex items-start">
           <Paso
             numero={1}

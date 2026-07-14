@@ -359,29 +359,10 @@ export default function CalculadoraPaso3PC({
   useEffect(() => {
     const mostrar = window.setTimeout(() => {
       setVistaVisible(true);
-    }, 40);
-
-    const posicionar = window.setTimeout(() => {
-      const elemento = listoRef.current;
-
-      if (!elemento) {
-        return;
-      }
-
-      const destino =
-        elemento.getBoundingClientRect().top +
-        window.scrollY -
-        88;
-
-      window.scrollTo({
-        top: destino,
-        behavior: "smooth",
-      });
-    }, 180);
+    }, 90);
 
     return () => {
       window.clearTimeout(mostrar);
-      window.clearTimeout(posicionar);
     };
   }, []);
 
@@ -500,10 +481,10 @@ export default function CalculadoraPaso3PC({
 
   return (
     <div
-      className={`space-y-6 transition-all duration-300 ease-out ${
+      className={`space-y-6 transition-opacity duration-500 ease-in-out ${
         vistaVisible
-          ? "translate-y-0 opacity-100"
-          : "translate-y-2 opacity-0"
+          ? "opacity-100"
+          : "pointer-events-none opacity-0"
       }`}
     >
       {/* [Pasos] */}
