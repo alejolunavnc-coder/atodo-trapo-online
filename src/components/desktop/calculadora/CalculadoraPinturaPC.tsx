@@ -171,6 +171,9 @@ export default function CalculadoraPinturaPC({
   const [cambiandoPaso, setCambiandoPaso] =
     useState(false);
 
+  const [confirmandoPaso, setConfirmandoPaso] =
+    useState(false);
+
   const [datosPasoUnoGuardados, setDatosPasoUnoGuardados] =
     useState<DatosPasoUnoPC | null>(null);
   const [grupoSeleccionado, setGrupoSeleccionado] =
@@ -473,14 +476,19 @@ export default function CalculadoraPinturaPC({
       descuentos,
     };
 
-    setCambiandoPaso(true);
+    setConfirmandoPaso(true);
+
+    window.setTimeout(() => {
+      setCambiandoPaso(true);
+    }, 520);
 
     window.setTimeout(() => {
       setDatosPasoUnoGuardados(datos);
       onContinuar?.(datos);
       setPasoActual(2);
       setCambiandoPaso(false);
-    }, 280);
+      setConfirmandoPaso(false);
+    }, 820);
   }
 
   if (pasoActual === 2 && datosPasoUnoGuardados) {
@@ -899,6 +907,69 @@ export default function CalculadoraPinturaPC({
                 )}
               </section>
             )}
+
+          {/* [Finalizar Paso 1] */}
+
+          {puedeContinuar && (
+            <section className="rounded-[24px] border border-[#1F9D55]/25 bg-gradient-to-r from-[#F3FCF5] via-white to-[#F3FCF5] p-5 shadow-[0_12px_30px_rgba(31,157,85,0.10)]">
+              <div className="mb-3 flex items-center justify-center gap-2 text-[#16813A]">
+                <CircleCheck
+                  size={18}
+                  strokeWidth={2.7}
+                  className={`transition-all duration-300 ${
+                    confirmandoPaso
+                      ? "scale-125"
+                      : "scale-100"
+                  }`}
+                />
+
+                <p className="text-[11px] font-black uppercase tracking-[0.14em]">
+                  {confirmandoPaso
+                    ? "Paso 1 completado"
+                    : "Finalizado Paso 1"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={continuar}
+                disabled={confirmandoPaso}
+                className={`group flex h-14 w-full items-center justify-center gap-3 rounded-[17px] px-6 text-[15px] font-black text-white shadow-[0_10px_24px_rgba(31,157,85,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(31,157,85,0.32)] active:scale-[0.99] disabled:cursor-wait ${
+                  confirmandoPaso
+                    ? "bg-[#16813A]"
+                    : "bg-[#1F9D55] hover:bg-[#188B49]"
+                }`}
+              >
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 ${
+                    confirmandoPaso
+                      ? "scale-110 bg-white text-[#1F9D55]"
+                      : "bg-white/15 text-white"
+                  }`}
+                >
+                  {confirmandoPaso ? (
+                    <Check
+                      size={18}
+                      strokeWidth={3.2}
+                      className="animate-[pulse_500ms_ease-out_1]"
+                    />
+                  ) : (
+                    <ArrowRight
+                      size={18}
+                      strokeWidth={2.7}
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
+                  )}
+                </span>
+
+                <span>
+                  {confirmandoPaso
+                    ? "¡Listo! Abriendo Paso 2"
+                    : "Ir al Paso 2: elegir pintura"}
+                </span>
+              </button>
+            </section>
+          )}
         </div>
 
         {/* [Resumen] */}
@@ -943,20 +1014,6 @@ export default function CalculadoraPinturaPC({
               {formatearDecimal(superficieNeta)} m²
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={continuar}
-            disabled={!puedeContinuar}
-            className={`mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-[16px] text-[14px] font-black transition ${
-              puedeContinuar
-                ? "bg-yellow-400 text-blue-950 shadow-[0_8px_20px_rgba(15,23,42,0.14)] hover:bg-yellow-500"
-                : "cursor-not-allowed bg-gray-200 text-gray-400"
-            }`}
-          >
-            Continuar a elegir pintura
-            <ArrowRight size={19} strokeWidth={2.5} />
-          </button>
 
           <div className="mt-4 flex items-start gap-2 rounded-[16px] bg-blue-50 px-3 py-3">
             <Check

@@ -112,6 +112,14 @@ function obtenerAplicacionesCalculadora(valor: unknown) {
     .filter(Boolean);
 }
 
+
+function obtenerGruposCalculadora(valor: unknown) {
+  return String(valor ?? "")
+    .split(/[|,;]/)
+    .map((grupo) => normalizarTexto(grupo))
+    .filter(Boolean);
+}
+
 function productoTieneStock(producto: Producto) {
   return normalizarTexto(producto.Stock) !== "x";
 }
@@ -265,6 +273,7 @@ export default function CalculadoraPaso2PC({
 }: CalculadoraPaso2PCProps) {
   const pasosRef = useRef<HTMLElement | null>(null);
   const manosRef = useRef<HTMLElement | null>(null);
+  const finalPasoRef = useRef<HTMLElement | null>(null);
 
   const [
     pinturaSeleccionadaId,
@@ -283,6 +292,9 @@ export default function CalculadoraPaso2PC({
   const [cambiandoPaso, setCambiandoPaso] =
     useState(false);
 
+  const [confirmandoPaso, setConfirmandoPaso] =
+    useState(false);
+
   const pinturasCompatibles =
     useMemo<PinturaAgrupada[]>(() => {
       const grupoBuscado = normalizarTexto(
@@ -299,9 +311,10 @@ export default function CalculadoraPaso2PC({
             return false;
           }
 
-          const grupoProducto = normalizarTexto(
-            producto["Grupo calculadora"]
-          );
+          const gruposProducto =
+            obtenerGruposCalculadora(
+              producto["Grupo calculadora"]
+            );
 
           const aplicacionesProducto =
             obtenerAplicacionesCalculadora(
@@ -317,9 +330,11 @@ export default function CalculadoraPaso2PC({
           );
 
           const coincideGrupo =
-            coincidePorPalabras(
-              grupoProducto,
-              grupoBuscado
+            gruposProducto.some((grupo) =>
+              coincidePorPalabras(
+                grupo,
+                grupoBuscado
+              )
             );
 
           const coincideAplicacion =
@@ -332,7 +347,7 @@ export default function CalculadoraPaso2PC({
             );
 
           return (
-            grupoProducto !== "" &&
+            gruposProducto.length > 0 &&
             aplicacionesProducto.length > 0 &&
             manos > 0 &&
             poderCubritivo > 0 &&
@@ -430,14 +445,11 @@ export default function CalculadoraPaso2PC({
   }, []);
 
   useEffect(() => {
+    setCantidadManos(0);
+
     if (!pinturaSeleccionada) {
-      setCantidadManos(0);
       return;
     }
-
-    setCantidadManos(
-      pinturaSeleccionada.manosRecomendadas
-    );
 
     window.setTimeout(() => {
       const elemento = manosRef.current;
@@ -494,6 +506,64 @@ export default function CalculadoraPaso2PC({
     }, 250);
   }, [pinturaSeleccionada]);
 
+  useEffect(() => {
+    if (cantidadManos <= 0) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      const elemento = finalPasoRef.current;
+
+      if (!elemento) {
+        return;
+      }
+
+      const inicio = window.scrollY;
+
+      const destino =
+        elemento.getBoundingClientRect().top +
+        window.scrollY -
+        window.innerHeight * 0.58;
+
+      const distancia = destino - inicio;
+      const duracion = 850;
+      const tiempoInicial = performance.now();
+
+      const suavizar = (progreso: number) =>
+        progreso < 0.5
+          ? 4 * progreso * progreso * progreso
+          : 1 -
+            Math.pow(
+              -2 * progreso + 2,
+              3
+            ) /
+              2;
+
+      function animar(tiempoActual: number) {
+        const transcurrido =
+          tiempoActual - tiempoInicial;
+
+        const progreso = Math.min(
+          transcurrido / duracion,
+          1
+        );
+
+        window.scrollTo(
+          0,
+          inicio +
+            distancia *
+              suavizar(progreso)
+        );
+
+        if (progreso < 1) {
+          window.requestAnimationFrame(animar);
+        }
+      }
+
+      window.requestAnimationFrame(animar);
+    }, 220);
+  }, [cantidadManos]);
+
   const puedeContinuar =
     pinturaSeleccionada !== null &&
     cantidadManos > 0 &&
@@ -517,12 +587,17 @@ export default function CalculadoraPaso2PC({
         pinturaSeleccionada.poderCubritivo,
     };
 
-    setCambiandoPaso(true);
+    setConfirmandoPaso(true);
+
+    window.setTimeout(() => {
+      setCambiandoPaso(true);
+    }, 520);
 
     window.setTimeout(() => {
       setDatosPasoDosGuardados(datos);
       onContinuar(datos);
-    }, 280);
+      setConfirmandoPaso(false);
+    }, 820);
   }
 
   if (datosPasoDosGuardados) {
@@ -825,8 +900,15 @@ export default function CalculadoraPaso2PC({
                 })}
               </div>
 
-              {cantidadManos ===
-              pinturaSeleccionada.manosRecomendadas ? (
+              {cantidadManos === 0 ? (
+                <div className="mt-4 rounded-[16px] border border-blue-100 bg-blue-50 px-4 py-3">
+                  <p className="text-[11px] font-black text-blue-950">
+                    Elegí cuántas manos vas a aplicar.
+                    La opción en verde es la recomendada por la marca.
+                  </p>
+                </div>
+              ) : cantidadManos ===
+                pinturaSeleccionada.manosRecomendadas ? (
                 <div className="mt-4 flex items-center gap-2 rounded-[16px] bg-[#EAF8EC] px-4 py-3 text-[#16813A]">
                   <Check
                     size={17}
@@ -846,6 +928,72 @@ export default function CalculadoraPaso2PC({
                   </p>
                 </div>
               )}
+            </section>
+          )}
+
+          {/* [Finalizar Paso 2] */}
+
+          {puedeContinuar && (
+            <section
+              ref={finalPasoRef}
+              className="scroll-mt-28 rounded-[24px] border border-[#1F9D55]/25 bg-gradient-to-r from-[#F3FCF5] via-white to-[#F3FCF5] p-5 shadow-[0_12px_30px_rgba(31,157,85,0.10)]"
+            >
+              <div className="mb-3 flex items-center justify-center gap-2 text-[#16813A]">
+                <Check
+                  size={18}
+                  strokeWidth={2.8}
+                  className={`transition-all duration-300 ${
+                    confirmandoPaso
+                      ? "scale-125"
+                      : "scale-100"
+                  }`}
+                />
+
+                <p className="text-[11px] font-black uppercase tracking-[0.14em]">
+                  {confirmandoPaso
+                    ? "Paso 2 completado"
+                    : "Finalizado Paso 2"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={continuar}
+                disabled={confirmandoPaso}
+                className={`group flex h-14 w-full items-center justify-center gap-3 rounded-[17px] px-6 text-[15px] font-black text-white shadow-[0_10px_24px_rgba(31,157,85,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(31,157,85,0.32)] active:scale-[0.99] disabled:cursor-wait ${
+                  confirmandoPaso
+                    ? "bg-[#16813A]"
+                    : "bg-[#1F9D55] hover:bg-[#188B49]"
+                }`}
+              >
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 ${
+                    confirmandoPaso
+                      ? "scale-110 bg-white text-[#1F9D55]"
+                      : "bg-white/15 text-white"
+                  }`}
+                >
+                  {confirmandoPaso ? (
+                    <Check
+                      size={18}
+                      strokeWidth={3.2}
+                      className="animate-[pulse_500ms_ease-out_1]"
+                    />
+                  ) : (
+                    <ArrowRight
+                      size={18}
+                      strokeWidth={2.7}
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
+                  )}
+                </span>
+
+                <span>
+                  {confirmandoPaso
+                    ? "¡Listo! Abriendo resultado"
+                    : "Ir al Paso 3: ver resultado"}
+                </span>
+              </button>
             </section>
           )}
         </div>
@@ -951,23 +1099,6 @@ export default function CalculadoraPaso2PC({
               </div>
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={continuar}
-            disabled={!puedeContinuar}
-            className={`mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-[16px] text-[14px] font-black transition ${
-              puedeContinuar
-                ? "bg-yellow-400 text-blue-950 shadow-[0_8px_20px_rgba(15,23,42,0.14)] hover:bg-yellow-500"
-                : "cursor-not-allowed bg-gray-200 text-gray-400"
-            }`}
-          >
-            Calcular resultado
-            <ArrowRight
-              size={19}
-              strokeWidth={2.5}
-            />
-          </button>
 
           <button
             type="button"

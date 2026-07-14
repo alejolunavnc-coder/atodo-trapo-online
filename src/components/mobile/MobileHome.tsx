@@ -1009,9 +1009,18 @@ return (
     )
   );
 
+  const tamanoSeleccionado =
+    tamanosSeleccionados[claveDetalle] || tamanos[0] || "";
+
+  const itemsDelTamano = productoAbierto.items.filter(
+    (item: Producto) =>
+      !tamanoSeleccionado ||
+      item.Tamaño?.trim() === tamanoSeleccionado
+  );
+
   const fragancias: string[] = Array.from(
     new Set(
-      productoAbierto.items
+      itemsDelTamano
         .map((item: any) => item.Fragancias?.trim())
         .filter((valor: any): valor is string => Boolean(valor))
     )
@@ -1019,7 +1028,7 @@ return (
 
   const colores: string[] = Array.from(
     new Set(
-      productoAbierto.items
+      itemsDelTamano
         .map((item: Producto) => item.Color?.trim())
         .filter((valor: any): valor is string => Boolean(valor))
     )
@@ -1028,25 +1037,27 @@ return (
   const tieneFragancias = fragancias.length > 0;
   const variantes = tieneFragancias ? fragancias : colores;
 
-  const tamanoSeleccionado =
-    tamanosSeleccionados[claveDetalle] || tamanos[0] || "";
+  const varianteGuardada = tieneFragancias
+    ? fraganciasSeleccionadas[claveDetalle]
+    : coloresSeleccionados[claveDetalle];
 
-  const varianteSeleccionada = tieneFragancias
-    ? fraganciasSeleccionadas[claveDetalle] || fragancias[0] || ""
-    : coloresSeleccionados[claveDetalle] || colores[0] || "";
+  const varianteSeleccionada =
+    varianteGuardada && variantes.includes(varianteGuardada)
+      ? varianteGuardada
+      : variantes[0] || "";
 
   const producto =
-    productoAbierto.items.find((item: any) => {
-      const mismoTamano =
-        !tamanoSeleccionado || item.Tamaño?.trim() === tamanoSeleccionado;
+    itemsDelTamano.find((item: any) => {
+      if (!varianteSeleccionada) {
+        return true;
+      }
 
-      const mismaVariante = tieneFragancias
-        ? !varianteSeleccionada ||
-          item.Fragancias?.trim() === varianteSeleccionada
-        : !varianteSeleccionada || item.Color?.trim() === varianteSeleccionada;
-
-      return mismoTamano && mismaVariante;
-    }) || productoAbierto.items[0];
+      return tieneFragancias
+        ? item.Fragancias?.trim() === varianteSeleccionada
+        : item.Color?.trim() === varianteSeleccionada;
+    }) ||
+    itemsDelTamano[0] ||
+    productoAbierto.items[0];
 
   const precio = precioNumero(producto.Precio);
   const precioOferta = precioNumero(producto["Precio oferta"]);
@@ -1177,12 +1188,46 @@ const mostrarChapitaAromas = !tieneFragancias && textoAromas;
                     return (
                       <button
                         key={tamano}
-                        onClick={() =>
+                        onClick={() => {
                           setTamanosSeleccionados((actual: any) => ({
                             ...actual,
                             [claveDetalle]: tamano,
-                          }))
-                        }
+                          }));
+
+                          const itemsNuevoTamano =
+                            productoAbierto.items.filter(
+                              (item: Producto) =>
+                                item.Tamaño?.trim() === tamano
+                            );
+
+                          const primeraFragancia =
+                            itemsNuevoTamano
+                              .map((item: any) =>
+                                item.Fragancias?.trim()
+                              )
+                              .find(Boolean) || "";
+
+                          const primerColor =
+                            itemsNuevoTamano
+                              .map((item: Producto) =>
+                                item.Color?.trim()
+                              )
+                              .find(Boolean) || "";
+
+                          setFraganciasSeleccionadas(
+                            (actual: any) => ({
+                              ...actual,
+                              [claveDetalle]: primeraFragancia,
+                            })
+                          );
+
+                          setColoresSeleccionados(
+                            (actual: any) => ({
+                              ...actual,
+                              [claveDetalle]: primerColor,
+                            })
+                          );
+                        }}
                         className={`rounded-full px-2 py-1 text-[9px] font-black shadow-sm transition active:scale-95 ${
                           activo
                             ? "bg-[#173F2A] text-white"

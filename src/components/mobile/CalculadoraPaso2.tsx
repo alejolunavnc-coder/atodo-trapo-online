@@ -179,6 +179,14 @@ function obtenerAplicacionesCalculadora(valor: unknown) {
 }
 
 
+function obtenerGruposCalculadora(valor: unknown) {
+  return String(valor ?? "")
+    .split(/[|,;]/)
+    .map((grupo) => normalizarTexto(grupo))
+    .filter(Boolean);
+}
+
+
 
 function productoTieneStock(producto: Producto) {
 
@@ -312,11 +320,10 @@ export default function CalculadoraPaso2({
 
 
 
-      const grupoProducto = normalizarTexto(
-
-        producto["Grupo calculadora"]
-
-      );
+      const gruposProducto =
+        obtenerGruposCalculadora(
+          producto["Grupo calculadora"]
+        );
 
 
 
@@ -332,15 +339,18 @@ export default function CalculadoraPaso2({
       );
 
       const tieneDatosTecnicos =
-        grupoProducto !== "" &&
+        gruposProducto.length > 0 &&
         aplicacionesProducto.length > 0 &&
         manos > 0 &&
         poderCubritivo > 0;
 
-      const coincideGrupo = coincidePorPalabras(
-        grupoProducto,
-        grupoBuscado
-      );
+      const coincideGrupo =
+        gruposProducto.some((grupo) =>
+          coincidePorPalabras(
+            grupo,
+            grupoBuscado
+          )
+        );
 
       const coincideAplicacion =
         aplicacionesProducto.some((aplicacion) =>
