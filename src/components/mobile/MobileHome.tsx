@@ -672,14 +672,14 @@ return (
   {/* [Buscador] */}
 
 <section
-  className={`${
+  className={`w-full max-w-full overflow-visible ${
     categoriaActiva === "Inicio" && !hayBusquedaMobile
       ? "px-4 pt-3 pb-1"
       : "relative z-20 -mt-4 px-4 pb-1"
   }`}
 >
-  <div className="flex items-center gap-2">
-    <div className="flex h-11 flex-1 items-center gap-3 rounded-full bg-white px-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-gray-100">
+  <div className="grid w-full grid-cols-[minmax(0,1fr)_44px] items-center gap-2">
+    <div className="flex h-11 min-w-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-gray-100">
       <Search size={19} strokeWidth={2.3} className="shrink-0 text-gray-400" />
 
       <input
@@ -708,24 +708,53 @@ return (
       )}
     </div>
 
-    <button
-      type="button"
-      onClick={
-        escuchando
-          ? detenerBusquedaPorVoz
-          : iniciarBusquedaPorVoz
-      }
-      aria-label={
-        escuchando
-          ? "Terminar búsqueda por voz"
-          : "Iniciar búsqueda por voz"
-      }
-      className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-300 active:scale-95 ${
-        escuchando ? "animate-pulse bg-red-500" : "bg-[#123A72]"
-      }`}
-    >
-      <Mic size={18} strokeWidth={2.5} />
-    </button>
+    <div className="relative h-11 w-11 shrink-0">
+      {escuchando && (
+        <>
+          <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-red-400/45" />
+          <span className="pointer-events-none absolute -inset-1 rounded-full border-2 border-red-400/45" />
+        </>
+      )}
+
+      <button
+        type="button"
+        onPointerDown={(evento) => {
+          evento.preventDefault();
+
+          if (!escuchando) {
+            iniciarBusquedaPorVoz();
+          }
+        }}
+        onPointerUp={(evento) => {
+          evento.preventDefault();
+          detenerBusquedaPorVoz();
+        }}
+        onPointerCancel={() => {
+          detenerBusquedaPorVoz();
+        }}
+        onContextMenu={(evento) => {
+          evento.preventDefault();
+        }}
+        aria-label="Mantener presionado para buscar por voz"
+        style={{
+          touchAction: "none",
+          WebkitTouchCallout: "none",
+          WebkitUserSelect: "none",
+          userSelect: "none",
+        }}
+        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-200 ${
+          escuchando
+            ? "scale-95 bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.14)]"
+            : "bg-[#123A72] active:scale-95"
+        }`}
+      >
+        <Mic
+          size={18}
+          strokeWidth={2.5}
+          className={escuchando ? "animate-pulse" : ""}
+        />
+      </button>
+    </div>
   </div>
 </section>
 
@@ -1980,46 +2009,6 @@ Instagram
           </div>
         </div>
       </div>
-    </div>
-  </div>
-)}
-
-{/* [Escuchando] */}
-
-{escuchando && (
-  <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/35 backdrop-blur-[2px]">
-    <div className="flex flex-col items-center rounded-[26px] bg-white px-8 py-7 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
-
-      <div className="flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-red-500 text-white shadow-lg">
-        <Mic size={34} strokeWidth={2.4} />
-      </div>
-
-      <h3 className="mt-5 text-[18px] font-black text-[#123A72]">
-        Escuchando...
-      </h3>
-
-      <p className="mt-2 text-center text-[11px] font-semibold text-gray-500">
-        Hablá normalmente. Al terminar, la búsqueda se cierra sola.
-      </p>
-
-      <div className="mt-6 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={detenerBusquedaPorVoz}
-          className="rounded-full bg-[#123A72] px-6 py-2.5 text-[11px] font-black text-white"
-        >
-          Terminar
-        </button>
-
-        <button
-          type="button"
-          onClick={cancelarBusquedaPorVoz}
-          className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-[11px] font-black text-gray-600"
-        >
-          Cancelar
-        </button>
-      </div>
-
     </div>
   </div>
 )}
