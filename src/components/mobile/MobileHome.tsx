@@ -96,6 +96,9 @@ export default function MobileHome() {
   const reconocimientoVozRef =
     useRef<any>(null);
 
+  const detenerVozTimeoutRef =
+    useRef<number | null>(null);
+
 // [Paleta dinámica]
 
 
@@ -307,10 +310,27 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
     return;
   }
 
-  reconocimiento.stop();
+  if (detenerVozTimeoutRef.current !== null) {
+    window.clearTimeout(detenerVozTimeoutRef.current);
+  }
+
+  detenerVozTimeoutRef.current = window.setTimeout(() => {
+    try {
+      reconocimiento.stop();
+    } catch {
+      setEscuchando(false);
+    }
+
+    detenerVozTimeoutRef.current = null;
+  }, 420);
 };
 
 const cancelarBusquedaPorVoz = () => {
+  if (detenerVozTimeoutRef.current !== null) {
+    window.clearTimeout(detenerVozTimeoutRef.current);
+    detenerVozTimeoutRef.current = null;
+  }
+
   const reconocimiento = reconocimientoVozRef.current;
 
   if (reconocimiento) {
@@ -394,6 +414,11 @@ const iniciarBusquedaPorVoz = () => {
   };
 
   reconocimiento.onend = () => {
+    if (detenerVozTimeoutRef.current !== null) {
+      window.clearTimeout(detenerVozTimeoutRef.current);
+      detenerVozTimeoutRef.current = null;
+    }
+
     reconocimientoVozRef.current = null;
     setEscuchando(false);
 
