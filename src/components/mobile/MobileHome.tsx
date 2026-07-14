@@ -93,6 +93,9 @@ export default function MobileHome() {
   const ofertasCarruselRef =
     useRef<HTMLDivElement | null>(null);
 
+  const reconocimientoVozRef =
+    useRef<any>(null);
+
 // [Paleta dinámica]
 
 
@@ -296,7 +299,29 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
       }, {})
     );
 
-    const iniciarBusquedaPorVoz = () => {
+    const detenerBusquedaPorVoz = () => {
+  const reconocimiento = reconocimientoVozRef.current;
+
+  if (!reconocimiento) {
+    setEscuchando(false);
+    return;
+  }
+
+  reconocimiento.stop();
+};
+
+const cancelarBusquedaPorVoz = () => {
+  const reconocimiento = reconocimientoVozRef.current;
+
+  if (reconocimiento) {
+    reconocimiento.abort();
+  }
+
+  reconocimientoVozRef.current = null;
+  setEscuchando(false);
+};
+
+const iniciarBusquedaPorVoz = () => {
   const SpeechRecognition =
     (window as any).SpeechRecognition ||
     (window as any).webkitSpeechRecognition;
@@ -306,33 +331,86 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
     return;
   }
 
+  if (reconocimientoVozRef.current) {
+    reconocimientoVozRef.current.abort();
+    reconocimientoVozRef.current = null;
+  }
+
   const reconocimiento = new SpeechRecognition();
+
+  reconocimientoVozRef.current = reconocimiento;
 
   reconocimiento.lang = "es-AR";
   reconocimiento.continuous = false;
-  reconocimiento.interimResults = false;
+  reconocimiento.interimResults = true;
   reconocimiento.maxAlternatives = 1;
 
   setEscuchando(true);
 
-  reconocimiento.start();
-
   reconocimiento.onresult = (event: any) => {
-    const texto = event.results[0][0].transcript;
+    let textoCompleto = "";
+    let resultadoFinal = false;
 
-    setBusquedaMobile(texto);
-    setEscuchando(false);
+    for (
+      let indice = event.resultIndex;
+      indice < event.results.length;
+      indice += 1
+    ) {
+      textoCompleto +=
+        event.results[indice][0]?.transcript || "";
+
+      if (event.results[indice].isFinal) {
+        resultadoFinal = true;
+      }
+    }
+
+    const textoLimpio = textoCompleto.trim();
+
+    if (textoLimpio) {
+      setBusquedaMobile(textoLimpio);
+    }
+
+    if (resultadoFinal) {
+      reconocimiento.stop();
+    }
+  };
+
+  reconocimiento.onspeechend = () => {
+    reconocimiento.stop();
   };
 
   reconocimiento.onerror = (event: any) => {
-  console.log(event.error);
-  alert(event.error);
-  setEscuchando(false);
-};
+    console.log(event.error);
 
-  reconocimiento.onend = () => {
+    if (
+      event.error !== "aborted" &&
+      event.error !== "no-speech"
+    ) {
+      alert("No pudimos reconocer la voz. Probá nuevamente.");
+    }
+
+    reconocimientoVozRef.current = null;
     setEscuchando(false);
   };
+
+  reconocimiento.onend = () => {
+    reconocimientoVozRef.current = null;
+    setEscuchando(false);
+
+    window.setTimeout(() => {
+      const elementoActivo =
+        document.activeElement as HTMLElement | null;
+
+      elementoActivo?.blur?.();
+    }, 40);
+  };
+
+  try {
+    reconocimiento.start();
+  } catch {
+    reconocimientoVozRef.current = null;
+    setEscuchando(false);
+  }
 };
 
 // [Productos]
@@ -605,11 +683,22 @@ return (
       <Search size={19} strokeWidth={2.3} className="shrink-0 text-gray-400" />
 
       <input
-        type="text"
+        type="search"
+        inputMode="search"
+        enterKeyHint="search"
         value={busquedaMobile}
         onChange={(e) => setBusquedaMobile(e.target.value)}
+        onBlur={() => {
+          window.setTimeout(() => {
+            window.scrollTo({
+              top: window.scrollY,
+              behavior: "auto",
+            });
+          }, 40);
+        }}
         placeholder="Buscar productos..."
-        className="flex-1 bg-transparent text-[16px] font-medium text-gray-800 placeholder:text-gray-400 outline-none"
+        style={{ fontSize: "16px" }}
+        className="min-w-0 flex-1 appearance-none bg-transparent text-[16px] font-medium text-gray-800 placeholder:text-gray-400 outline-none [-webkit-appearance:none] [&::-webkit-search-cancel-button]:hidden"
       />
 
       {busquedaMobile && (
@@ -620,9 +709,19 @@ return (
     </div>
 
     <button
-      onClick={iniciarBusquedaPorVoz}
+      type="button"
+      onClick={
+        escuchando
+          ? detenerBusquedaPorVoz
+          : iniciarBusquedaPorVoz
+      }
+      aria-label={
+        escuchando
+          ? "Terminar búsqueda por voz"
+          : "Iniciar búsqueda por voz"
+      }
       className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-300 active:scale-95 ${
-        escuchando ? "bg-red-500 animate-pulse" : "bg-[#123A72]"
+        escuchando ? "animate-pulse bg-red-500" : "bg-[#123A72]"
       }`}
     >
       <Mic size={18} strokeWidth={2.5} />
@@ -1900,15 +1999,26 @@ Instagram
       </h3>
 
       <p className="mt-2 text-center text-[11px] font-semibold text-gray-500">
-        Hablá normalmente.
+        Hablá normalmente. Al terminar, la búsqueda se cierra sola.
       </p>
 
-      <button
-        onClick={() => setEscuchando(false)}
-        className="mt-6 rounded-full bg-[#123A72] px-6 py-2.5 text-[11px] font-black text-white"
-      >
-        Cancelar
-      </button>
+      <div className="mt-6 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={detenerBusquedaPorVoz}
+          className="rounded-full bg-[#123A72] px-6 py-2.5 text-[11px] font-black text-white"
+        >
+          Terminar
+        </button>
+
+        <button
+          type="button"
+          onClick={cancelarBusquedaPorVoz}
+          className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-[11px] font-black text-gray-600"
+        >
+          Cancelar
+        </button>
+      </div>
 
     </div>
   </div>
