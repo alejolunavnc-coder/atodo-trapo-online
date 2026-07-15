@@ -296,6 +296,8 @@ export default function CalculadoraPaso2({
 }: CalculadoraPasoDosProps) {
 
   const carruselRef = useRef<HTMLDivElement | null>(null);
+  const manosRef = useRef<HTMLElement | null>(null);
+  const resumenRef = useRef<HTMLElement | null>(null);
 
   const [pinturaSeleccionadaId, setPinturaSeleccionadaId] =
 
@@ -503,6 +505,13 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
   function seleccionarPintura(pintura: PinturaAgrupada) {
 
     setPinturaSeleccionadaId(pintura.id);
+
+    window.setTimeout(() => {
+      manosRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 150);
 
   }
 
@@ -972,7 +981,10 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
         {pinturaSeleccionada && (
 
-          <section className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]">
+          <section
+            ref={manosRef}
+            className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]"
+          >
 
             <div className="flex items-start gap-2">
 
@@ -1042,11 +1054,16 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
                     type="button"
 
-                    onClick={() =>
+                    onClick={() => {
+                      setCantidadManos(cantidad);
 
-                      setCantidadManos(cantidad)
-
-                    }
+                      window.setTimeout(() => {
+                        resumenRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }, 150);
+                    }}
 
                     className={`flex h-11 items-center justify-center rounded-full border text-[13px] font-black transition active:scale-95 ${
 
@@ -1132,7 +1149,10 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
 
 
-        <section className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]">
+        <section
+          ref={resumenRef}
+          className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]"
+        >
 
           <div className="mb-3 flex items-center gap-2">
 
