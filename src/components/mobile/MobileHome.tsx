@@ -1887,18 +1887,21 @@ export default function MobileHome() {
 
       {/* [Carrito flotante + WhatsApp] */}
 
-      {!carritoAbierto && !menuAbierto && !ubicacionAbierta && (
+{!calculadoraAbierta &&
+  !carritoAbierto &&
+  !menuAbierto &&
+  !ubicacionAbierta && (
         <>
           <button
             type="button"
             onClick={() => setCarritoAbierto(true)}
             aria-label="Abrir carrito"
-            className={`fixed right-4 z-[80] flex h-[56px] w-[56px] items-center justify-center rounded-full bg-[#111827] text-white shadow-[0_12px_30px_rgba(0,0,0,0.34)] ring-1 ring-white/15 transition-all duration-200 active:scale-90 ${
-              calculadoraAbierta ? "bottom-[222px]" : "bottom-[84px]"
-            }`}
+            className={`fixed right-4 z-[80] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#111827] text-white shadow-[0_12px_30px_rgba(0,0,0,0.34)] ring-1 ring-white/15 transition-all duration-200 active:scale-90 ${
+  calculadoraAbierta ? "bottom-[222px]" : "bottom-[84px]"
+}`}
           >
             <ShoppingCart
-              size={29}
+            size={27}
               strokeWidth={2.5}
               className={
                 productoAgregado ? "animate-[reboteCarrito_0.35s_ease-out]" : ""
