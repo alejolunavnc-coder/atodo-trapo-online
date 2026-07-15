@@ -81,6 +81,10 @@ type CalculadoraPasoDosProps = {
 
   cantidadCarrito?: number;
 
+  onAbrirMenu?: () => void;
+
+  onAbrirCarrito?: () => void;
+
   onVolverPaso: () => void;
 
   onContinuar: (datos: DatosPasoDos) => void;
@@ -274,6 +278,10 @@ export default function CalculadoraPaso2({
   productos,
 
   cantidadCarrito = 0,
+
+  onAbrirMenu,
+
+  onAbrirCarrito,
 
   onVolverPaso,
 
@@ -570,6 +578,10 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
         cantidadCarrito={cantidadCarrito}
 
+        onAbrirMenu={onAbrirMenu}
+
+        onAbrirCarrito={onAbrirCarrito}
+
         onVolverPaso={() => {
 
           setDatosPasoDos(null);
@@ -609,6 +621,10 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
       <MobileHeaderCompartido
 
         cantidadCarrito={cantidadCarrito}
+
+        onAbrirMenu={onAbrirMenu}
+
+        onAbrirCarrito={onAbrirCarrito}
 
         onVolverInicio={onVolverInicio}
 

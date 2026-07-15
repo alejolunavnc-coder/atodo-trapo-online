@@ -28,11 +28,11 @@ import {
   Wrench,
   Clock,
   Paintbrush,
-ShieldCheck,
-Waves,
-Brush,
-Package,
-FlaskConical,
+  ShieldCheck,
+  Waves,
+  Brush,
+  Package,
+  FlaskConical,
 } from "lucide-react";
 import type { Producto } from "@/src/types/producto";
 import BotonCalculadoraPintura from "./BotonCalculadoraPintura";
@@ -55,7 +55,7 @@ function precioNumero(valor: any) {
         .replace(/\$/g, "")
         .replace(/\./g, "")
         .replace(",", ".")
-        .trim()
+        .trim(),
     ) || 0
   );
 }
@@ -67,8 +67,7 @@ function formatoPrecio(valor: number) {
 // [Componente principal]
 
 export default function MobileHome() {
-
-// [Estados]
+  // [Estados]
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
@@ -76,81 +75,77 @@ export default function MobileHome() {
   const [bannerActual, setBannerActual] = useState(0);
   const [tamanosSeleccionados, setTamanosSeleccionados] = useState<any>({});
   const [coloresSeleccionados, setColoresSeleccionados] = useState<any>({});
-  const [fraganciasSeleccionadas, setFraganciasSeleccionadas] = useState<any>({});
+  const [fraganciasSeleccionadas, setFraganciasSeleccionadas] = useState<any>(
+    {},
+  );
   const [productoAbierto, setProductoAbierto] = useState<any>(null);
   const [cantidadDetalle, setCantidadDetalle] = useState(1);
   const [busquedaMobile, setBusquedaMobile] = useState("");
   const [escuchando, setEscuchando] = useState(false);
   const [productoAgregado, setProductoAgregado] = useState(false);
   const [mostrarConfirmacionCarrito, setMostrarConfirmacionCarrito] =
-  useState(false);
+    useState(false);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [carrito, setCarrito] = useState<any[]>([]);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ubicacionAbierta, setUbicacionAbierta] = useState(false);
   const [calculadoraAbierta, setCalculadoraAbierta] = useState(false);
 
-  const ofertasCarruselRef =
-    useRef<HTMLDivElement | null>(null);
+  const ofertasCarruselRef = useRef<HTMLDivElement | null>(null);
 
-  const carruselOfertasPausadoRef =
-    useRef(false);
+  const carruselOfertasPausadoRef = useRef(false);
 
-  const reconocimientoVozRef =
-    useRef<any>(null);
+  const reconocimientoVozRef = useRef<any>(null);
 
-  const detenerVozTimeoutRef =
-    useRef<number | null>(null);
+  const detenerVozTimeoutRef = useRef<number | null>(null);
 
-  const textoVozPendienteRef =
-    useRef("");
+  const textoVozPendienteRef = useRef("");
 
-// [Paleta dinámica]
+  // [Paleta dinámica]
 
+  const esInicio = categoriaActiva === "Inicio";
 
-const esInicio = categoriaActiva === "Inicio";
+  const colores = esInicio
+    ? {
+        principal: "#123A72",
+        fondo: "#FFFFFF",
+        texto: "#123A72",
+        suave: "#F5F7FB",
+        acento: "#F8A400",
+      }
+    : {
+        principal: "#081B43",
+        fondo: "#F7FAFF",
+        texto: "#081B43",
+        suave: "#EAF2FF",
+        acento: "#F8A400",
+      };
 
-const colores = esInicio
-  ? {
-      principal: "#123A72",
-      fondo: "#FFFFFF",
-      texto: "#123A72",
-      suave: "#F5F7FB",
-      acento: "#F8A400",
-    }
-  : {
-      principal: "#081B43",
-      fondo: "#F7FAFF",
-      texto: "#081B43",
-      suave: "#EAF2FF",
-      acento: "#F8A400",
-    };
-    
-// [Carga de productos]
+  // [Carga de productos]
 
   useEffect(() => {
     const normalizarProductos = (filas: Record<string, string>[]) => {
-  const productosNormalizados = filas
-    .map((fila) => {
-      const producto: Record<string, string> = {};
+      const productosNormalizados = filas
+        .map((fila) => {
+          const producto: Record<string, string> = {};
 
-      Object.entries(fila).forEach(([clave, valor]) => {
-        const claveLimpia = clave.replace(/^\uFEFF/, "").trim();
-        producto[claveLimpia] = valor;
-      });
+          Object.entries(fila).forEach(([clave, valor]) => {
+            const claveLimpia = clave.replace(/^\uFEFF/, "").trim();
+            producto[claveLimpia] = valor;
+          });
 
-      return producto as Producto;
-    })
-    .filter((producto) => {
-      const stock = String((producto as any).Stock || "")
-        .trim()
-        .toLowerCase();
+          return producto as Producto;
+        })
+        .filter((producto) => {
+          const stock = String((producto as any).Stock || "")
+            .trim()
+            .toLowerCase();
 
-      return stock !== "x";
-    });
+          return stock !== "x";
+        });
 
-  setProductos(productosNormalizados);
-};
+      setProductos(productosNormalizados);
+    };
 
     const cargarProductos = async () => {
       try {
@@ -182,72 +177,72 @@ const colores = esInicio
     cargarProductos();
   }, []);
 
-// [Categorías]
+  // [Categorías]
 
   const categoriasReales = Array.from(
-  new Set(
-    productos
-      .map((producto) => producto.Categoría?.trim())
-      .filter((categoria): categoria is string => Boolean(categoria))
-  )
-);
+    new Set(
+      productos
+        .map((producto) => producto.Categoría?.trim())
+        .filter((categoria): categoria is string => Boolean(categoria)),
+    ),
+  );
 
-const categorias = ["Inicio", "Ofertas", ...categoriasReales];
+  const categorias = ["Inicio", "Ofertas", ...categoriasReales];
 
-const ordenCategoriasMobile = [
-  "Inicio",
-  "Pinturas",
-  "Piscinas",
-  "Ofertas",
-  "Limpieza",
-  "Auto y Moto",
-  "Aromatizantes",
-  "Plásticos",
-  "Iluminación",
-  "Jardinería",
-  "Control Plagas",
-  "Accesorios",
-];
+  const ordenCategoriasMobile = [
+    "Inicio",
+    "Pinturas",
+    "Piscinas",
+    "Ofertas",
+    "Limpieza",
+    "Auto y Moto",
+    "Aromatizantes",
+    "Plásticos",
+    "Iluminación",
+    "Jardinería",
+    "Control Plagas",
+    "Accesorios",
+  ];
 
-const iconosImagen: Record<string, string> = {
-  Inicio: "inicio",
-  Pinturas: "pinturas",
-  Piscinas: "piscina",
-  Ofertas: "ofertas",
-  Limpieza: "limpieza",
-  "Auto y Moto": "auto-y-moto",
-  Aromatizantes: "aromatizantes",
-  Plásticos: "plasticos",
-  Plasticos: "plasticos",
-  Iluminación: "iluminacion",
-  Iluminacion: "iluminacion",
-  Jardinería: "jardineria",
-  Jardineria: "jardineria",
-  "Control Plagas": "control-plagas",
-  Accesorios: "accesorios",
-};
+  const iconosImagen: Record<string, string> = {
+    Inicio: "inicio",
+    Pinturas: "pinturas",
+    Piscinas: "piscina",
+    Ofertas: "ofertas",
+    Limpieza: "limpieza",
+    "Auto y Moto": "auto-y-moto",
+    Aromatizantes: "aromatizantes",
+    Plásticos: "plasticos",
+    Plasticos: "plasticos",
+    Iluminación: "iluminacion",
+    Iluminacion: "iluminacion",
+    Jardinería: "jardineria",
+    Jardineria: "jardineria",
+    "Control Plagas": "control-plagas",
+    Accesorios: "accesorios",
+  };
 
-const categoriasMobile = ordenCategoriasMobile
-  .filter((nombre) => {
-    if (nombre === "Inicio" || nombre === "Ofertas") return true;
+  const categoriasMobile = ordenCategoriasMobile
+    .filter((nombre) => {
+      if (nombre === "Inicio" || nombre === "Ofertas") return true;
 
-    return categorias.some(
-      (categoria) =>
-        categoria.trim().toLowerCase() === nombre.trim().toLowerCase()
-    );
-  })
-  .map((nombre) => ({
-    nombre,
-    iconoImagen: iconosImagen[nombre] || "inicio",
-  }));
+      return categorias.some(
+        (categoria) =>
+          categoria.trim().toLowerCase() === nombre.trim().toLowerCase(),
+      );
+    })
+    .map((nombre) => ({
+      nombre,
+      iconoImagen: iconosImagen[nombre] || "inicio",
+    }));
 
-const categoriasCarrusel = categoriasMobile;
+  const categoriasCarrusel = categoriasMobile;
 
-const esCategoriaProductos =
-  categoriaActiva !== "Inicio" && categoriaActiva !== "Ofertas";
+  const esCategoriaProductos =
+    categoriaActiva !== "Inicio" && categoriaActiva !== "Ofertas";
 
-const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
-// [Subcategorías]
+  const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
+  // [Subcategorías]
 
   const subcategoriasPinturas = [
     "Todas",
@@ -257,15 +252,17 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
           .filter(
             (producto) =>
               producto.Categoría?.trim().toLowerCase() ===
-              categoriaActiva.trim().toLowerCase()
+              categoriaActiva.trim().toLowerCase(),
           )
           .map((producto) => producto.Subcategoría?.trim())
-          .filter((subcategoria): subcategoria is string => Boolean(subcategoria))
-      )
+          .filter((subcategoria): subcategoria is string =>
+            Boolean(subcategoria),
+          ),
+      ),
     ),
   ];
 
-// [Funciones]
+  // [Funciones]
 
   const normalizarTexto = (valor: any) =>
     String(valor || "")
@@ -277,15 +274,9 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
 
   const tieneOferta = (producto: Producto) => {
     const precio = precioNumero(producto.Precio);
-    const precioOferta = precioNumero(
-      producto["Precio oferta"]
-    );
+    const precioOferta = precioNumero(producto["Precio oferta"]);
 
-    return (
-      precioOferta > 0 &&
-      precio > 0 &&
-      precioOferta < precio
-    );
+    return precioOferta > 0 && precio > 0 && precioOferta < precio;
   };
 
   const agruparProductosMobile = (lista: Producto[]) =>
@@ -307,375 +298,358 @@ const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
 
         acc[clave].items.push(producto);
         return acc;
-      }, {})
+      }, {}),
     );
 
-    const detenerBusquedaPorVoz = () => {
-  const reconocimiento = reconocimientoVozRef.current;
+  const detenerBusquedaPorVoz = () => {
+    const reconocimiento = reconocimientoVozRef.current;
 
-  if (!reconocimiento) {
-    setEscuchando(false);
-    return;
-  }
-
-  if (detenerVozTimeoutRef.current !== null) {
-    window.clearTimeout(detenerVozTimeoutRef.current);
-  }
-
-  detenerVozTimeoutRef.current = window.setTimeout(() => {
-    try {
-      reconocimiento.stop();
-    } catch {
+    if (!reconocimiento) {
       setEscuchando(false);
-    }
-
-    detenerVozTimeoutRef.current = null;
-  }, 420);
-};
-
-const cancelarBusquedaPorVoz = () => {
-  if (detenerVozTimeoutRef.current !== null) {
-    window.clearTimeout(detenerVozTimeoutRef.current);
-    detenerVozTimeoutRef.current = null;
-  }
-
-  const reconocimiento = reconocimientoVozRef.current;
-
-  if (reconocimiento) {
-    reconocimiento.abort();
-  }
-
-  reconocimientoVozRef.current = null;
-  setEscuchando(false);
-};
-
-
-const normalizarParaVoz = (valor: unknown) =>
-  String(valor ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-
-const normalizarFoneticamente = (valor: unknown) =>
-  normalizarParaVoz(valor)
-    .replace(/ch/g, "x")
-    .replace(/ll/g, "y")
-    .replace(/qu/g, "k")
-    .replace(/gue/g, "ge")
-    .replace(/gui/g, "gi")
-    .replace(/[csz]/g, "s")
-    .replace(/[bv]/g, "b")
-    .replace(/j/g, "g")
-    .replace(/h/g, "")
-    .replace(/[^a-z0-9]/g, "");
-
-const obtenerAliasMarca = (marca: string) => {
-  const base = normalizarParaVoz(marca);
-  const sinEspacios = base.replace(/\s+/g, "");
-
-  const alias = new Set<string>([
-    base,
-    sinEspacios,
-    normalizarFoneticamente(base),
-  ]);
-
-  // Variantes frecuentes del reconocimiento de voz para marcas extranjeras.
-  if (
-    base.includes("rust") &&
-    (base.includes("oleum") || base.includes("oleom"))
-  ) {
-    [
-      "rust oleum",
-      "rustoleum",
-      "rust oleom",
-      "ras oleum",
-      "rasoleum",
-      "rost oleum",
-      "rostoleum",
-      "rustolium",
-      "rast oleum",
-    ].forEach((valor) => alias.add(normalizarParaVoz(valor)));
-  }
-
-  return Array.from(alias);
-};
-
-const distanciaLevenshtein = (a: string, b: string) => {
-  const matriz = Array.from(
-    { length: a.length + 1 },
-    () => Array(b.length + 1).fill(0)
-  );
-
-  for (let i = 0; i <= a.length; i += 1) {
-    matriz[i][0] = i;
-  }
-
-  for (let j = 0; j <= b.length; j += 1) {
-    matriz[0][j] = j;
-  }
-
-  for (let i = 1; i <= a.length; i += 1) {
-    for (let j = 1; j <= b.length; j += 1) {
-      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
-
-      matriz[i][j] = Math.min(
-        matriz[i - 1][j] + 1,
-        matriz[i][j - 1] + 1,
-        matriz[i - 1][j - 1] + costo
-      );
-    }
-  }
-
-  return matriz[a.length][b.length];
-};
-
-const corregirBusquedaConProductos = (textoReconocido: string) => {
-  const textoNormalizado = normalizarParaVoz(textoReconocido);
-  const textoFonetico = normalizarFoneticamente(textoReconocido);
-
-  if (!textoNormalizado) {
-    return textoReconocido.trim();
-  }
-
-  const marcas = Array.from(
-    new Set(
-      productos
-        .map((producto) => String(producto.Marca ?? "").trim())
-        .filter(Boolean)
-    )
-  );
-
-  const otrosTerminos = Array.from(
-    new Set(
-      productos
-        .flatMap((producto) => [
-          producto.Nombre,
-          (producto as any).Linea,
-          producto.Categoría,
-          producto.Subcategoría,
-        ])
-        .map((valor) => String(valor ?? "").trim())
-        .filter(Boolean)
-    )
-  );
-
-  const terminos = [...marcas, ...otrosTerminos];
-
-  const coincidenciaExacta = terminos.find(
-    (termino) =>
-      normalizarParaVoz(termino) === textoNormalizado
-  );
-
-  if (coincidenciaExacta) {
-    return coincidenciaExacta;
-  }
-
-  const coincidenciaPorAlias = marcas.find((marca) =>
-    obtenerAliasMarca(marca).some((alias) => {
-      const aliasNormalizado = normalizarParaVoz(alias);
-      const aliasFonetico = normalizarFoneticamente(alias);
-
-      return (
-        aliasNormalizado === textoNormalizado ||
-        aliasFonetico === textoFonetico
-      );
-    })
-  );
-
-  if (coincidenciaPorAlias) {
-    return coincidenciaPorAlias;
-  }
-
-  const coincidenciaFoneticaExacta = marcas.find(
-    (marca) =>
-      normalizarFoneticamente(marca) === textoFonetico
-  );
-
-  if (coincidenciaFoneticaExacta) {
-    return coincidenciaFoneticaExacta;
-  }
-
-  const marcaCortaCompatible = marcas.find((marca) => {
-    const marcaFonetica = normalizarFoneticamente(marca);
-
-    return (
-      textoFonetico.length >= 2 &&
-      marcaFonetica.length <= 5 &&
-      Math.abs(marcaFonetica.length - textoFonetico.length) <= 1 &&
-      (
-        marcaFonetica.startsWith(textoFonetico) ||
-        textoFonetico.startsWith(marcaFonetica)
-      )
-    );
-  });
-
-  if (marcaCortaCompatible) {
-    return marcaCortaCompatible;
-  }
-
-  let mejorTermino = "";
-  let mejorDistancia = Number.POSITIVE_INFINITY;
-
-  terminos.forEach((termino) => {
-    const terminoNormalizado = normalizarParaVoz(termino);
-
-    if (!terminoNormalizado) {
       return;
     }
 
-    const distancia = distanciaLevenshtein(
-      textoNormalizado,
-      terminoNormalizado
-    );
-
-    if (distancia < mejorDistancia) {
-      mejorDistancia = distancia;
-      mejorTermino = termino;
+    if (detenerVozTimeoutRef.current !== null) {
+      window.clearTimeout(detenerVozTimeoutRef.current);
     }
-  });
 
-  const largo = textoNormalizado.length;
-
-  if (largo < 4) {
-    return textoReconocido.trim();
-  }
-
-  const distanciaMaxima =
-    largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
-
-  return mejorDistancia <= distanciaMaxima
-    ? mejorTermino
-    : textoReconocido.trim();
-};
-
-const iniciarBusquedaPorVoz = () => {
-  const SpeechRecognition =
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    alert("Tu navegador no permite búsqueda por voz.");
-    return;
-  }
-
-  if (reconocimientoVozRef.current) {
-    reconocimientoVozRef.current.abort();
-    reconocimientoVozRef.current = null;
-  }
-
-  const reconocimiento = new SpeechRecognition();
-
-  reconocimientoVozRef.current = reconocimiento;
-
-  reconocimiento.lang = "es-AR";
-  reconocimiento.continuous = false;
-  reconocimiento.interimResults = true;
-  reconocimiento.maxAlternatives = 3;
-
-  textoVozPendienteRef.current = "";
-  setEscuchando(true);
-
-  reconocimiento.onresult = (event: any) => {
-    let mejorTexto = textoVozPendienteRef.current;
-    let resultadoFinal = false;
-
-    for (
-      let indice = event.resultIndex;
-      indice < event.results.length;
-      indice += 1
-    ) {
-      const resultado = event.results[indice];
-
-      for (
-        let alternativa = 0;
-        alternativa < resultado.length;
-        alternativa += 1
-      ) {
-        const candidato =
-          String(
-            resultado[alternativa]?.transcript || ""
-          ).trim();
-
-        if (
-          candidato.length >
-          mejorTexto.length
-        ) {
-          mejorTexto = candidato;
-        }
+    detenerVozTimeoutRef.current = window.setTimeout(() => {
+      try {
+        reconocimiento.stop();
+      } catch {
+        setEscuchando(false);
       }
 
-      if (resultado.isFinal) {
-        resultadoFinal = true;
-      }
-    }
-
-    if (mejorTexto) {
-      textoVozPendienteRef.current = mejorTexto;
-    }
-
-    if (resultadoFinal) {
-      reconocimiento.stop();
-    }
+      detenerVozTimeoutRef.current = null;
+    }, 420);
   };
 
-  reconocimiento.onspeechend = () => {
-    reconocimiento.stop();
-  };
-
-  reconocimiento.onerror = (event: any) => {
-    console.log(event.error);
-
-    if (
-      event.error !== "aborted" &&
-      event.error !== "no-speech"
-    ) {
-      alert("No pudimos reconocer la voz. Probá nuevamente.");
-    }
-
-    reconocimientoVozRef.current = null;
-    setEscuchando(false);
-  };
-
-  reconocimiento.onend = () => {
+  const cancelarBusquedaPorVoz = () => {
     if (detenerVozTimeoutRef.current !== null) {
       window.clearTimeout(detenerVozTimeoutRef.current);
       detenerVozTimeoutRef.current = null;
     }
 
-    const textoEscuchado =
-      textoVozPendienteRef.current.trim();
+    const reconocimiento = reconocimientoVozRef.current;
 
-    if (textoEscuchado) {
-      const textoCorregido =
-        corregirBusquedaConProductos(textoEscuchado);
-
-      setBusquedaMobile(textoCorregido);
+    if (reconocimiento) {
+      reconocimiento.abort();
     }
 
-    textoVozPendienteRef.current = "";
     reconocimientoVozRef.current = null;
     setEscuchando(false);
-
-    window.setTimeout(() => {
-      const elementoActivo =
-        document.activeElement as HTMLElement | null;
-
-      elementoActivo?.blur?.();
-    }, 40);
   };
 
-  try {
-    reconocimiento.start();
-  } catch {
-    reconocimientoVozRef.current = null;
-    setEscuchando(false);
-  }
-};
+  const normalizarParaVoz = (valor: unknown) =>
+    String(valor ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
 
-// [Productos]
+  const normalizarFoneticamente = (valor: unknown) =>
+    normalizarParaVoz(valor)
+      .replace(/ch/g, "x")
+      .replace(/ll/g, "y")
+      .replace(/qu/g, "k")
+      .replace(/gue/g, "ge")
+      .replace(/gui/g, "gi")
+      .replace(/[csz]/g, "s")
+      .replace(/[bv]/g, "b")
+      .replace(/j/g, "g")
+      .replace(/h/g, "")
+      .replace(/[^a-z0-9]/g, "");
+
+  const obtenerAliasMarca = (marca: string) => {
+    const base = normalizarParaVoz(marca);
+    const sinEspacios = base.replace(/\s+/g, "");
+
+    const alias = new Set<string>([
+      base,
+      sinEspacios,
+      normalizarFoneticamente(base),
+    ]);
+
+    // Variantes frecuentes del reconocimiento de voz para marcas extranjeras.
+    if (
+      base.includes("rust") &&
+      (base.includes("oleum") || base.includes("oleom"))
+    ) {
+      [
+        "rust oleum",
+        "rustoleum",
+        "rust oleom",
+        "ras oleum",
+        "rasoleum",
+        "rost oleum",
+        "rostoleum",
+        "rustolium",
+        "rast oleum",
+      ].forEach((valor) => alias.add(normalizarParaVoz(valor)));
+    }
+
+    return Array.from(alias);
+  };
+
+  const distanciaLevenshtein = (a: string, b: string) => {
+    const matriz = Array.from({ length: a.length + 1 }, () =>
+      Array(b.length + 1).fill(0),
+    );
+
+    for (let i = 0; i <= a.length; i += 1) {
+      matriz[i][0] = i;
+    }
+
+    for (let j = 0; j <= b.length; j += 1) {
+      matriz[0][j] = j;
+    }
+
+    for (let i = 1; i <= a.length; i += 1) {
+      for (let j = 1; j <= b.length; j += 1) {
+        const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+
+        matriz[i][j] = Math.min(
+          matriz[i - 1][j] + 1,
+          matriz[i][j - 1] + 1,
+          matriz[i - 1][j - 1] + costo,
+        );
+      }
+    }
+
+    return matriz[a.length][b.length];
+  };
+
+  const corregirBusquedaConProductos = (textoReconocido: string) => {
+    const textoNormalizado = normalizarParaVoz(textoReconocido);
+    const textoFonetico = normalizarFoneticamente(textoReconocido);
+
+    if (!textoNormalizado) {
+      return textoReconocido.trim();
+    }
+
+    const marcas = Array.from(
+      new Set(
+        productos
+          .map((producto) => String(producto.Marca ?? "").trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const otrosTerminos = Array.from(
+      new Set(
+        productos
+          .flatMap((producto) => [
+            producto.Nombre,
+            (producto as any).Linea,
+            producto.Categoría,
+            producto.Subcategoría,
+          ])
+          .map((valor) => String(valor ?? "").trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const terminos = [...marcas, ...otrosTerminos];
+
+    const coincidenciaExacta = terminos.find(
+      (termino) => normalizarParaVoz(termino) === textoNormalizado,
+    );
+
+    if (coincidenciaExacta) {
+      return coincidenciaExacta;
+    }
+
+    const coincidenciaPorAlias = marcas.find((marca) =>
+      obtenerAliasMarca(marca).some((alias) => {
+        const aliasNormalizado = normalizarParaVoz(alias);
+        const aliasFonetico = normalizarFoneticamente(alias);
+
+        return (
+          aliasNormalizado === textoNormalizado ||
+          aliasFonetico === textoFonetico
+        );
+      }),
+    );
+
+    if (coincidenciaPorAlias) {
+      return coincidenciaPorAlias;
+    }
+
+    const coincidenciaFoneticaExacta = marcas.find(
+      (marca) => normalizarFoneticamente(marca) === textoFonetico,
+    );
+
+    if (coincidenciaFoneticaExacta) {
+      return coincidenciaFoneticaExacta;
+    }
+
+    const marcaCortaCompatible = marcas.find((marca) => {
+      const marcaFonetica = normalizarFoneticamente(marca);
+
+      return (
+        textoFonetico.length >= 2 &&
+        marcaFonetica.length <= 5 &&
+        Math.abs(marcaFonetica.length - textoFonetico.length) <= 1 &&
+        (marcaFonetica.startsWith(textoFonetico) ||
+          textoFonetico.startsWith(marcaFonetica))
+      );
+    });
+
+    if (marcaCortaCompatible) {
+      return marcaCortaCompatible;
+    }
+
+    let mejorTermino = "";
+    let mejorDistancia = Number.POSITIVE_INFINITY;
+
+    terminos.forEach((termino) => {
+      const terminoNormalizado = normalizarParaVoz(termino);
+
+      if (!terminoNormalizado) {
+        return;
+      }
+
+      const distancia = distanciaLevenshtein(
+        textoNormalizado,
+        terminoNormalizado,
+      );
+
+      if (distancia < mejorDistancia) {
+        mejorDistancia = distancia;
+        mejorTermino = termino;
+      }
+    });
+
+    const largo = textoNormalizado.length;
+
+    if (largo < 4) {
+      return textoReconocido.trim();
+    }
+
+    const distanciaMaxima = largo <= 5 ? 1 : largo <= 9 ? 2 : 3;
+
+    return mejorDistancia <= distanciaMaxima
+      ? mejorTermino
+      : textoReconocido.trim();
+  };
+
+  const iniciarBusquedaPorVoz = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Tu navegador no permite búsqueda por voz.");
+      return;
+    }
+
+    if (reconocimientoVozRef.current) {
+      reconocimientoVozRef.current.abort();
+      reconocimientoVozRef.current = null;
+    }
+
+    const reconocimiento = new SpeechRecognition();
+
+    reconocimientoVozRef.current = reconocimiento;
+
+    reconocimiento.lang = "es-AR";
+    reconocimiento.continuous = false;
+    reconocimiento.interimResults = true;
+    reconocimiento.maxAlternatives = 3;
+
+    textoVozPendienteRef.current = "";
+    setEscuchando(true);
+
+    reconocimiento.onresult = (event: any) => {
+      let mejorTexto = textoVozPendienteRef.current;
+      let resultadoFinal = false;
+
+      for (
+        let indice = event.resultIndex;
+        indice < event.results.length;
+        indice += 1
+      ) {
+        const resultado = event.results[indice];
+
+        for (
+          let alternativa = 0;
+          alternativa < resultado.length;
+          alternativa += 1
+        ) {
+          const candidato = String(
+            resultado[alternativa]?.transcript || "",
+          ).trim();
+
+          if (candidato.length > mejorTexto.length) {
+            mejorTexto = candidato;
+          }
+        }
+
+        if (resultado.isFinal) {
+          resultadoFinal = true;
+        }
+      }
+
+      if (mejorTexto) {
+        textoVozPendienteRef.current = mejorTexto;
+      }
+
+      if (resultadoFinal) {
+        reconocimiento.stop();
+      }
+    };
+
+    reconocimiento.onspeechend = () => {
+      reconocimiento.stop();
+    };
+
+    reconocimiento.onerror = (event: any) => {
+      console.log(event.error);
+
+      if (event.error !== "aborted" && event.error !== "no-speech") {
+        alert("No pudimos reconocer la voz. Probá nuevamente.");
+      }
+
+      reconocimientoVozRef.current = null;
+      setEscuchando(false);
+    };
+
+    reconocimiento.onend = () => {
+      if (detenerVozTimeoutRef.current !== null) {
+        window.clearTimeout(detenerVozTimeoutRef.current);
+        detenerVozTimeoutRef.current = null;
+      }
+
+      const textoEscuchado = textoVozPendienteRef.current.trim();
+
+      if (textoEscuchado) {
+        const textoCorregido = corregirBusquedaConProductos(textoEscuchado);
+
+        setBusquedaMobile(textoCorregido);
+      }
+
+      textoVozPendienteRef.current = "";
+      reconocimientoVozRef.current = null;
+      setEscuchando(false);
+
+      window.setTimeout(() => {
+        const elementoActivo = document.activeElement as HTMLElement | null;
+
+        elementoActivo?.blur?.();
+      }, 40);
+    };
+
+    try {
+      reconocimiento.start();
+    } catch {
+      reconocimientoVozRef.current = null;
+      setEscuchando(false);
+    }
+  };
+
+  // [Productos]
 
   const productosConOferta = productos.filter(tieneOferta);
 
@@ -702,1218 +676,1191 @@ const iniciarBusquedaPorVoz = () => {
 
   const hayBusquedaMobile = busquedaMobile.trim() !== "";
   const productosBuscadosMobile = busquedaMobile.trim()
-  ? productos.filter((producto) => {
-      const textoBusqueda = normalizarTexto(busquedaMobile);
+    ? productos.filter((producto) => {
+        const textoBusqueda = normalizarTexto(busquedaMobile);
 
-      return (
-        normalizarTexto(producto.Nombre).includes(textoBusqueda) ||
-        normalizarTexto(producto.Marca).includes(textoBusqueda) ||
-        normalizarTexto((producto as any).Linea).includes(textoBusqueda) ||
-        normalizarTexto(producto.Categoría).includes(textoBusqueda) ||
-        normalizarTexto(producto.Subcategoría).includes(textoBusqueda)
-      );
-    })
-  : productosFiltradosMobile;
+        return (
+          normalizarTexto(producto.Nombre).includes(textoBusqueda) ||
+          normalizarTexto(producto.Marca).includes(textoBusqueda) ||
+          normalizarTexto((producto as any).Linea).includes(textoBusqueda) ||
+          normalizarTexto(producto.Categoría).includes(textoBusqueda) ||
+          normalizarTexto(producto.Subcategoría).includes(textoBusqueda)
+        );
+      })
+    : productosFiltradosMobile;
 
-const gruposMobile = agruparProductosMobile(productosBuscadosMobile);
+  const gruposMobile = agruparProductosMobile(productosBuscadosMobile);
 
-const esCarruselDeOfertas =
-  categoriaActiva === "Inicio" &&
-  !hayBusquedaMobile;
+  const esCarruselDeOfertas =
+    categoriaActiva === "Inicio" && !hayBusquedaMobile;
 
-const gruposRenderMobile =
-  esCarruselDeOfertas && gruposMobile.length > 3
-    ? [...gruposMobile, ...gruposMobile]
-    : gruposMobile;
+  const gruposRenderMobile =
+    esCarruselDeOfertas && gruposMobile.length > 3
+      ? [...gruposMobile, ...gruposMobile]
+      : gruposMobile;
 
-useEffect(() => {
-  const carrusel = ofertasCarruselRef.current;
+  useEffect(() => {
+    const carrusel = ofertasCarruselRef.current;
 
-  if (
-    !esCarruselDeOfertas ||
-    !carrusel ||
-    gruposMobile.length <= 3
-  ) {
-    return;
-  }
-
-  let animacionId = 0;
-  let ultimoTiempo = performance.now();
-
-  const velocidadPixelesPorSegundo = 22;
-
-  const animarCarrusel = (tiempoActual: number) => {
-    const tiempoTranscurrido = Math.min(
-      tiempoActual - ultimoTiempo,
-      40
-    );
-
-    ultimoTiempo = tiempoActual;
-
-    if (!carruselOfertasPausadoRef.current) {
-      carrusel.scrollLeft +=
-        (velocidadPixelesPorSegundo *
-          tiempoTranscurrido) /
-        1000;
-
-      const mitadDelCarrusel =
-        carrusel.scrollWidth / 2;
-
-      if (
-        mitadDelCarrusel > 0 &&
-        carrusel.scrollLeft >= mitadDelCarrusel
-      ) {
-        carrusel.scrollLeft -= mitadDelCarrusel;
-      }
+    if (!esCarruselDeOfertas || !carrusel || gruposMobile.length <= 3) {
+      return;
     }
 
-    animacionId =
-      window.requestAnimationFrame(animarCarrusel);
-  };
+    let animacionId = 0;
+    let ultimoTiempo = performance.now();
 
-  animacionId =
-    window.requestAnimationFrame(animarCarrusel);
+    const velocidadPixelesPorSegundo = 22;
 
-  return () => {
-    window.cancelAnimationFrame(animacionId);
-  };
-}, [
-  esCarruselDeOfertas,
-  gruposMobile.length,
-]);
+    const animarCarrusel = (tiempoActual: number) => {
+      const tiempoTranscurrido = Math.min(tiempoActual - ultimoTiempo, 40);
+
+      ultimoTiempo = tiempoActual;
+
+      if (!carruselOfertasPausadoRef.current) {
+        carrusel.scrollLeft +=
+          (velocidadPixelesPorSegundo * tiempoTranscurrido) / 1000;
+
+        const mitadDelCarrusel = carrusel.scrollWidth / 2;
+
+        if (mitadDelCarrusel > 0 && carrusel.scrollLeft >= mitadDelCarrusel) {
+          carrusel.scrollLeft -= mitadDelCarrusel;
+        }
+      }
+
+      animacionId = window.requestAnimationFrame(animarCarrusel);
+    };
+
+    animacionId = window.requestAnimationFrame(animarCarrusel);
+
+    return () => {
+      window.cancelAnimationFrame(animacionId);
+    };
+  }, [esCarruselDeOfertas, gruposMobile.length]);
 
   const cantidadCarrito = carrito.reduce(
-  (total, item) => total + item.cantidad,
-  0
-);  
+    (total, item) => total + item.cantidad,
+    0,
+  );
   const tituloSeccion =
-  categoriaActiva === "Inicio"
-    ? "Ofertas destacadas"
-    : categoriaActiva === "Ofertas"
-    ? "Ofertas"
-    : categoriaActiva;
+    categoriaActiva === "Inicio"
+      ? "Ofertas destacadas"
+      : categoriaActiva === "Ofertas"
+        ? "Ofertas"
+        : categoriaActiva;
 
+  // [Agregar recomendación de la calculadora al carrito]
 
-// [Agregar recomendación de la calculadora al carrito]
+  const agregarRecomendacionCalculadora = (
+    items: Array<{
+      producto: Producto;
+      cantidad: number;
+    }>,
+  ) => {
+    setCarrito((actual) => {
+      let siguiente = [...actual];
 
-const agregarRecomendacionCalculadora = (
-  items: Array<{
-    producto: Producto;
-    cantidad: number;
-  }>
-) => {
-  setCarrito((actual) => {
-    let siguiente = [...actual];
+      items.forEach(({ producto, cantidad }) => {
+        const precio = precioNumero(producto.Precio);
+        const precioOferta = precioNumero(producto["Precio oferta"]);
+        const tienePrecioOferta =
+          precioOferta > 0 && precio > 0 && precioOferta < precio;
 
-    items.forEach(({ producto, cantidad }) => {
-      const precio = precioNumero(producto.Precio);
-      const precioOferta = precioNumero(
-        producto["Precio oferta"]
-      );
-      const tienePrecioOferta =
-        precioOferta > 0 &&
-        precio > 0 &&
-        precioOferta < precio;
+        const precioFinal = tienePrecioOferta ? precioOferta : precio;
 
-      const precioFinal = tienePrecioOferta
-        ? precioOferta
-        : precio;
+        const tamano = producto.Tamaño?.trim() || "";
+        const variante =
+          producto.Fragancias?.trim() || producto.Color?.trim() || "";
 
-      const tamano = producto.Tamaño?.trim() || "";
-      const variante =
-        producto.Fragancias?.trim() ||
-        producto.Color?.trim() ||
-        "";
+        const tipoVariante = producto.Fragancias?.trim()
+          ? "Fragancia"
+          : "Color";
 
-      const tipoVariante = producto.Fragancias?.trim()
-        ? "Fragancia"
-        : "Color";
+        const nombre = producto.Nombre || "Producto sin nombre";
 
-      const nombre =
-        producto.Nombre || "Producto sin nombre";
+        const linea = (producto as any).Linea || "";
+        const marca = producto.Marca || "";
 
-      const linea = (producto as any).Linea || "";
-      const marca = producto.Marca || "";
+        const clave = `${linea}-${nombre}-${tamano}-${variante}`;
 
-      const clave = `${linea}-${nombre}-${tamano}-${variante}`;
+        const itemCarrito = {
+          clave,
+          nombre,
+          linea,
+          marca,
+          imagen: producto.Imagen,
+          tamano,
+          variante,
+          tipoVariante,
+          precio: precioFinal,
+          precioOriginal: precio,
+          precioOferta,
+          ahorro: tienePrecioOferta ? precio - precioOferta : 0,
+          cantidad,
+        };
 
-      const itemCarrito = {
-        clave,
-        nombre,
-        linea,
-        marca,
-        imagen: producto.Imagen,
-        tamano,
-        variante,
-        tipoVariante,
-        precio: precioFinal,
-        precioOriginal: precio,
-        precioOferta,
-        ahorro: tienePrecioOferta
-          ? precio - precioOferta
-          : 0,
-        cantidad,
-      };
+        const existente = siguiente.find((item) => item.clave === clave);
 
-      const existente = siguiente.find(
-        (item) => item.clave === clave
-      );
+        if (existente) {
+          siguiente = siguiente.map((item) =>
+            item.clave === clave
+              ? {
+                  ...item,
+                  cantidad: item.cantidad + cantidad,
+                  precio: precioFinal,
+                  precioOriginal: precio,
+                  precioOferta,
+                  ahorro: itemCarrito.ahorro,
+                }
+              : item,
+          );
+        } else {
+          siguiente.push(itemCarrito);
+        }
+      });
 
-      if (existente) {
-        siguiente = siguiente.map((item) =>
-          item.clave === clave
-            ? {
-                ...item,
-                cantidad: item.cantidad + cantidad,
-                precio: precioFinal,
-                precioOriginal: precio,
-                precioOferta,
-                ahorro: itemCarrito.ahorro,
-              }
-            : item
-        );
-      } else {
-        siguiente.push(itemCarrito);
-      }
+      return siguiente;
     });
+  };
 
-    return siguiente;
-  });
-};
+  const volverAlInicioGlobal = () => {
+    cancelarBusquedaPorVoz();
 
-const volverAlInicioGlobal = () => {
-  cancelarBusquedaPorVoz();
+    setCalculadoraAbierta(false);
+    setCategoriaActiva("Inicio");
+    setSubcategoriaActiva("Todas");
+    setBusquedaMobile("");
+    setProductoAbierto(null);
+    setCantidadDetalle(1);
+    setMenuAbierto(false);
+    setCarritoAbierto(false);
+    setUbicacionAbierta(false);
+    setMostrarConfirmacionCarrito(false);
+    setProductoAgregado(false);
 
-  setCalculadoraAbierta(false);
-  setCategoriaActiva("Inicio");
-  setSubcategoriaActiva("Todas");
-  setBusquedaMobile("");
-  setProductoAbierto(null);
-  setCantidadDetalle(1);
-  setMenuAbierto(false);
-  setCarritoAbierto(false);
-  setUbicacionAbierta(false);
-  setMostrarConfirmacionCarrito(false);
-  setProductoAgregado(false);
+    window.setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 50);
+  };
 
-  window.setTimeout(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, 50);
-};
+  const finalizarCalculadora = () => {
+    volverAlInicioGlobal();
+  };
 
-const finalizarCalculadora = () => {
-  volverAlInicioGlobal();
-};
+  // [Vista calculadora]
 
-// [Vista calculadora]
-
-if (calculadoraAbierta) {
-  return (
+  const vistaCalculadora = calculadoraAbierta ? (
     <CalculadoraPintura
       productos={productos}
       cantidadCarrito={cantidadCarrito}
       onVolver={volverAlInicioGlobal}
       onVolverInicio={volverAlInicioGlobal}
+      onAbrirMenu={() => setMenuAbierto(true)}
+      onAbrirCarrito={() => setCarritoAbierto(true)}
       onContinuar={(datosPasoUno) => {
         console.log("Datos del Paso 1:", datosPasoUno);
       }}
       onAgregarAlCarrito={agregarRecomendacionCalculadora}
       onFinalizado={finalizarCalculadora}
     />
-  );
-}
+  ) : null;
 
-// [Render]
+  // [Render]
 
-return (
-  <main className="min-h-screen bg-white text-gray-900">
-    
-{/* [Header compartido] */}
-
-<MobileHeaderCompartido
-  cantidadCarrito={cantidadCarrito}
-  onAbrirMenu={() => setMenuAbierto(true)}
-  onAbrirCarrito={() => setCarritoAbierto(true)}
-  onVolverInicio={volverAlInicioGlobal}
-  mostrarBeneficios={
-    categoriaActiva === "Inicio" && !hayBusquedaMobile
-  }
-/>
-
-  {/* [Buscador] */}
-
-<section
-  className={`w-full max-w-full overflow-visible ${
-    categoriaActiva === "Inicio" && !hayBusquedaMobile
-      ? "px-4 pt-3 pb-1"
-      : "relative z-20 -mt-4 px-4 pb-1"
-  }`}
->
-  <div className="grid w-full grid-cols-[minmax(0,1fr)_44px] items-center gap-2">
-    <div className="flex h-11 min-w-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-gray-100">
-      <Search size={19} strokeWidth={2.3} className="shrink-0 text-gray-400" />
-
-      <input
-        type="search"
-        inputMode="search"
-        enterKeyHint="search"
-        value={busquedaMobile}
-        onChange={(e) => setBusquedaMobile(e.target.value)}
-        onBlur={() => {
-          window.setTimeout(() => {
-            window.scrollTo({
-              top: window.scrollY,
-              behavior: "auto",
-            });
-          }, 40);
-        }}
-        placeholder="Buscar productos..."
-        style={{ fontSize: "16px" }}
-        className="min-w-0 flex-1 appearance-none bg-transparent text-[16px] font-medium text-gray-800 placeholder:text-gray-400 outline-none [-webkit-appearance:none] [&::-webkit-search-cancel-button]:hidden"
-      />
-
-      {busquedaMobile && (
-        <button onClick={() => setBusquedaMobile("")} className="text-[16px] font-bold text-gray-400">
-          ×
-        </button>
-      )}
-    </div>
-
-    <div className="relative h-11 w-11 shrink-0">
-      {escuchando && (
+  return (
+    <main className="min-h-screen bg-white text-gray-900">
+      {calculadoraAbierta ? (
+        vistaCalculadora
+      ) : (
         <>
-          <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-red-400/45" />
-          <span className="pointer-events-none absolute -inset-1 rounded-full border-2 border-red-400/45" />
-        </>
-      )}
+          {/* [Header compartido] */}
 
-      <button
-        type="button"
-        onPointerDown={(evento) => {
-          evento.preventDefault();
+          <MobileHeaderCompartido
+            cantidadCarrito={cantidadCarrito}
+            onAbrirMenu={() => setMenuAbierto(true)}
+            onAbrirCarrito={() => setCarritoAbierto(true)}
+            onVolverInicio={volverAlInicioGlobal}
+            mostrarBeneficios={
+              categoriaActiva === "Inicio" && !hayBusquedaMobile
+            }
+          />
 
-          if (!escuchando) {
-            iniciarBusquedaPorVoz();
-          }
-        }}
-        onPointerUp={(evento) => {
-          evento.preventDefault();
-          detenerBusquedaPorVoz();
-        }}
-        onPointerCancel={() => {
-          detenerBusquedaPorVoz();
-        }}
-        onContextMenu={(evento) => {
-          evento.preventDefault();
-        }}
-        aria-label="Mantener presionado para buscar por voz"
-        style={{
-          touchAction: "none",
-          WebkitTouchCallout: "none",
-          WebkitUserSelect: "none",
-          userSelect: "none",
-        }}
-        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-200 ${
-          escuchando
-            ? "scale-95 bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.14)]"
-            : "bg-[#123A72] active:scale-95"
-        }`}
-      >
-        <Mic
-          size={18}
-          strokeWidth={2.5}
-          className={escuchando ? "animate-pulse" : ""}
-        />
-      </button>
-    </div>
-  </div>
-</section>
+          {/* [Buscador] */}
 
-{/* [Acceso a la calculadora desde Inicio] */}
-
-{categoriaActiva === "Inicio" && !hayBusquedaMobile && (
-  <BotonCalculadoraPintura
-  onClick={() => setCalculadoraAbierta(true)}
-/>
-)}
-
-{/* [Categorías + Banner] */}
-
-{!hayBusquedaMobile && (
-  <>
-    <section className="relative px-4 pt-2">
-      <div className="overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max gap-3 pr-6">
-          {categoriasCarrusel.map(({ nombre, iconoImagen }) => {
-            const activa = categoriaActiva === nombre;
-
-            return (
-              <button
-                key={nombre}
-                onClick={() => {
-                  setCategoriaActiva(nombre);
-                  setSubcategoriaActiva("Todas");
-                }}
-                className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 text-center transition-all duration-150 active:scale-90"
-              >
-                <div
-                  className={`flex h-[52px] w-[52px] items-center justify-center rounded-full border transition-all duration-150 ${
-                    activa
-                      ? "scale-105 border-[#F8A400] bg-[#F8A400] shadow-[0_10px_20px_rgba(248,164,0,0.28)]"
-                      : "border-gray-100 bg-white shadow-[0_4px_10px_rgba(0,0,0,0.07)]"
-                  }`}
-                >
-                  <Image
-                    src={`/iconoscel/${iconoImagen}.png`}
-                    alt={nombre}
-                    width={30}
-                    height={30}
-                    className="object-contain"
-                  />
-                </div>
-
-                <span
-                  className={`line-clamp-2 text-[9px] font-black leading-tight ${
-                    activa ? "text-[#F8A400]" : "text-gray-800"
-                  }`}
-                >
-                  {nombre}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-
-    {categoriaActiva === "Inicio" && (
-  <section className="px-4 pt-4">
-    <div
-      onClick={() =>
-        setBannerActual((actual) => (actual === 2 ? 0 : actual + 1))
-      }
-      className="relative cursor-pointer overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"
-    >
-      {[
-        "/bannercel/banner1.png",
-        "/bannercel/banner2.png",
-        "/bannercel/banner3.png",
-      ].map((banner, index) => (
-        <img
-          key={index}
-          src={banner}
-          alt="Banner"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
-            bannerActual === index ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-
-          <div className="aspect-[16/7]" />
-
-          <button
-            onClick={() => setBannerActual((actual) => (actual === 2 ? 0 : actual + 1))}
-            className="absolute bottom-3 left-5 rounded-full bg-white px-4 py-2 text-[10px] font-black text-[#123A72] shadow-lg transition active:scale-95"
+          <section
+            className={`w-full max-w-full overflow-visible ${
+              categoriaActiva === "Inicio" && !hayBusquedaMobile
+                ? "px-4 pt-3 pb-1"
+                : "relative z-20 -mt-4 px-4 pb-1"
+            }`}
           >
-            Ver más
-          </button>
-
-          <div className="absolute bottom-4 right-5 flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`h-2 rounded-full transition-all ${
-                  bannerActual === i ? "w-6 bg-white" : "w-2 bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
-  </>
-)}
-  {/* [Subcategorías] */}
-
-{esCategoriaProductos && esPinturas && (
-  <section className="px-4 pt-2">
-    <div className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex w-max gap-2.5 pr-4">
-        {subcategoriasPinturas.map((subcategoria) => {
-          const activa = subcategoriaActiva === subcategoria;
-
-          const imagenesSubcategorias: Record<string, string> = {
-            todas: "todas.png",
-
-            Aerosol: "aerosoles.png",
-            Aerosoles: "aerosoles.png",
-
-            Enduido: "enduidos.png",
-            Enduidos: "enduidos.png",
-
-            Madera: "madera.png",
-            Maderas: "madera.png",
-
-            Exterior: "pintura-exterior.png",
-            "Pintura Exterior": "pintura-exterior.png",
-
-            "Interior/Exterior": "pintura-int-ext.png",
-            "Interior Exterior": "pintura-int-ext.png",
-            "Int/Ext": "pintura-int-ext.png",
-            "Pintura Int/Ext": "pintura-int-ext.png",
-            "Pintura Interior/Exterior": "pintura-int-ext.png",
-
-            Interior: "pintura-interior.png",
-            "Pintura Interior": "pintura-interior.png",
-
-            Piscina: "piscinas.png",
-            Piscinas: "piscinas.png",
-            "P/ Piscinas": "piscinas.png",
-            "Pinturas para Piscinas": "piscinas.png",
-
-            Piso: "pisos.png",
-            Pisos: "pisos.png",
-            "Pintura para Pisos": "pisos.png",
-
-            Sellador: "sellador-fijador.png",
-            Fijador: "sellador-fijador.png",
-            "Sellador Fijador": "sellador-fijador.png",
-            "Selladores y Fijadores": "sellador-fijador.png",
-
-            Sintético: "sintetico-3-en-1.png",
-            Sintetico: "sintetico-3-en-1.png",
-            "Sintético 3 en 1": "sintetico-3-en-1.png",
-            "Sintetico 3 en 1": "sintetico-3-en-1.png",
-
-            Texturado: "texturado.png",
-            Texturados: "texturado.png",
-
-            "Pinceles y Rodillos": "pinceles-y-rodillos.png",
-            "Pinceles & Rodillos": "pinceles-y-rodillos.png",
-            "Pinceles-Rodillos": "pinceles-y-rodillos.png",
-            "Pinceles/Rodillos": "pinceles-y-rodillos.png",
-          };
-
-          const nombresVisibles: Record<string, string> = {
-            Todas: "Todas",
-
-            "P/ Piscinas": "Piscinas",
-            "Pinturas para Piscinas": "Piscinas",
-
-            "Pintura Interior/Exterior": "Interior / Exterior",
-            "Pintura Int/Ext": "Interior / Exterior",
-
-            "Selladores y Fijadores": "Sellador / Fijador",
-
-            "Sintetico 3 en 1": "Sintético 3 en 1",
-
-            "Pinceles & Rodillos": "Pinceles y Rodillos",
-            "Pinceles-Rodillos": "Pinceles y Rodillos",
-            "Pinceles/Rodillos": "Pinceles y Rodillos",
-          };
-
-          const imagen =
-            imagenesSubcategorias[subcategoria] || "pintura-int-ext.png";
-
-          const nombreVisible =
-            nombresVisibles[subcategoria] || subcategoria;
-
-          return (
-            <button
-              key={subcategoria}
-              onClick={() => setSubcategoriaActiva(subcategoria)}
-              className={`group w-[92px] shrink-0 overflow-hidden rounded-[16px] border bg-white text-left shadow-sm transition-all duration-200 active:scale-95 ${
-                activa
-                  ? "border-[#F8A400] shadow-[0_8px_20px_rgba(248,164,0,0.18)] ring-2 ring-[#F8A400]/20"
-                  : "border-gray-100"
-              }`}
-            >
-              <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
-                <img
-                  src={`/iconos/subcategorias/${imagen}`}
-                  alt={nombreVisible}
-                  className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-                    activa ? "scale-[1.03]" : ""
-                  }`}
+            <div className="grid w-full grid-cols-[minmax(0,1fr)_44px] items-center gap-2">
+              <div className="flex h-11 min-w-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-gray-100">
+                <Search
+                  size={19}
+                  strokeWidth={2.3}
+                  className="shrink-0 text-gray-400"
                 />
 
-                {activa && (
-                  <div className="absolute inset-0 bg-[#F8A400]/10" />
+                <input
+                  type="search"
+                  inputMode="search"
+                  enterKeyHint="search"
+                  value={busquedaMobile}
+                  onChange={(e) => setBusquedaMobile(e.target.value)}
+                  onBlur={() => {
+                    window.setTimeout(() => {
+                      window.scrollTo({
+                        top: window.scrollY,
+                        behavior: "auto",
+                      });
+                    }, 40);
+                  }}
+                  placeholder="Buscar productos..."
+                  style={{ fontSize: "16px" }}
+                  className="min-w-0 flex-1 appearance-none bg-transparent text-[16px] font-medium text-gray-800 placeholder:text-gray-400 outline-none [-webkit-appearance:none] [&::-webkit-search-cancel-button]:hidden"
+                />
+
+                {busquedaMobile && (
+                  <button
+                    onClick={() => setBusquedaMobile("")}
+                    className="text-[16px] font-bold text-gray-400"
+                  >
+                    ×
+                  </button>
                 )}
               </div>
 
-              <div className="flex min-h-[42px] items-center px-2 py-1.5">
-                <span
-                  className={`line-clamp-2 text-[9px] font-black leading-[1.05] ${
-                    activa ? "text-[#F8A400]" : "text-[#123A72]"
+              <div className="relative h-11 w-11 shrink-0">
+                {escuchando && (
+                  <>
+                    <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-red-400/45" />
+                    <span className="pointer-events-none absolute -inset-1 rounded-full border-2 border-red-400/45" />
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onPointerDown={(evento) => {
+                    evento.preventDefault();
+
+                    if (!escuchando) {
+                      iniciarBusquedaPorVoz();
+                    }
+                  }}
+                  onPointerUp={(evento) => {
+                    evento.preventDefault();
+                    detenerBusquedaPorVoz();
+                  }}
+                  onPointerCancel={() => {
+                    detenerBusquedaPorVoz();
+                  }}
+                  onContextMenu={(evento) => {
+                    evento.preventDefault();
+                  }}
+                  aria-label="Mantener presionado para buscar por voz"
+                  style={{
+                    touchAction: "none",
+                    WebkitTouchCallout: "none",
+                    WebkitUserSelect: "none",
+                    userSelect: "none",
+                  }}
+                  className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_12px_rgba(18,58,114,0.22)] transition-all duration-200 ${
+                    escuchando
+                      ? "scale-95 bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.14)]"
+                      : "bg-[#123A72] active:scale-95"
                   }`}
                 >
-                  {nombreVisible}
-                </span>
+                  <Mic
+                    size={18}
+                    strokeWidth={2.5}
+                    className={escuchando ? "animate-pulse" : ""}
+                  />
+                </button>
               </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-    </section>
-)}
+            </div>
+          </section>
 
-{/* [Acceso a la calculadora desde Pinturas] */}
+          {/* [Acceso a la calculadora desde Inicio] */}
 
-{esCategoriaProductos &&
-  esPinturas &&
-  !hayBusquedaMobile && (
-    <BotonCalculadoraPintura
-  onClick={() => setCalculadoraAbierta(true)}
-/>
-  )}
-
-{/* [Título sección] */}
-
-{!esCategoriaProductos && !hayBusquedaMobile && (
-  <section className="flex items-center justify-between px-4 pt-4">
-    <h2 className="text-[20px] font-black tracking-[-0.05em] text-gray-950">
-      {tituloSeccion}
-    </h2>
-
-    {categoriaActiva !== "Ofertas" && (
-      <button
-        onClick={() => {
-          setCategoriaActiva("Ofertas");
-          setSubcategoriaActiva("Todas");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
-      >
-        Ver todas
-        <span className="text-lg leading-none">›</span>
-      </button>
-    )}
-  </section>
-)}
-
-{/* [Ofertas destacadas / Productos] */}
-
-<section className="bg-white px-2 pt-2 pb-6">
-  <div
-    ref={ofertasCarruselRef}
-    onPointerDown={() => {
-      carruselOfertasPausadoRef.current = true;
-    }}
-    onPointerUp={() => {
-      carruselOfertasPausadoRef.current = false;
-    }}
-    onPointerCancel={() => {
-      carruselOfertasPausadoRef.current = false;
-    }}
-    onPointerLeave={() => {
-      carruselOfertasPausadoRef.current = false;
-    }}
-    className={
-      esCarruselDeOfertas
-        ? "flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        : "grid grid-cols-3 gap-2"
-    }
-  >
-    {gruposRenderMobile.map((grupo: any, index: number) => {
-      const producto = grupo.items[0];
-
-      const precio = precioNumero(producto.Precio);
-
-      const precioOferta = precioNumero(
-        producto["Precio oferta"]
-      );
-
-      const tienePrecioOferta =
-        precioOferta > 0 &&
-        precio > 0 &&
-        precioOferta < precio;
-
-      const precioFinal = tienePrecioOferta
-        ? precioOferta
-        : precio;
-
-      const descuento = tienePrecioOferta
-        ? Math.round(
-            ((precio - precioOferta) / precio) * 100
-          )
-        : 0;
-
-      const esCarruselInicio =
-        categoriaActiva === "Inicio" &&
-        !hayBusquedaMobile;
-
-      return (
-        <button
-          key={`${grupo.linea}-${grupo.nombre}-${index}`}
-          data-oferta-mobile={esCarruselInicio ? "true" : undefined}
-          onClick={() => {
-            setProductoAbierto(grupo);
-            setCantidadDetalle(1);
-          }}
-          className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
-            esCarruselInicio
-              ? "w-[calc((100vw-32px)/3)] shrink-0"
-              : "min-w-0"
-          }`}
-        >
-          <div className="relative flex aspect-square items-end justify-center rounded-xl bg-gray-50 pt-5 pb-0.5">
-            {grupo.marca && (
-              <span className="absolute left-1 top-1 z-20 max-w-[56px] truncate rounded-full bg-white px-2 py-[2px] text-[7px] font-black text-gray-800 shadow">
-                {grupo.marca}
-              </span>
-            )}
-
-            {descuento > 0 && (
-              <span className="absolute right-1 top-1 z-20 rounded-full bg-red-600 px-2 py-[2px] text-[7px] font-black text-white shadow">
-                -{descuento}%
-              </span>
-            )}
-
-            {producto.Imagen && (
-              <img
-                src={producto.Imagen}
-                alt={grupo.nombre}
-                className="relative z-10 h-[81%] w-[81%] object-contain"
-              />
-            )}
-          </div>
-
-          <p className="mt-1 line-clamp-2 min-h-0 text-[10px] font-black leading-tight text-gray-900">
-            {grupo.nombre}
-          </p>
-
-          {grupo.linea && (
-            <p className="mt-0.5 truncate text-[8px] font-semibold text-gray-500">
-              {grupo.linea}
-            </p>
+          {categoriaActiva === "Inicio" && !hayBusquedaMobile && (
+            <BotonCalculadoraPintura
+              onClick={() => setCalculadoraAbierta(true)}
+            />
           )}
 
-          <div className="mt-1 leading-none">
-            {tienePrecioOferta && (
-              <p className="text-[8px] font-bold leading-none text-red-500 line-through">
-                ${formatoPrecio(precio)}
-              </p>
-            )}
+          {/* [Categorías + Banner] */}
 
-            <p className="mt-[2px] text-[11px] font-black leading-none text-[#123A72]">
-              ${formatoPrecio(precioFinal)}
-            </p>
-          </div>
-        </button>
-      );
-    })}
-  </div>
-</section>
+          {!hayBusquedaMobile && (
+            <>
+              <section className="relative px-4 pt-2">
+                <div className="overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="flex w-max gap-3 pr-6">
+                    {categoriasCarrusel.map(({ nombre, iconoImagen }) => {
+                      const activa = categoriaActiva === nombre;
 
-  {/* [Detalle del producto] */}
+                      return (
+                        <button
+                          key={nombre}
+                          onClick={() => {
+                            setCategoriaActiva(nombre);
+                            setSubcategoriaActiva("Todas");
+                          }}
+                          className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 text-center transition-all duration-150 active:scale-90"
+                        >
+                          <div
+                            className={`flex h-[52px] w-[52px] items-center justify-center rounded-full border transition-all duration-150 ${
+                              activa
+                                ? "scale-105 border-[#F8A400] bg-[#F8A400] shadow-[0_10px_20px_rgba(248,164,0,0.28)]"
+                                : "border-gray-100 bg-white shadow-[0_4px_10px_rgba(0,0,0,0.07)]"
+                            }`}
+                          >
+                            <Image
+                              src={`/iconoscel/${iconoImagen}.png`}
+                              alt={nombre}
+                              width={30}
+                              height={30}
+                              className="object-contain"
+                            />
+                          </div>
 
-{productoAbierto && (() => {
-  const claveDetalle = `${productoAbierto.linea}-${productoAbierto.nombre}`;
-
-  const tamanos: string[] = Array.from(
-    new Set(
-      productoAbierto.items
-        .map((item: Producto) => item.Tamaño?.trim())
-        .filter((valor: any): valor is string => Boolean(valor))
-    )
-  );
-
-  const tamanoSeleccionado =
-    tamanosSeleccionados[claveDetalle] || tamanos[0] || "";
-
-  const itemsDelTamano = productoAbierto.items.filter(
-    (item: Producto) =>
-      !tamanoSeleccionado ||
-      item.Tamaño?.trim() === tamanoSeleccionado
-  );
-
-  const fragancias: string[] = Array.from(
-    new Set(
-      itemsDelTamano
-        .map((item: any) => item.Fragancias?.trim())
-        .filter((valor: any): valor is string => Boolean(valor))
-    )
-  );
-
-  const colores: string[] = Array.from(
-    new Set(
-      itemsDelTamano
-        .map((item: Producto) => item.Color?.trim())
-        .filter((valor: any): valor is string => Boolean(valor))
-    )
-  );
-
-  const tieneFragancias = fragancias.length > 0;
-  const variantes = tieneFragancias ? fragancias : colores;
-
-  const varianteGuardada = tieneFragancias
-    ? fraganciasSeleccionadas[claveDetalle]
-    : coloresSeleccionados[claveDetalle];
-
-  const varianteSeleccionada =
-    varianteGuardada && variantes.includes(varianteGuardada)
-      ? varianteGuardada
-      : variantes[0] || "";
-
-  const producto =
-    itemsDelTamano.find((item: any) => {
-      if (!varianteSeleccionada) {
-        return true;
-      }
-
-      return tieneFragancias
-        ? item.Fragancias?.trim() === varianteSeleccionada
-        : item.Color?.trim() === varianteSeleccionada;
-    }) ||
-    itemsDelTamano[0] ||
-    productoAbierto.items[0];
-
-  const precio = precioNumero(producto.Precio);
-  const precioOferta = precioNumero(producto["Precio oferta"]);
-  const tienePrecioOferta =
-    precioOferta > 0 &&
-    precio > 0 &&
-    precioOferta < precio;
-
-  const precioFinal = tienePrecioOferta
-    ? precioOferta
-    : precio;
-
-  const descuento = tienePrecioOferta
-    ? Math.round(
-        ((precio - precioOferta) / precio) * 100
-      )
-    : 0;
-
-  const ahorro = tienePrecioOferta
-    ? precio - precioOferta
-    : 0;
-  const textoAromas =
-  (producto as any)["Aromas"]?.trim() ||
-  (producto as any)["Aroma"]?.trim() ||
-  (producto as any)["aromas"]?.trim() ||
-  "";
-
-const mostrarChapitaAromas = !tieneFragancias && textoAromas;
-
-  return (
-    <div
-  onClick={() => setProductoAbierto(null)}
-  className="fixed inset-0 z-[100] flex items-end bg-black/45 backdrop-blur-[2px]"
->
-      <div
-  onClick={(e) => e.stopPropagation()}
-  className="relative mt-auto w-full rounded-t-[28px] bg-white px-4 pt-3 pb-5 shadow-[0_-18px_45px_rgba(0,0,0,0.22)]"
->
-        <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
-
-        <button
-          onClick={() => setProductoAbierto(null)}
-          className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#173F2A] shadow"
-        >
-          ×
-        </button>
-
-        <div className="grid grid-cols-[38%_62%] gap-3">
-          <div className="relative flex min-h-[150px] items-end justify-center overflow-hidden rounded-[22px] bg-[#F4F1EA] pt-6 pb-2">
-            {productoAbierto.marca && (
-              <span className="absolute left-2 top-2 z-20 max-w-[74px] truncate rounded-full bg-white px-2.5 py-1 text-[9px] font-black text-[#173F2A] shadow">
-                {productoAbierto.marca}
-              </span>
-            )}
-
-            {descuento > 0 && (
-              <span className="absolute right-2 top-2 z-20 rounded-full bg-[#EF3B46] px-2 py-1 text-[9px] font-black text-white shadow">
-                -{descuento}%
-              </span>
-            )}
-
-            {producto.Imagen && (
-  <img
-  src={producto.Imagen}
-  alt={producto.nombre}
-  className="relative z-10 h-[81%] w-[81%] object-contain"
-/>
-)}
-
-{mostrarChapitaAromas && (
-  <div className="absolute bottom-2 left-2 z-20 rounded-full bg-[#FFEAF4] px-2 py-[2px] shadow-sm ring-1 ring-pink-200">
-  <div className="flex items-center gap-1">
-    <span className="text-[8px]">🌸</span>
-
-    <span className="text-[7px] font-black leading-none text-[#D63384]">
-      {textoAromas}
-    </span>
-  </div>
-</div>
-)}
-          </div>
-
-          <div className="pt-3">
-            <h3 className="pr-8 text-[17px] font-black leading-[0.98] tracking-[-0.05em] text-[#173F2A]">
-              {productoAbierto.nombre}
-            </h3>
-
-            {productoAbierto.linea && (
-              <p className="mt-1 text-[10px] font-semibold leading-tight text-gray-600">
-                {productoAbierto.linea}
-              </p>
-            )}
-
-            <div className="mt-2">
-              <p className="text-[21px] font-black leading-none text-[#173F2A]">
-                ${formatoPrecio(precioFinal)}
-              </p>
-
-              {tienePrecioOferta ? (
-                <div className="mt-1 flex items-center gap-2">
-                  {tienePrecioOferta && (
-                    <p className="text-[10px] font-bold leading-none text-gray-400 line-through">
-                      ${formatoPrecio(precio)}
-                    </p>
-                  )}
-
-                  {ahorro > 0 && (
-                    <p className="text-[9px] font-black leading-none text-[#55724D]">
-                      Ahorrás ${formatoPrecio(ahorro)}
-                    </p>
-                  )}
+                          <span
+                            className={`line-clamp-2 text-[9px] font-black leading-tight ${
+                              activa ? "text-[#F8A400]" : "text-gray-800"
+                            }`}
+                          >
+                            {nombre}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              ) : null}
-            </div>
+              </section>
 
-            <div className="mt-2 h-1 w-10 rounded-full bg-[#E5BFA7]" />
+              {categoriaActiva === "Inicio" && (
+                <section className="px-4 pt-4">
+                  <div
+                    onClick={() =>
+                      setBannerActual((actual) =>
+                        actual === 2 ? 0 : actual + 1,
+                      )
+                    }
+                    className="relative cursor-pointer overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"
+                  >
+                    {[
+                      "/bannercel/banner1.png",
+                      "/bannercel/banner2.png",
+                      "/bannercel/banner3.png",
+                    ].map((banner, index) => (
+                      <img
+                        key={index}
+                        src={banner}
+                        alt="Banner"
+                        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+                          bannerActual === index ? "opacity-100" : "opacity-0"
+                        }`}
+                      />
+                    ))}
 
-            {tamanos.length > 0 && (
-              <div className="mt-2.5">
-                <p className="mb-1 text-[9px] font-black text-gray-500">
-                  Tamaño
-                </p>
+                    <div className="aspect-[16/7]" />
 
-                <div className="flex flex-wrap gap-1.5">
-                  {tamanos.map((tamano) => {
-                    const activo = tamanoSeleccionado === tamano;
+                    <button
+                      onClick={() =>
+                        setBannerActual((actual) =>
+                          actual === 2 ? 0 : actual + 1,
+                        )
+                      }
+                      className="absolute bottom-3 left-5 rounded-full bg-white px-4 py-2 text-[10px] font-black text-[#123A72] shadow-lg transition active:scale-95"
+                    >
+                      Ver más
+                    </button>
+
+                    <div className="absolute bottom-4 right-5 flex gap-2">
+                      {[0, 1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-2 rounded-full transition-all ${
+                            bannerActual === i
+                              ? "w-6 bg-white"
+                              : "w-2 bg-white/50"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+            </>
+          )}
+          {/* [Subcategorías] */}
+
+          {esCategoriaProductos && esPinturas && (
+            <section className="px-4 pt-2">
+              <div className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max gap-2.5 pr-4">
+                  {subcategoriasPinturas.map((subcategoria) => {
+                    const activa = subcategoriaActiva === subcategoria;
+
+                    const imagenesSubcategorias: Record<string, string> = {
+                      todas: "todas.png",
+
+                      Aerosol: "aerosoles.png",
+                      Aerosoles: "aerosoles.png",
+
+                      Enduido: "enduidos.png",
+                      Enduidos: "enduidos.png",
+
+                      Madera: "madera.png",
+                      Maderas: "madera.png",
+
+                      Exterior: "pintura-exterior.png",
+                      "Pintura Exterior": "pintura-exterior.png",
+
+                      "Interior/Exterior": "pintura-int-ext.png",
+                      "Interior Exterior": "pintura-int-ext.png",
+                      "Int/Ext": "pintura-int-ext.png",
+                      "Pintura Int/Ext": "pintura-int-ext.png",
+                      "Pintura Interior/Exterior": "pintura-int-ext.png",
+
+                      Interior: "pintura-interior.png",
+                      "Pintura Interior": "pintura-interior.png",
+
+                      Piscina: "piscinas.png",
+                      Piscinas: "piscinas.png",
+                      "P/ Piscinas": "piscinas.png",
+                      "Pinturas para Piscinas": "piscinas.png",
+
+                      Piso: "pisos.png",
+                      Pisos: "pisos.png",
+                      "Pintura para Pisos": "pisos.png",
+
+                      Sellador: "sellador-fijador.png",
+                      Fijador: "sellador-fijador.png",
+                      "Sellador Fijador": "sellador-fijador.png",
+                      "Selladores y Fijadores": "sellador-fijador.png",
+
+                      Sintético: "sintetico-3-en-1.png",
+                      Sintetico: "sintetico-3-en-1.png",
+                      "Sintético 3 en 1": "sintetico-3-en-1.png",
+                      "Sintetico 3 en 1": "sintetico-3-en-1.png",
+
+                      Texturado: "texturado.png",
+                      Texturados: "texturado.png",
+
+                      "Pinceles y Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles & Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles-Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles/Rodillos": "pinceles-y-rodillos.png",
+                    };
+
+                    const nombresVisibles: Record<string, string> = {
+                      Todas: "Todas",
+
+                      "P/ Piscinas": "Piscinas",
+                      "Pinturas para Piscinas": "Piscinas",
+
+                      "Pintura Interior/Exterior": "Interior / Exterior",
+                      "Pintura Int/Ext": "Interior / Exterior",
+
+                      "Selladores y Fijadores": "Sellador / Fijador",
+
+                      "Sintetico 3 en 1": "Sintético 3 en 1",
+
+                      "Pinceles & Rodillos": "Pinceles y Rodillos",
+                      "Pinceles-Rodillos": "Pinceles y Rodillos",
+                      "Pinceles/Rodillos": "Pinceles y Rodillos",
+                    };
+
+                    const imagen =
+                      imagenesSubcategorias[subcategoria] ||
+                      "pintura-int-ext.png";
+
+                    const nombreVisible =
+                      nombresVisibles[subcategoria] || subcategoria;
 
                     return (
                       <button
-                        key={tamano}
-                        onClick={() => {
-                          setTamanosSeleccionados((actual: any) => ({
-                            ...actual,
-                            [claveDetalle]: tamano,
-                          }));
-
-                          const itemsNuevoTamano =
-                            productoAbierto.items.filter(
-                              (item: Producto) =>
-                                item.Tamaño?.trim() === tamano
-                            );
-
-                          const primeraFragancia =
-                            itemsNuevoTamano
-                              .map((item: any) =>
-                                item.Fragancias?.trim()
-                              )
-                              .find(Boolean) || "";
-
-                          const primerColor =
-                            itemsNuevoTamano
-                              .map((item: Producto) =>
-                                item.Color?.trim()
-                              )
-                              .find(Boolean) || "";
-
-                          setFraganciasSeleccionadas(
-                            (actual: any) => ({
-                              ...actual,
-                              [claveDetalle]: primeraFragancia,
-                            })
-                          );
-
-                          setColoresSeleccionados(
-                            (actual: any) => ({
-                              ...actual,
-                              [claveDetalle]: primerColor,
-                            })
-                          );
-                        }}
-                        className={`rounded-full px-2 py-1 text-[9px] font-black shadow-sm transition active:scale-95 ${
-                          activo
-                            ? "bg-[#173F2A] text-white"
-                            : "bg-white text-[#173F2A] ring-1 ring-gray-100"
+                        key={subcategoria}
+                        onClick={() => setSubcategoriaActiva(subcategoria)}
+                        className={`group w-[92px] shrink-0 overflow-hidden rounded-[16px] border bg-white text-left shadow-sm transition-all duration-200 active:scale-95 ${
+                          activa
+                            ? "border-[#F8A400] shadow-[0_8px_20px_rgba(248,164,0,0.18)] ring-2 ring-[#F8A400]/20"
+                            : "border-gray-100"
                         }`}
                       >
-                        {tamano}
+                        <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
+                          <img
+                            src={`/iconos/subcategorias/${imagen}`}
+                            alt={nombreVisible}
+                            className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                              activa ? "scale-[1.03]" : ""
+                            }`}
+                          />
+
+                          {activa && (
+                            <div className="absolute inset-0 bg-[#F8A400]/10" />
+                          )}
+                        </div>
+
+                        <div className="flex min-h-[42px] items-center px-2 py-1.5">
+                          <span
+                            className={`line-clamp-2 text-[9px] font-black leading-[1.05] ${
+                              activa ? "text-[#F8A400]" : "text-[#123A72]"
+                            }`}
+                          >
+                            {nombreVisible}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               </div>
-            )}
+            </section>
+          )}
 
+          {/* [Acceso a la calculadora desde Pinturas] */}
 
-            {variantes.length > 0 && (
-              <div className="mt-2">
-                <p className="mb-1 text-[9px] font-black text-gray-500">
-                  {tieneFragancias ? "Fragancia" : "Color"}
-                </p>
+          {esCategoriaProductos && esPinturas && !hayBusquedaMobile && (
+            <BotonCalculadoraPintura
+              onClick={() => setCalculadoraAbierta(true)}
+            />
+          )}
 
-                <select
-                  value={varianteSeleccionada}
-                  onChange={(evento) => {
-                    const valor = evento.target.value;
+          {/* [Título sección] */}
 
-                    if (tieneFragancias) {
-                      setFraganciasSeleccionadas((actual: any) => ({
-                        ...actual,
-                        [claveDetalle]: valor,
-                      }));
-                    } else {
-                      setColoresSeleccionados((actual: any) => ({
-                        ...actual,
-                        [claveDetalle]: valor,
-                      }));
-                    }
+          {!esCategoriaProductos && !hayBusquedaMobile && (
+            <section className="flex items-center justify-between px-4 pt-4">
+              <h2 className="text-[20px] font-black tracking-[-0.05em] text-gray-950">
+                {tituloSeccion}
+              </h2>
+
+              {categoriaActiva !== "Ofertas" && (
+                <button
+                  onClick={() => {
+                    setCategoriaActiva("Ofertas");
+                    setSubcategoriaActiva("Todas");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className="h-7 w-full rounded-full border border-gray-100 bg-white px-3 text-[9px] font-black text-[#173F2A] shadow-sm outline-none"
+                  className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
                 >
-                  {variantes.map((variante) => (
-                    <option key={variante} value={variante}>
-                      {variante}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+                  Ver todas
+                  <span className="text-lg leading-none">›</span>
+                </button>
+              )}
+            </section>
+          )}
 
-            <div className="mt-2 flex h-7 items-center justify-between rounded-full border border-gray-100 bg-white px-3 shadow-sm">
-              <span className="text-[9px] font-black text-gray-600">
-                Cantidad
-              </span>
+          {/* [Ofertas destacadas / Productos] */}
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() =>
-                    setCantidadDetalle((cantidad) =>
-                      cantidad > 1 ? cantidad - 1 : 1
-                    )
+          <section className="bg-white px-2 pt-2 pb-6">
+            <div
+              ref={ofertasCarruselRef}
+              onPointerDown={() => {
+                carruselOfertasPausadoRef.current = true;
+              }}
+              onPointerUp={() => {
+                carruselOfertasPausadoRef.current = false;
+              }}
+              onPointerCancel={() => {
+                carruselOfertasPausadoRef.current = false;
+              }}
+              onPointerLeave={() => {
+                carruselOfertasPausadoRef.current = false;
+              }}
+              className={
+                esCarruselDeOfertas
+                  ? "flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  : "grid grid-cols-3 gap-2"
+              }
+            >
+              {gruposRenderMobile.map((grupo: any, index: number) => {
+                const producto = grupo.items[0];
+
+                const precio = precioNumero(producto.Precio);
+
+                const precioOferta = precioNumero(producto["Precio oferta"]);
+
+                const tienePrecioOferta =
+                  precioOferta > 0 && precio > 0 && precioOferta < precio;
+
+                const precioFinal = tienePrecioOferta ? precioOferta : precio;
+
+                const descuento = tienePrecioOferta
+                  ? Math.round(((precio - precioOferta) / precio) * 100)
+                  : 0;
+
+                const esCarruselInicio =
+                  categoriaActiva === "Inicio" && !hayBusquedaMobile;
+
+                return (
+                  <button
+                    key={`${grupo.linea}-${grupo.nombre}-${index}`}
+                    data-oferta-mobile={esCarruselInicio ? "true" : undefined}
+                    onClick={() => {
+                      setProductoAbierto(grupo);
+                      setCantidadDetalle(1);
+                    }}
+                    className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
+                      esCarruselInicio
+                        ? "w-[calc((100vw-32px)/3)] shrink-0"
+                        : "min-w-0"
+                    }`}
+                  >
+                    <div className="relative flex aspect-square items-end justify-center rounded-xl bg-gray-50 pt-5 pb-0.5">
+                      {grupo.marca && (
+                        <span className="absolute left-1 top-1 z-20 max-w-[56px] truncate rounded-full bg-white px-2 py-[2px] text-[7px] font-black text-gray-800 shadow">
+                          {grupo.marca}
+                        </span>
+                      )}
+
+                      {descuento > 0 && (
+                        <span className="absolute right-1 top-1 z-20 rounded-full bg-red-600 px-2 py-[2px] text-[7px] font-black text-white shadow">
+                          -{descuento}%
+                        </span>
+                      )}
+
+                      {producto.Imagen && (
+                        <img
+                          src={producto.Imagen}
+                          alt={grupo.nombre}
+                          className="relative z-10 h-[81%] w-[81%] object-contain"
+                        />
+                      )}
+                    </div>
+
+                    <p className="mt-1 line-clamp-2 min-h-0 text-[10px] font-black leading-tight text-gray-900">
+                      {grupo.nombre}
+                    </p>
+
+                    {grupo.linea && (
+                      <p className="mt-0.5 truncate text-[8px] font-semibold text-gray-500">
+                        {grupo.linea}
+                      </p>
+                    )}
+
+                    <div className="mt-1 leading-none">
+                      {tienePrecioOferta && (
+                        <p className="text-[8px] font-bold leading-none text-red-500 line-through">
+                          ${formatoPrecio(precio)}
+                        </p>
+                      )}
+
+                      <p className="mt-[2px] text-[11px] font-black leading-none text-[#123A72]">
+                        ${formatoPrecio(precioFinal)}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* [Detalle del producto] */}
+
+          {productoAbierto &&
+            (() => {
+              const claveDetalle = `${productoAbierto.linea}-${productoAbierto.nombre}`;
+
+              const tamanos: string[] = Array.from(
+                new Set(
+                  productoAbierto.items
+                    .map((item: Producto) => item.Tamaño?.trim())
+                    .filter((valor: any): valor is string => Boolean(valor)),
+                ),
+              );
+
+              const tamanoSeleccionado =
+                tamanosSeleccionados[claveDetalle] || tamanos[0] || "";
+
+              const itemsDelTamano = productoAbierto.items.filter(
+                (item: Producto) =>
+                  !tamanoSeleccionado ||
+                  item.Tamaño?.trim() === tamanoSeleccionado,
+              );
+
+              const fragancias: string[] = Array.from(
+                new Set(
+                  itemsDelTamano
+                    .map((item: any) => item.Fragancias?.trim())
+                    .filter((valor: any): valor is string => Boolean(valor)),
+                ),
+              );
+
+              const colores: string[] = Array.from(
+                new Set(
+                  itemsDelTamano
+                    .map((item: Producto) => item.Color?.trim())
+                    .filter((valor: any): valor is string => Boolean(valor)),
+                ),
+              );
+
+              const tieneFragancias = fragancias.length > 0;
+              const variantes = tieneFragancias ? fragancias : colores;
+
+              const varianteGuardada = tieneFragancias
+                ? fraganciasSeleccionadas[claveDetalle]
+                : coloresSeleccionados[claveDetalle];
+
+              const varianteSeleccionada =
+                varianteGuardada && variantes.includes(varianteGuardada)
+                  ? varianteGuardada
+                  : variantes[0] || "";
+
+              const producto =
+                itemsDelTamano.find((item: any) => {
+                  if (!varianteSeleccionada) {
+                    return true;
                   }
-                  className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#EEF1EA] text-xs font-black text-[#173F2A]"
-                >
-                  -
-                </button>
 
-                <span className="text-[12px] font-black text-[#173F2A]">
-                  {cantidadDetalle}
-                </span>
+                  return tieneFragancias
+                    ? item.Fragancias?.trim() === varianteSeleccionada
+                    : item.Color?.trim() === varianteSeleccionada;
+                }) ||
+                itemsDelTamano[0] ||
+                productoAbierto.items[0];
 
-                <button
-                  onClick={() => setCantidadDetalle((cantidad) => cantidad + 1)}
-                  className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#173F2A] text-xs font-black text-white"
+              const precio = precioNumero(producto.Precio);
+              const precioOferta = precioNumero(producto["Precio oferta"]);
+              const tienePrecioOferta =
+                precioOferta > 0 && precio > 0 && precioOferta < precio;
+
+              const precioFinal = tienePrecioOferta ? precioOferta : precio;
+
+              const descuento = tienePrecioOferta
+                ? Math.round(((precio - precioOferta) / precio) * 100)
+                : 0;
+
+              const ahorro = tienePrecioOferta ? precio - precioOferta : 0;
+              const textoAromas =
+                (producto as any)["Aromas"]?.trim() ||
+                (producto as any)["Aroma"]?.trim() ||
+                (producto as any)["aromas"]?.trim() ||
+                "";
+
+              const mostrarChapitaAromas = !tieneFragancias && textoAromas;
+
+              return (
+                <div
+                  onClick={() => setProductoAbierto(null)}
+                  className="fixed inset-0 z-[100] flex items-end bg-black/45 backdrop-blur-[2px]"
                 >
-                  +
-                </button>
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative mt-auto w-full rounded-t-[28px] bg-white px-4 pt-3 pb-5 shadow-[0_-18px_45px_rgba(0,0,0,0.22)]"
+                  >
+                    <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
+
+                    <button
+                      onClick={() => setProductoAbierto(null)}
+                      className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#173F2A] shadow"
+                    >
+                      ×
+                    </button>
+
+                    <div className="grid grid-cols-[38%_62%] gap-3">
+                      <div className="relative flex min-h-[150px] items-end justify-center overflow-hidden rounded-[22px] bg-[#F4F1EA] pt-6 pb-2">
+                        {productoAbierto.marca && (
+                          <span className="absolute left-2 top-2 z-20 max-w-[74px] truncate rounded-full bg-white px-2.5 py-1 text-[9px] font-black text-[#173F2A] shadow">
+                            {productoAbierto.marca}
+                          </span>
+                        )}
+
+                        {descuento > 0 && (
+                          <span className="absolute right-2 top-2 z-20 rounded-full bg-[#EF3B46] px-2 py-1 text-[9px] font-black text-white shadow">
+                            -{descuento}%
+                          </span>
+                        )}
+
+                        {producto.Imagen && (
+                          <img
+                            src={producto.Imagen}
+                            alt={producto.nombre}
+                            className="relative z-10 h-[81%] w-[81%] object-contain"
+                          />
+                        )}
+
+                        {mostrarChapitaAromas && (
+                          <div className="absolute bottom-2 left-2 z-20 rounded-full bg-[#FFEAF4] px-2 py-[2px] shadow-sm ring-1 ring-pink-200">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[8px]">🌸</span>
+
+                              <span className="text-[7px] font-black leading-none text-[#D63384]">
+                                {textoAromas}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-3">
+                        <h3 className="pr-8 text-[17px] font-black leading-[0.98] tracking-[-0.05em] text-[#173F2A]">
+                          {productoAbierto.nombre}
+                        </h3>
+
+                        {productoAbierto.linea && (
+                          <p className="mt-1 text-[10px] font-semibold leading-tight text-gray-600">
+                            {productoAbierto.linea}
+                          </p>
+                        )}
+
+                        <div className="mt-2">
+                          <p className="text-[21px] font-black leading-none text-[#173F2A]">
+                            ${formatoPrecio(precioFinal)}
+                          </p>
+
+                          {tienePrecioOferta ? (
+                            <div className="mt-1 flex items-center gap-2">
+                              {tienePrecioOferta && (
+                                <p className="text-[10px] font-bold leading-none text-gray-400 line-through">
+                                  ${formatoPrecio(precio)}
+                                </p>
+                              )}
+
+                              {ahorro > 0 && (
+                                <p className="text-[9px] font-black leading-none text-[#55724D]">
+                                  Ahorrás ${formatoPrecio(ahorro)}
+                                </p>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="mt-2 h-1 w-10 rounded-full bg-[#E5BFA7]" />
+
+                        {tamanos.length > 0 && (
+                          <div className="mt-2.5">
+                            <p className="mb-1 text-[9px] font-black text-gray-500">
+                              Tamaño
+                            </p>
+
+                            <div className="flex flex-wrap gap-1.5">
+                              {tamanos.map((tamano) => {
+                                const activo = tamanoSeleccionado === tamano;
+
+                                return (
+                                  <button
+                                    key={tamano}
+                                    onClick={() => {
+                                      setTamanosSeleccionados(
+                                        (actual: any) => ({
+                                          ...actual,
+                                          [claveDetalle]: tamano,
+                                        }),
+                                      );
+
+                                      const itemsNuevoTamano =
+                                        productoAbierto.items.filter(
+                                          (item: Producto) =>
+                                            item.Tamaño?.trim() === tamano,
+                                        );
+
+                                      const primeraFragancia =
+                                        itemsNuevoTamano
+                                          .map((item: any) =>
+                                            item.Fragancias?.trim(),
+                                          )
+                                          .find(Boolean) || "";
+
+                                      const primerColor =
+                                        itemsNuevoTamano
+                                          .map((item: Producto) =>
+                                            item.Color?.trim(),
+                                          )
+                                          .find(Boolean) || "";
+
+                                      setFraganciasSeleccionadas(
+                                        (actual: any) => ({
+                                          ...actual,
+                                          [claveDetalle]: primeraFragancia,
+                                        }),
+                                      );
+
+                                      setColoresSeleccionados(
+                                        (actual: any) => ({
+                                          ...actual,
+                                          [claveDetalle]: primerColor,
+                                        }),
+                                      );
+                                    }}
+                                    className={`rounded-full px-2 py-1 text-[9px] font-black shadow-sm transition active:scale-95 ${
+                                      activo
+                                        ? "bg-[#173F2A] text-white"
+                                        : "bg-white text-[#173F2A] ring-1 ring-gray-100"
+                                    }`}
+                                  >
+                                    {tamano}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {variantes.length > 0 && (
+                          <div className="mt-2">
+                            <p className="mb-1 text-[9px] font-black text-gray-500">
+                              {tieneFragancias ? "Fragancia" : "Color"}
+                            </p>
+
+                            <select
+                              value={varianteSeleccionada}
+                              onChange={(evento) => {
+                                const valor = evento.target.value;
+
+                                if (tieneFragancias) {
+                                  setFraganciasSeleccionadas((actual: any) => ({
+                                    ...actual,
+                                    [claveDetalle]: valor,
+                                  }));
+                                } else {
+                                  setColoresSeleccionados((actual: any) => ({
+                                    ...actual,
+                                    [claveDetalle]: valor,
+                                  }));
+                                }
+                              }}
+                              className="h-7 w-full rounded-full border border-gray-100 bg-white px-3 text-[9px] font-black text-[#173F2A] shadow-sm outline-none"
+                            >
+                              {variantes.map((variante) => (
+                                <option key={variante} value={variante}>
+                                  {variante}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        <div className="mt-2 flex h-7 items-center justify-between rounded-full border border-gray-100 bg-white px-3 shadow-sm">
+                          <span className="text-[9px] font-black text-gray-600">
+                            Cantidad
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() =>
+                                setCantidadDetalle((cantidad) =>
+                                  cantidad > 1 ? cantidad - 1 : 1,
+                                )
+                              }
+                              className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#EEF1EA] text-xs font-black text-[#173F2A]"
+                            >
+                              -
+                            </button>
+
+                            <span className="text-[12px] font-black text-[#173F2A]">
+                              {cantidadDetalle}
+                            </span>
+
+                            <button
+                              onClick={() =>
+                                setCantidadDetalle((cantidad) => cantidad + 1)
+                              }
+                              className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#173F2A] text-xs font-black text-white"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        const itemCarrito = {
+                          clave: `${productoAbierto.nombre}-${tamanoSeleccionado}-${varianteSeleccionada}`,
+                          nombre: productoAbierto.nombre,
+                          linea: productoAbierto.linea,
+                          marca: productoAbierto.marca,
+                          imagen: producto.Imagen,
+                          tamano: tamanoSeleccionado,
+                          variante: varianteSeleccionada,
+                          tipoVariante: tieneFragancias ? "Fragancia" : "Color",
+                          precio: precioFinal,
+                          precioOriginal: precio,
+                          precioOferta: precioOferta,
+                          ahorro: ahorro,
+                          cantidad: cantidadDetalle,
+                        };
+
+                        setCarrito((actual) => {
+                          const existe = actual.find(
+                            (item) => item.clave === itemCarrito.clave,
+                          );
+
+                          if (existe) {
+                            return actual.map((item) =>
+                              item.clave === itemCarrito.clave
+                                ? {
+                                    ...item,
+                                    cantidad: item.cantidad + cantidadDetalle,
+                                    precio: precioFinal,
+                                    precioOriginal: precio,
+                                    precioOferta: precioOferta,
+                                    ahorro: ahorro,
+                                  }
+                                : item,
+                            );
+                          }
+
+                          return [...actual, itemCarrito];
+                        });
+
+                        setProductoAgregado(true);
+                        setMostrarConfirmacionCarrito(true);
+
+                        setTimeout(() => {
+                          setProductoAgregado(false);
+                        }, 700);
+
+                        setTimeout(() => {
+                          setMostrarConfirmacionCarrito(false);
+                        }, 900);
+                      }}
+                      className={`relative mt-3 flex h-11 w-full items-center overflow-hidden rounded-full text-white shadow-[0_12px_26px_rgba(23,63,42,0.28)] transition-all duration-300 active:scale-[0.98] ${
+                        productoAgregado ? "bg-green-600" : "bg-[#173F2A]"
+                      }`}
+                    >
+                      <div className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF1EA] text-[#173F2A]">
+                        {productoAgregado ? (
+                          <span className="text-[18px] font-black">✓</span>
+                        ) : (
+                          <ShoppingCart size={20} strokeWidth={2.4} />
+                        )}
+                      </div>
+
+                      <span className="ml-3 flex-1 text-left text-[13px] font-black">
+                        {productoAgregado ? "Agregado" : "Agregar al carrito"}
+                      </span>
+
+                      <span className="relative flex h-full min-w-[118px] items-center justify-center bg-[#F3E3D3] px-5 text-[13px] font-black text-[#173F2A] before:absolute before:left-[-21px] before:top-0 before:h-full before:w-10 before:skew-x-[-18deg] before:bg-[#F3E3D3] before:content-['']">
+                        <span className="relative z-10">
+                          ${formatoPrecio(precioFinal * cantidadDetalle)}
+                        </span>
+                      </span>
+                    </button>
+
+                    <div className="mt-3 flex items-center justify-center gap-5 text-[#173F2A]">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                        <Truck size={15} strokeWidth={2.2} />
+                        <span>Envíos rápidos</span>
+                      </div>
+
+                      <div className="h-4 w-px bg-gray-200" />
+
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                        <CreditCard size={15} strokeWidth={2.2} />
+                        <span>Todos los métodos de pago</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+          {/* [Beneficio inferior] */}
+
+          {!esCategoriaProductos && !hayBusquedaMobile && (
+            <section className="px-4 pt-2 pb-3">
+              <div className="flex items-center gap-3 rounded-3xl bg-gray-50 px-4 py-3 shadow-sm ring-1 ring-gray-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#123A72] text-white">
+                  <BadgeCheck size={22} />
+                </div>
+
+                <div>
+                  <p className="text-[12px] font-black text-gray-900">
+                    Elegí calidad, elegí A Todo Trapo
+                  </p>
+
+                  <p className="mt-0.5 text-[10px] font-semibold leading-tight text-gray-500">
+                    Más de 1000 productos para tu hogar, tu obra y tu piscina.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* [Footer] */}
+
+          <footer className="bg-[#0D2F5E] px-5 pt-8 pb-10 text-white">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <MapPin size={24} className="mx-auto mb-2 text-white/90" />
+
+                <h3 className="text-[11px] font-black">Ubicación</h3>
+
+                <p className="mt-2 text-[10px] leading-relaxed text-white/75">
+                  Candelaria
+                  <br />
+                  Misiones
+                </p>
+              </div>
+
+              <div className="border-x border-white/15 px-2">
+                <Clock size={24} className="mx-auto mb-2 text-white/90" />
+
+                <h3 className="text-[11px] font-black">Horarios</h3>
+
+                <p className="mt-2 text-[10px] leading-relaxed text-white/75">
+                  Lun a Sáb
+                  <br />
+                  8:00 - 12:00
+                  <br />
+                  16:00 - 19:15
+                  <br />
+                  Dom 9:30 - 12:00
+                </p>
+              </div>
+
+              <div>
+                <FaInstagram size={24} className="mx-auto mb-2 text-white/90" />
+
+                <h3 className="text-[11px] font-black">Instagram</h3>
+
+                <p className="mt-2 text-[10px] leading-relaxed text-white/75">
+                  @atodo_trapo01
+                  <br />
+                  Instagram
+                </p>
               </div>
             </div>
-          </div>
-        </div>
 
-        <button
-  onClick={() => {
-  const itemCarrito = {
-    clave: `${productoAbierto.nombre}-${tamanoSeleccionado}-${varianteSeleccionada}`,
-    nombre: productoAbierto.nombre,
-    linea: productoAbierto.linea,
-    marca: productoAbierto.marca,
-    imagen: producto.Imagen,
-    tamano: tamanoSeleccionado,
-    variante: varianteSeleccionada,
-    tipoVariante: tieneFragancias ? "Fragancia" : "Color",
-    precio: precioFinal,
-    precioOriginal: precio,
-    precioOferta: precioOferta,
-    ahorro: ahorro,
-    cantidad: cantidadDetalle,
-  };
+            <div className="my-6 h-px bg-white/15" />
 
-  setCarrito((actual) => {
-    const existe = actual.find((item) => item.clave === itemCarrito.clave);
+            <div className="text-center">
+              <p className="text-[11px] font-black">Medios de pago</p>
 
-    if (existe) {
-      return actual.map((item) =>
-        item.clave === itemCarrito.clave
-          ? {
-              ...item,
-              cantidad: item.cantidad + cantidadDetalle,
-              precio: precioFinal,
-              precioOriginal: precio,
-              precioOferta: precioOferta,
-              ahorro: ahorro,
-            }
-          : item
-      );
-    }
-
-    return [...actual, itemCarrito];
-  });
-
-  setProductoAgregado(true);
-  setMostrarConfirmacionCarrito(true);
-
-  setTimeout(() => {
-    setProductoAgregado(false);
-  }, 700);
-
-  setTimeout(() => {
-    setMostrarConfirmacionCarrito(false);
-  }, 900);
-}}
-className={`relative mt-3 flex h-11 w-full items-center overflow-hidden rounded-full text-white shadow-[0_12px_26px_rgba(23,63,42,0.28)] transition-all duration-300 active:scale-[0.98] ${
-  productoAgregado ? "bg-green-600" : "bg-[#173F2A]"
-}`}
->
-  <div className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF1EA] text-[#173F2A]">
-    {productoAgregado ? (
-      <span className="text-[18px] font-black">✓</span>
-    ) : (
-      <ShoppingCart size={20} strokeWidth={2.4} />
-    )}
-  </div>
-
-  <span className="ml-3 flex-1 text-left text-[13px] font-black">
-    {productoAgregado ? "Agregado" : "Agregar al carrito"}
-  </span>
-
-  <span className="relative flex h-full min-w-[118px] items-center justify-center bg-[#F3E3D3] px-5 text-[13px] font-black text-[#173F2A] before:absolute before:left-[-21px] before:top-0 before:h-full before:w-10 before:skew-x-[-18deg] before:bg-[#F3E3D3] before:content-['']">
-    <span className="relative z-10">
-      ${formatoPrecio(precioFinal * cantidadDetalle)}
-    </span>
-  </span>
-</button>
-
-        <div className="mt-3 flex items-center justify-center gap-5 text-[#173F2A]">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold">
-            <Truck size={15} strokeWidth={2.2} />
-            <span>Envíos rápidos</span>
-          </div>
-
-          <div className="h-4 w-px bg-gray-200" />
-
-          <div className="flex items-center gap-1.5 text-[10px] font-bold">
-            <CreditCard size={15} strokeWidth={2.2} />
-            <span>Todos los métodos de pago</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-})()}
-
-  {/* [Beneficio inferior] */}
-
-      {!esCategoriaProductos && !hayBusquedaMobile && (
-        <section className="px-4 pt-2 pb-3">
-          <div className="flex items-center gap-3 rounded-3xl bg-gray-50 px-4 py-3 shadow-sm ring-1 ring-gray-100">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#123A72] text-white">
-              <BadgeCheck size={22} />
-            </div>
-
-            <div>
-              <p className="text-[12px] font-black text-gray-900">
-                Elegí calidad, elegí A Todo Trapo
-              </p>
-
-              <p className="mt-0.5 text-[10px] font-semibold leading-tight text-gray-500">
-                Más de 1000 productos para tu hogar, tu obra y tu piscina.
+              <p className="mt-2 text-[10px] text-white/70">
+                Efectivo · Tarjetas · Transferencia · Mercado Pago
               </p>
             </div>
-          </div>
-        </section>
-      )}
 
-  {/* [Footer] */}
+            <div className="mt-6 text-center">
+              <p className="text-[9px] text-white/45">
+                © 2026 A Todo Trapo Online. Todos los derechos reservados.
+              </p>
+            </div>
+          </footer>
 
-      <footer className="bg-[#0D2F5E] px-5 pt-8 pb-10 text-white">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <MapPin size={24} className="mx-auto mb-2 text-white/90" />
+          {/* [Botón volver] */}
 
-            <h3 className="text-[11px] font-black">Ubicación</h3>
+          {esCategoriaProductos && (
+            <button
+              onClick={() => {
+                setCategoriaActiva("Inicio");
+                setSubcategoriaActiva("Todas");
 
-            <p className="mt-2 text-[10px] leading-relaxed text-white/75">
-              Candelaria
-              <br />
-              Misiones
-            </p>
-          </div>
-
-          <div className="border-x border-white/15 px-2">
-            <Clock size={24} className="mx-auto mb-2 text-white/90" />
-
-            <h3 className="text-[11px] font-black">Horarios</h3>
-
-            <p className="mt-2 text-[10px] leading-relaxed text-white/75">
-              Lun a Sáb
-              <br />
-              8:00 - 12:00
-              <br />
-              16:00 - 19:15
-              <br />
-              Dom 9:30 - 12:00
-            </p>
-          </div>
-
-          <div>
-            <FaInstagram size={24} className="mx-auto mb-2 text-white/90" />
-
-            <h3 className="text-[11px] font-black">Instagram</h3>
-
-            <p className="mt-2 text-[10px] leading-relaxed text-white/75">
-              @atodo_trapo01
-<br />
-Instagram
-            </p>
-          </div>
-        </div>
-
-        <div className="my-6 h-px bg-white/15" />
-
-        <div className="text-center">
-          <p className="text-[11px] font-black">Medios de pago</p>
-
-          <p className="mt-2 text-[10px] text-white/70">
-            Efectivo · Tarjetas · Transferencia · Mercado Pago
-          </p>
-        </div>
-
-        <div className="mt-6 text-center">
-          <p className="text-[9px] text-white/45">
-            © 2026 A Todo Trapo Online. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
-
-  {/* [Botón volver] */}
-
-{esCategoriaProductos && (
-  <button
-    onClick={() => {
-      setCategoriaActiva("Inicio");
-      setSubcategoriaActiva("Todas");
-
-      setTimeout(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }, 50);
-    }}
-    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+                setTimeout(() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }, 50);
+              }}
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
          flex items-center gap-2
          bg-white/95 backdrop-blur-md
          border border-gray-200
@@ -1923,662 +1870,705 @@ Instagram
          hover:shadow-[0_18px_45px_rgba(0,0,0,0.22)]
          hover:-translate-y-1
          transition-all duration-300"
-  >
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-950 text-white shadow-sm">
-      <span className="relative -top-[2px] text-[16px] font-bold leading-none">
-  ←
-</span>
-    </div>
-
-    <span className="pr-2 text-[13px] font-extrabold tracking-[-0.02em] text-blue-950">
-      Volver
-    </span>
-  </button>
-)}
-
-  {/* [WhatsApp] */}
-
-<a
-  href="https://wa.me/5491123193387"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="fixed bottom-5 right-4 z-50 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_25px_rgba(37,211,102,0.38)] transition active:scale-95"
->
-  <FaWhatsapp size={31} />
-</a>
-
-{mostrarConfirmacionCarrito && (
-  <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
-    <div className="flex flex-col items-center justify-center rounded-[28px] bg-white/95 px-7 py-6 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md animate-[confirmacionCarrito_0.9s_ease-out]">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#173F2A] text-white shadow-[0_10px_25px_rgba(23,63,42,0.35)]">
-        <span className="text-[34px] font-black leading-none">✓</span>
-      </div>
-
-      <p className="mt-3 text-[14px] font-black text-[#173F2A]">
-        Producto agregado
-      </p>
-    </div>
-  </div>
-)}
-
-{/* [Carrito] */}
-
-{carritoAbierto && (
-  <div
-  onClick={() => setCarritoAbierto(false)}
-  className="fixed inset-0 z-[110] bg-black/45 backdrop-blur-[2px]"
->
-    <div
-  onClick={(e) => e.stopPropagation()}
-  className="absolute right-0 top-0 flex h-full w-[92%] max-w-[390px] flex-col rounded-l-[30px] bg-white shadow-[0_0_45px_rgba(0,0,0,0.28)]"
->
-      <div className="flex items-center justify-between px-4 pt-4 pb-3">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-gray-400">
-            Tu pedido
-          </p>
-
-          <h2 className="mt-0.5 text-[22px] font-black tracking-[-0.05em] text-[#173F2A]">
-            Carrito
-          </h2>
-
-          <p className="mt-0.5 text-[10px] font-bold text-gray-500">
-            {carrito.length} producto{carrito.length === 1 ? "" : "s"}
-          </p>
-        </div>
-
-        <button
-          onClick={() => setCarritoAbierto(false)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF1EA] text-xl font-light text-[#173F2A]"
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="mx-4 h-px bg-gray-100" />
-
-      {carrito.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF1EA] text-[#173F2A]">
-            <ShoppingCart size={30} strokeWidth={2.2} />
-          </div>
-
-          <h3 className="mt-4 text-[18px] font-black tracking-[-0.04em] text-[#173F2A]">
-            Tu carrito está vacío
-          </h3>
-
-          <p className="mt-2 text-[11px] font-semibold leading-relaxed text-gray-500">
-            Agregá productos al pedido y después lo enviás por WhatsApp.
-          </p>
-
-          <button
-            onClick={() => setCarritoAbierto(false)}
-            className="mt-5 rounded-full bg-[#173F2A] px-5 py-2.5 text-[11px] font-black text-white shadow-[0_10px_24px_rgba(23,63,42,0.25)] active:scale-95"
-          >
-            Seguir comprando
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="flex-1 overflow-y-auto px-3 py-3">
-            <div className="space-y-2.5">
-              {carrito.map((item) => (
-                <div
-                  key={item.clave}
-                  className="relative rounded-[18px] bg-white p-2.5 shadow-[0_6px_18px_rgba(0,0,0,0.07)] ring-1 ring-gray-100"
-                >
-                  <button
-                    onClick={() =>
-                      setCarrito((actual) =>
-                        actual.filter((producto) => producto.clave !== item.clave)
-                      )
-                    }
-                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-lg font-light text-gray-500"
-                  >
-                    ×
-                  </button>
-
-                  <div className="grid grid-cols-[30%_70%] gap-2.5">
-                    <div className="relative flex aspect-square items-end justify-center rounded-2xl bg-[#F4F1EA] p-1.5">
-                      {item.marca && (
-                        <span className="absolute left-1.5 top-1.5 max-w-[54px] truncate rounded-full bg-white px-1.5 py-[2px] text-[7px] font-black text-[#173F2A] shadow">
-                          {item.marca}
-                        </span>
-                      )}
-
-                      {item.imagen && (
-                        <img
-                          src={item.imagen}
-                          alt={item.nombre}
-                          className="h-[82%] w-[82%] object-contain"
-                        />
-                      )}
-                    </div>
-
-                    <div className="pr-7">
-                      <h3 className="line-clamp-2 text-[12px] font-black leading-tight text-[#173F2A]">
-                        {item.nombre}
-                      </h3>
-
-                      {item.linea && (
-                        <p className="mt-0.5 truncate text-[9px] font-bold text-gray-500">
-                          {item.linea}
-                        </p>
-                      )}
-
-                      <div className="mt-1.5 space-y-0.5">
-                        {item.tamano && (
-                          <p className="text-[9px] font-bold text-gray-500">
-                            Tamaño:{" "}
-                            <span className="text-[#173F2A]">{item.tamano}</span>
-                          </p>
-                        )}
-
-                        {item.variante && (
-                          <p className="text-[9px] font-bold text-gray-500">
-                            {item.tipoVariante}:{" "}
-                            <span className="text-[#173F2A]">
-                              {item.variante}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <p className="text-[14px] font-black text-[#173F2A]">
-                          ${formatoPrecio(item.precio * item.cantidad)}
-                        </p>
-
-                        <div className="flex h-7 items-center gap-2 rounded-full bg-white px-2.5 shadow ring-1 ring-gray-100">
-                          <button
-                            onClick={() =>
-                              setCarrito((actual) =>
-                                actual.map((producto) =>
-                                  producto.clave === item.clave
-                                    ? {
-                                        ...producto,
-                                        cantidad: Math.max(
-                                          1,
-                                          producto.cantidad - 1
-                                        ),
-                                      }
-                                    : producto
-                                )
-                              )
-                            }
-                            className="text-[14px] font-black text-[#173F2A]"
-                          >
-                            -
-                          </button>
-
-                          <span className="text-[11px] font-black text-[#173F2A]">
-                            {item.cantidad}
-                          </span>
-
-                          <button
-                            onClick={() =>
-                              setCarrito((actual) =>
-                                actual.map((producto) =>
-                                  producto.clave === item.clave
-                                    ? {
-                                        ...producto,
-                                        cantidad: producto.cantidad + 1,
-                                      }
-                                    : producto
-                                )
-                              )
-                            }
-                            className="text-[14px] font-black text-[#173F2A]"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-3 rounded-[18px] bg-white p-3 shadow-[0_6px_18px_rgba(0,0,0,0.07)] ring-1 ring-gray-100">
-              <div className="flex items-center justify-between text-[11px] font-bold text-gray-500">
-                <span>Subtotal</span>
-                <span>
-                  $
-                  {formatoPrecio(
-                    carrito.reduce(
-                      (total, item) => total + item.precio * item.cantidad,
-                      0
-                    )
-                  )}
-                </span>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between text-[11px] font-bold text-gray-500">
-                <span>Envío</span>
-                <span className="text-[#173F2A]">A coordinar</span>
-              </div>
-
-              {carrito.reduce(
-                (total, item) => total + (item.ahorro || 0) * item.cantidad,
-                0
-              ) > 0 && (
-                <>
-                  <div className="my-3 border-t border-dashed border-gray-200" />
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-black text-green-700">
-                      🏷 Ahorrás en este pedido
-                    </span>
-
-                    <span className="rounded-full bg-green-50 px-2.5 py-1 text-[10px] font-black text-green-700">
-                      -$
-                      {formatoPrecio(
-                        carrito.reduce(
-                          (total, item) =>
-                            total + (item.ahorro || 0) * item.cantidad,
-                          0
-                        )
-                      )}
-                    </span>
-                  </div>
-                </>
-              )}
-
-              <div className="my-3 h-px bg-gray-100" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-black text-[#173F2A]">
-                  Total
-                </span>
-
-                <span className="text-[18px] font-black text-[#173F2A]">
-                  $
-                  {formatoPrecio(
-                    carrito.reduce(
-                      (total, item) => total + item.precio * item.cantidad,
-                      0
-                    )
-                  )}
-                </span>
-              </div>
-
-              {carrito.reduce(
-                (total, item) => total + (item.ahorro || 0) * item.cantidad,
-                0
-              ) > 0 && (
-                <p className="mt-2 text-[9px] font-semibold text-gray-500">
-                  ✓ Precios de oferta aplicados
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="px-3 pb-3">
-            <a
-              href={`https://wa.me/5491123193387?text=${encodeURIComponent(
-  `Hola! Quiero hacer este pedido:\n\n${carrito
-    .map(
-      (item, index) =>
-        `${index + 1}) ${item.nombre}${
-          item.linea ? `\n   Línea: ${item.linea}` : ""
-        }\n   Marca: ${item.marca || "-"}\n   Tamaño: ${
-          item.tamano || "-"
-        }\n   ${item.tipoVariante}: ${
-          item.variante || "-"
-        }\n   Cantidad: ${item.cantidad}\n   Precio unitario: $${formatoPrecio(
-          item.precio
-        )}\n   Subtotal: $${formatoPrecio(item.precio * item.cantidad)}`
-    )
-    .join("\n\n")}\n\nTotal del pedido: $${formatoPrecio(
-    carrito.reduce((total, item) => total + item.precio * item.cantidad, 0)
-  )}\n\nMi direccion es:`
-)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2.5 rounded-[18px] bg-[#128C3A] p-3 text-white shadow-[0_10px_22px_rgba(18,140,58,0.25)] active:scale-[0.98]"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/18">
-                <FaWhatsapp size={22} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-950 text-white shadow-sm">
+                <span className="relative -top-[2px] text-[16px] font-bold leading-none">
+                  ←
+                </span>
               </div>
 
-              <div className="flex-1">
-                <p className="text-[12px] font-black">
-                  Finalizar por WhatsApp
-                </p>
-
-                <p className="mt-0.5 text-[9px] font-semibold text-white/80">
-                  Confirmar pedido y coordinar.
-                </p>
-              </div>
-
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[17px] font-black text-[#128C3A]">
-                →
-              </div>
-            </a>
-          </div>
+              <span className="pr-2 text-[13px] font-extrabold tracking-[-0.02em] text-blue-950">
+                Volver
+              </span>
+            </button>
+          )}
         </>
       )}
 
-      <div className="px-4 pb-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2 rounded-[18px] bg-[#F4F1EA] px-3 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#173F2A] shadow-sm">
-              <Truck size={18} strokeWidth={2.3} />
-            </div>
+      {/* [Carrito flotante + WhatsApp] */}
 
-            <div>
-              <p className="text-[10px] font-black leading-tight text-[#173F2A]">
-                Envíos rápidos
-              </p>
-
-              <p className="mt-0.5 text-[8px] font-semibold leading-tight text-gray-500">
-                Hasta tu domicilio
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-[18px] bg-[#F4F1EA] px-3 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#173F2A] shadow-sm">
-              <CreditCard size={18} strokeWidth={2.3} />
-            </div>
-
-            <div>
-              <p className="text-[10px] font-black leading-tight text-[#173F2A]">
-                Medios de pago
-              </p>
-
-              <p className="mt-0.5 text-[8px] font-semibold leading-tight text-gray-500">
-                Efectivo y tarjetas
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-{/* [Menú lateral] */}
-
-{menuAbierto && (
-  <div
-  onClick={() => setMenuAbierto(false)}
-  className="fixed inset-0 z-[140] bg-black/45 backdrop-blur-[2px]"
->
-    <div
-  onClick={(e) => e.stopPropagation()}
-  className="absolute left-0 top-0 flex h-full w-[82%] max-w-[335px] flex-col overflow-hidden rounded-r-[28px] bg-[#F7FAFF] shadow-[0_0_40px_rgba(0,0,0,0.28)]"
->
-      <div className="relative overflow-hidden rounded-br-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
-        <img
-          src="/banners/menu.png"
-          alt="A Todo Trapo"
-          className="h-[178px] w-full object-cover"
-        />
-
-        <button
-          onClick={() => setMenuAbierto(false)}
-          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[28px] font-light text-[#123A72] shadow-lg backdrop-blur-md transition active:scale-95"
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="space-y-2.5">
+      {!carritoAbierto && !menuAbierto && !ubicacionAbierta && (
+        <>
           <button
-            onClick={() => {
-              setCategoriaActiva("Inicio");
-              setSubcategoriaActiva("Todas");
-              setMenuAbierto(false);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50"
+            type="button"
+            onClick={() => setCarritoAbierto(true)}
+            aria-label="Abrir carrito"
+            className={`fixed right-4 z-[80] flex h-[56px] w-[56px] items-center justify-center rounded-full bg-[#111827] text-white shadow-[0_12px_30px_rgba(0,0,0,0.34)] ring-1 ring-white/15 transition-all duration-200 active:scale-90 ${
+              calculadoraAbierta ? "bottom-[222px]" : "bottom-[84px]"
+            }`}
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
-              <Home size={21} />
-            </div>
+            <ShoppingCart
+              size={29}
+              strokeWidth={2.5}
+              className={
+                productoAgregado ? "animate-[reboteCarrito_0.35s_ease-out]" : ""
+              }
+            />
 
-            <div className="flex-1">
-              <p className="text-[13px] font-black text-[#123A72]">Inicio</p>
-              <p className="text-[10px] font-semibold text-gray-500">
-                Volver al inicio
-              </p>
-            </div>
-
-            <span className="text-xl text-[#123A72]/45">›</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setCarritoAbierto(true);
-              setMenuAbierto(false);
-            }}
-            className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50"
-          >
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
-              <ShoppingCart size={21} />
-
-              {cantidadCarrito > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#EF3B46] px-1 text-[8px] font-black text-white">
-                  {cantidadCarrito}
-                </span>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <p className="text-[13px] font-black text-[#123A72]">
-                Mi pedido
-              </p>
-              <p className="text-[10px] font-semibold text-gray-500">
-                Revisá tu carrito
-              </p>
-            </div>
-
-            <span className="text-xl text-[#123A72]/45">›</span>
+            {cantidadCarrito > 0 && (
+              <span
+                key={cantidadCarrito}
+                className="absolute -right-1 -top-1 flex h-5 min-w-5 animate-[reboteCarrito_0.35s_ease-out] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white shadow-lg ring-2 ring-white"
+              >
+                {cantidadCarrito}
+              </span>
+            )}
           </button>
 
           <a
-  href="https://www.instagram.com/atodo_trapo01/?hl=es"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50 transition active:scale-[0.98]"
->
-  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F3EDFF] text-[#8A3AB9]">
-    <FaInstagram size={22} />
-  </div>
+            href="https://wa.me/5491123193387"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Abrir WhatsApp"
+            className={`fixed right-4 z-[80] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_25px_rgba(37,211,102,0.38)] transition active:scale-95 ${
+              calculadoraAbierta ? "bottom-[158px]" : "bottom-5"
+            }`}
+          >
+            <FaWhatsapp size={31} />
+          </a>
+        </>
+      )}
 
-  <div className="flex-1">
-    <p className="text-[13px] font-black text-[#123A72]">
-      Instagram
-    </p>
-  </div>
+      {mostrarConfirmacionCarrito && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center justify-center rounded-[28px] bg-white/95 px-7 py-6 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md animate-[confirmacionCarrito_0.9s_ease-out]">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#173F2A] text-white shadow-[0_10px_25px_rgba(23,63,42,0.35)]">
+              <span className="text-[34px] font-black leading-none">✓</span>
+            </div>
 
-  <span className="text-xl text-[#123A72]/45">›</span>
-</a>
-
-          <button
-  onClick={() => {
-    setMenuAbierto(false);
-    setUbicacionAbierta(true);
-  }}
-  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50 transition active:scale-[0.98]"
->
-  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
-    <MapPin size={21} />
-  </div>
-
-  <div className="flex-1">
-    <p className="text-[13px] font-black text-[#123A72]">
-      Horarios y ubicación
-    </p>
-
-    <p className="text-[10px] font-semibold text-gray-500">
-      Candelaria, Misiones
-    </p>
-  </div>
-
-  <span className="text-xl text-[#123A72]/45">
-    ›
-  </span>
-</button>
-        </div>
-
-        <div className="mt-5 rounded-[24px] bg-[#081B43] p-5 text-white shadow-[0_18px_40px_rgba(8,27,67,0.35)]">
-  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#F8A400]">
-    PARA NEGOCIOS
-  </p>
-
-  <h3 className="mt-3 text-[24px] font-black leading-tight tracking-[-0.04em]">
-    ¿Te gustó esta página?
-  </h3>
-
-  <p className="mt-3 text-[12px] leading-relaxed text-white/75">
-    Diseñamos páginas web modernas para negocios, comercios y empresas.
-  </p>
-
-  <a
-    href="https://wa.me/5491123193387?text=Hola!%20Quiero%20consultar%20por%20una%20p%C3%A1gina%20web%20para%20mi%20negocio."
-    target="_blank"
-    rel="noopener noreferrer"
-    className="mt-5 inline-flex h-11 items-center gap-3 rounded-full bg-[#F8A400] px-6 text-[12px] font-black text-[#081B43] shadow-[0_10px_24px_rgba(248,164,0,0.28)] transition active:scale-95"
-  >
-    Solicitar información
-
-    <span className="text-lg">→</span>
-  </a>
-</div>
-</div>
-
-<div className="px-4 pb-4">
-  <div className="rounded-[20px] bg-white px-4 py-3 text-center shadow-sm ring-1 ring-blue-50">
-    <p className="text-[12px] font-black text-[#123A72]">
-      Gracias por elegirnos 💙
-    </p>
-  </div>
-</div>
-    </div>
-  </div>
-)}
-
-{/* [Horarios y ubicación] */}
-
-{ubicacionAbierta && (
-  <div
-  onClick={() => setUbicacionAbierta(false)}
-  className="fixed inset-0 z-[150] flex items-end bg-black/45 backdrop-blur-[2px]"
->
-    <div
-  onClick={(e) => e.stopPropagation()}
-  className="w-full rounded-t-[28px] bg-[#F7FAFF] px-4 pt-3 pb-4 shadow-[0_-10px_35px_rgba(0,0,0,0.20)]"
->
-      <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
-
-      <button
-        onClick={() => setUbicacionAbierta(false)}
-        className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#123A72] shadow"
-      >
-        ×
-      </button>
-
-      <div className="flex items-center gap-3 pr-10">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
-          <MapPin size={23} />
-        </div>
-
-        <div>
-          <h2 className="text-[18px] font-black leading-tight text-[#123A72]">
-            Horarios y ubicación
-          </h2>
-          <p className="text-[10px] font-semibold text-gray-500">
-            Candelaria, Misiones
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-blue-50">
-          <p className="text-[11px] font-black text-[#123A72]">
-            Lun a Sáb
-          </p>
-          <p className="mt-1 text-[10px] font-semibold text-gray-500">
-            8:00 - 12:00
-          </p>
-          <p className="text-[10px] font-semibold text-gray-500">
-            16:00 - 19:15
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-blue-50">
-          <p className="text-[11px] font-black text-[#123A72]">
-            Domingo
-          </p>
-          <p className="mt-1 text-[10px] font-semibold text-gray-500">
-            9:30 - 12:00
-          </p>
-          <p className="text-[10px] font-semibold text-gray-400">
-            Feriados consultar
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-3 overflow-hidden rounded-[20px] bg-white shadow-sm ring-1 ring-blue-50">
-        <div className="grid grid-cols-[52%_48%]">
-          <div className="p-4">
-            <p className="text-[13px] font-black text-[#123A72]">
-              A Todo Trapo
+            <p className="mt-3 text-[14px] font-black text-[#173F2A]">
+              Producto agregado
             </p>
+          </div>
+        </div>
+      )}
 
-            <p className="mt-1 text-[10px] font-semibold leading-tight text-gray-500">
-              Anastacio Cabrera y San Martín
-<br />
-Candelaria, Misiones
-            </p>
+      {/* [Carrito] */}
+
+      {carritoAbierto && (
+        <div
+          onClick={() => setCarritoAbierto(false)}
+          className="fixed inset-0 z-[110] bg-black/45 backdrop-blur-[2px]"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute right-0 top-0 flex h-full w-[92%] max-w-[390px] flex-col rounded-l-[30px] bg-white shadow-[0_0_45px_rgba(0,0,0,0.28)]"
+          >
+            <div className="flex items-center justify-between px-4 pt-4 pb-3">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-gray-400">
+                  Tu pedido
+                </p>
+
+                <h2 className="mt-0.5 text-[22px] font-black tracking-[-0.05em] text-[#173F2A]">
+                  Carrito
+                </h2>
+
+                <p className="mt-0.5 text-[10px] font-bold text-gray-500">
+                  {carrito.length} producto{carrito.length === 1 ? "" : "s"}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setCarritoAbierto(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF1EA] text-xl font-light text-[#173F2A]"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mx-4 h-px bg-gray-100" />
+
+            {carrito.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF1EA] text-[#173F2A]">
+                  <ShoppingCart size={30} strokeWidth={2.2} />
+                </div>
+
+                <h3 className="mt-4 text-[18px] font-black tracking-[-0.04em] text-[#173F2A]">
+                  Tu carrito está vacío
+                </h3>
+
+                <p className="mt-2 text-[11px] font-semibold leading-relaxed text-gray-500">
+                  Agregá productos al pedido y después lo enviás por WhatsApp.
+                </p>
+
+                <button
+                  onClick={() => setCarritoAbierto(false)}
+                  className="mt-5 rounded-full bg-[#173F2A] px-5 py-2.5 text-[11px] font-black text-white shadow-[0_10px_24px_rgba(23,63,42,0.25)] active:scale-95"
+                >
+                  Seguir comprando
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto px-3 py-3">
+                  <div className="space-y-2.5">
+                    {carrito.map((item) => (
+                      <div
+                        key={item.clave}
+                        className="relative rounded-[18px] bg-white p-2.5 shadow-[0_6px_18px_rgba(0,0,0,0.07)] ring-1 ring-gray-100"
+                      >
+                        <button
+                          onClick={() =>
+                            setCarrito((actual) =>
+                              actual.filter(
+                                (producto) => producto.clave !== item.clave,
+                              ),
+                            )
+                          }
+                          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-lg font-light text-gray-500"
+                        >
+                          ×
+                        </button>
+
+                        <div className="grid grid-cols-[30%_70%] gap-2.5">
+                          <div className="relative flex aspect-square items-end justify-center rounded-2xl bg-[#F4F1EA] p-1.5">
+                            {item.marca && (
+                              <span className="absolute left-1.5 top-1.5 max-w-[54px] truncate rounded-full bg-white px-1.5 py-[2px] text-[7px] font-black text-[#173F2A] shadow">
+                                {item.marca}
+                              </span>
+                            )}
+
+                            {item.imagen && (
+                              <img
+                                src={item.imagen}
+                                alt={item.nombre}
+                                className="h-[82%] w-[82%] object-contain"
+                              />
+                            )}
+                          </div>
+
+                          <div className="pr-7">
+                            <h3 className="line-clamp-2 text-[12px] font-black leading-tight text-[#173F2A]">
+                              {item.nombre}
+                            </h3>
+
+                            {item.linea && (
+                              <p className="mt-0.5 truncate text-[9px] font-bold text-gray-500">
+                                {item.linea}
+                              </p>
+                            )}
+
+                            <div className="mt-1.5 space-y-0.5">
+                              {item.tamano && (
+                                <p className="text-[9px] font-bold text-gray-500">
+                                  Tamaño:{" "}
+                                  <span className="text-[#173F2A]">
+                                    {item.tamano}
+                                  </span>
+                                </p>
+                              )}
+
+                              {item.variante && (
+                                <p className="text-[9px] font-bold text-gray-500">
+                                  {item.tipoVariante}:{" "}
+                                  <span className="text-[#173F2A]">
+                                    {item.variante}
+                                  </span>
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <p className="text-[14px] font-black text-[#173F2A]">
+                                ${formatoPrecio(item.precio * item.cantidad)}
+                              </p>
+
+                              <div className="flex h-7 items-center gap-2 rounded-full bg-white px-2.5 shadow ring-1 ring-gray-100">
+                                <button
+                                  onClick={() =>
+                                    setCarrito((actual) =>
+                                      actual.map((producto) =>
+                                        producto.clave === item.clave
+                                          ? {
+                                              ...producto,
+                                              cantidad: Math.max(
+                                                1,
+                                                producto.cantidad - 1,
+                                              ),
+                                            }
+                                          : producto,
+                                      ),
+                                    )
+                                  }
+                                  className="text-[14px] font-black text-[#173F2A]"
+                                >
+                                  -
+                                </button>
+
+                                <span className="text-[11px] font-black text-[#173F2A]">
+                                  {item.cantidad}
+                                </span>
+
+                                <button
+                                  onClick={() =>
+                                    setCarrito((actual) =>
+                                      actual.map((producto) =>
+                                        producto.clave === item.clave
+                                          ? {
+                                              ...producto,
+                                              cantidad: producto.cantidad + 1,
+                                            }
+                                          : producto,
+                                      ),
+                                    )
+                                  }
+                                  className="text-[14px] font-black text-[#173F2A]"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 rounded-[18px] bg-white p-3 shadow-[0_6px_18px_rgba(0,0,0,0.07)] ring-1 ring-gray-100">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-gray-500">
+                      <span>Subtotal</span>
+                      <span>
+                        $
+                        {formatoPrecio(
+                          carrito.reduce(
+                            (total, item) =>
+                              total + item.precio * item.cantidad,
+                            0,
+                          ),
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-center justify-between text-[11px] font-bold text-gray-500">
+                      <span>Envío</span>
+                      <span className="text-[#173F2A]">A coordinar</span>
+                    </div>
+
+                    {carrito.reduce(
+                      (total, item) =>
+                        total + (item.ahorro || 0) * item.cantidad,
+                      0,
+                    ) > 0 && (
+                      <>
+                        <div className="my-3 border-t border-dashed border-gray-200" />
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-black text-green-700">
+                            🏷 Ahorrás en este pedido
+                          </span>
+
+                          <span className="rounded-full bg-green-50 px-2.5 py-1 text-[10px] font-black text-green-700">
+                            -$
+                            {formatoPrecio(
+                              carrito.reduce(
+                                (total, item) =>
+                                  total + (item.ahorro || 0) * item.cantidad,
+                                0,
+                              ),
+                            )}
+                          </span>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="my-3 h-px bg-gray-100" />
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-[13px] font-black text-[#173F2A]">
+                        Total
+                      </span>
+
+                      <span className="text-[18px] font-black text-[#173F2A]">
+                        $
+                        {formatoPrecio(
+                          carrito.reduce(
+                            (total, item) =>
+                              total + item.precio * item.cantidad,
+                            0,
+                          ),
+                        )}
+                      </span>
+                    </div>
+
+                    {carrito.reduce(
+                      (total, item) =>
+                        total + (item.ahorro || 0) * item.cantidad,
+                      0,
+                    ) > 0 && (
+                      <p className="mt-2 text-[9px] font-semibold text-gray-500">
+                        ✓ Precios de oferta aplicados
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="px-3 pb-3">
+                  <a
+                    href={`https://wa.me/5491123193387?text=${encodeURIComponent(
+                      `Hola! Quiero hacer este pedido:\n\n${carrito
+                        .map(
+                          (item, index) =>
+                            `${index + 1}) ${item.nombre}${
+                              item.linea ? `\n   Línea: ${item.linea}` : ""
+                            }\n   Marca: ${item.marca || "-"}\n   Tamaño: ${
+                              item.tamano || "-"
+                            }\n   ${item.tipoVariante}: ${
+                              item.variante || "-"
+                            }\n   Cantidad: ${item.cantidad}\n   Precio unitario: $${formatoPrecio(
+                              item.precio,
+                            )}\n   Subtotal: $${formatoPrecio(item.precio * item.cantidad)}`,
+                        )
+                        .join("\n\n")}\n\nTotal del pedido: $${formatoPrecio(
+                        carrito.reduce(
+                          (total, item) => total + item.precio * item.cantidad,
+                          0,
+                        ),
+                      )}\n\nMi direccion es:`,
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 rounded-[18px] bg-[#128C3A] p-3 text-white shadow-[0_10px_22px_rgba(18,140,58,0.25)] active:scale-[0.98]"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/18">
+                      <FaWhatsapp size={22} />
+                    </div>
+
+                    <div className="flex-1">
+                      <p className="text-[12px] font-black">
+                        Finalizar por WhatsApp
+                      </p>
+
+                      <p className="mt-0.5 text-[9px] font-semibold text-white/80">
+                        Confirmar pedido y coordinar.
+                      </p>
+                    </div>
+
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[17px] font-black text-[#128C3A]">
+                      →
+                    </div>
+                  </a>
+                </div>
+              </>
+            )}
+
+            <div className="px-4 pb-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 rounded-[18px] bg-[#F4F1EA] px-3 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#173F2A] shadow-sm">
+                    <Truck size={18} strokeWidth={2.3} />
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-black leading-tight text-[#173F2A]">
+                      Envíos rápidos
+                    </p>
+
+                    <p className="mt-0.5 text-[8px] font-semibold leading-tight text-gray-500">
+                      Hasta tu domicilio
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-[18px] bg-[#F4F1EA] px-3 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#173F2A] shadow-sm">
+                    <CreditCard size={18} strokeWidth={2.3} />
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-black leading-tight text-[#173F2A]">
+                      Medios de pago
+                    </p>
+
+                    <p className="mt-0.5 text-[8px] font-semibold leading-tight text-gray-500">
+                      Efectivo y tarjetas
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [Menú lateral] */}
+
+      {menuAbierto && (
+        <div
+          onClick={() => setMenuAbierto(false)}
+          className="fixed inset-0 z-[140] bg-black/45 backdrop-blur-[2px]"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute left-0 top-0 flex h-full w-[82%] max-w-[335px] flex-col overflow-hidden rounded-r-[28px] bg-[#F7FAFF] shadow-[0_0_40px_rgba(0,0,0,0.28)]"
+          >
+            <div className="relative overflow-hidden rounded-br-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
+              <img
+                src="/banners/menu.png"
+                alt="A Todo Trapo"
+                className="h-[178px] w-full object-cover"
+              />
+
+              <button
+                onClick={() => setMenuAbierto(false)}
+                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[28px] font-light text-[#123A72] shadow-lg backdrop-blur-md transition active:scale-95"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => {
+                    setCategoriaActiva("Inicio");
+                    setSubcategoriaActiva("Todas");
+                    setMenuAbierto(false);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
+                    <Home size={21} />
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-[13px] font-black text-[#123A72]">
+                      Inicio
+                    </p>
+                    <p className="text-[10px] font-semibold text-gray-500">
+                      Volver al inicio
+                    </p>
+                  </div>
+
+                  <span className="text-xl text-[#123A72]/45">›</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCarritoAbierto(true);
+                    setMenuAbierto(false);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50"
+                >
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
+                    <ShoppingCart size={21} />
+
+                    {cantidadCarrito > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#EF3B46] px-1 text-[8px] font-black text-white">
+                        {cantidadCarrito}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-[13px] font-black text-[#123A72]">
+                      Mi pedido
+                    </p>
+                    <p className="text-[10px] font-semibold text-gray-500">
+                      Revisá tu carrito
+                    </p>
+                  </div>
+
+                  <span className="text-xl text-[#123A72]/45">›</span>
+                </button>
+
+                <a
+                  href="https://www.instagram.com/atodo_trapo01/?hl=es"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50 transition active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F3EDFF] text-[#8A3AB9]">
+                    <FaInstagram size={22} />
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-[13px] font-black text-[#123A72]">
+                      Instagram
+                    </p>
+                  </div>
+
+                  <span className="text-xl text-[#123A72]/45">›</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    setMenuAbierto(false);
+                    setUbicacionAbierta(true);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50 transition active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
+                    <MapPin size={21} />
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-[13px] font-black text-[#123A72]">
+                      Horarios y ubicación
+                    </p>
+
+                    <p className="text-[10px] font-semibold text-gray-500">
+                      Candelaria, Misiones
+                    </p>
+                  </div>
+
+                  <span className="text-xl text-[#123A72]/45">›</span>
+                </button>
+              </div>
+
+              <div className="mt-5 rounded-[24px] bg-[#081B43] p-5 text-white shadow-[0_18px_40px_rgba(8,27,67,0.35)]">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#F8A400]">
+                  PARA NEGOCIOS
+                </p>
+
+                <h3 className="mt-3 text-[24px] font-black leading-tight tracking-[-0.04em]">
+                  ¿Te gustó esta página?
+                </h3>
+
+                <p className="mt-3 text-[12px] leading-relaxed text-white/75">
+                  Diseñamos páginas web modernas para negocios, comercios y
+                  empresas.
+                </p>
+
+                <a
+                  href="https://wa.me/5491123193387?text=Hola!%20Quiero%20consultar%20por%20una%20p%C3%A1gina%20web%20para%20mi%20negocio."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex h-11 items-center gap-3 rounded-full bg-[#F8A400] px-6 text-[12px] font-black text-[#081B43] shadow-[0_10px_24px_rgba(248,164,0,0.28)] transition active:scale-95"
+                >
+                  Solicitar información
+                  <span className="text-lg">→</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="px-4 pb-4">
+              <div className="rounded-[20px] bg-white px-4 py-3 text-center shadow-sm ring-1 ring-blue-50">
+                <p className="text-[12px] font-black text-[#123A72]">
+                  Gracias por elegirnos 💙
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [Horarios y ubicación] */}
+
+      {ubicacionAbierta && (
+        <div
+          onClick={() => setUbicacionAbierta(false)}
+          className="fixed inset-0 z-[150] flex items-end bg-black/45 backdrop-blur-[2px]"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full rounded-t-[28px] bg-[#F7FAFF] px-4 pt-3 pb-4 shadow-[0_-10px_35px_rgba(0,0,0,0.20)]"
+          >
+            <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
+
+            <button
+              onClick={() => setUbicacionAbierta(false)}
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#123A72] shadow"
+            >
+              ×
+            </button>
+
+            <div className="flex items-center gap-3 pr-10">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#123A72]">
+                <MapPin size={23} />
+              </div>
+
+              <div>
+                <h2 className="text-[18px] font-black leading-tight text-[#123A72]">
+                  Horarios y ubicación
+                </h2>
+                <p className="text-[10px] font-semibold text-gray-500">
+                  Candelaria, Misiones
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-blue-50">
+                <p className="text-[11px] font-black text-[#123A72]">
+                  Lun a Sáb
+                </p>
+                <p className="mt-1 text-[10px] font-semibold text-gray-500">
+                  8:00 - 12:00
+                </p>
+                <p className="text-[10px] font-semibold text-gray-500">
+                  16:00 - 19:15
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-blue-50">
+                <p className="text-[11px] font-black text-[#123A72]">Domingo</p>
+                <p className="mt-1 text-[10px] font-semibold text-gray-500">
+                  9:30 - 12:00
+                </p>
+                <p className="text-[10px] font-semibold text-gray-400">
+                  Feriados consultar
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-[20px] bg-white shadow-sm ring-1 ring-blue-50">
+              <div className="grid grid-cols-[52%_48%]">
+                <div className="p-4">
+                  <p className="text-[13px] font-black text-[#123A72]">
+                    A Todo Trapo
+                  </p>
+
+                  <p className="mt-1 text-[10px] font-semibold leading-tight text-gray-500">
+                    Anastacio Cabrera y San Martín
+                    <br />
+                    Candelaria, Misiones
+                  </p>
+
+                  <a
+                    href="https://maps.google.com/?q=Anastacio+Cabrera+y+San+Martin,+Candelaria,+Misiones,+Argentina+3308"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-full bg-[#EAF2FF] px-3 text-[10px] font-black text-[#123A72]"
+                  >
+                    <MapPin size={14} />
+                    Cómo llegar
+                  </a>
+                </div>
+
+                <iframe
+                  src="https://www.google.com/maps?q=Anastacio+Cabrera+y+San+Martin,+Candelaria,+Misiones,+Argentina+3308&output=embed"
+                  className="h-[135px] w-full border-0"
+                  loading="lazy"
+                />
+              </div>
+            </div>
 
             <a
-              href="https://maps.google.com/?q=Anastacio+Cabrera+y+San+Martin,+Candelaria,+Misiones,+Argentina+3308"
+              href="https://wa.me/5491123193387"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-full bg-[#EAF2FF] px-3 text-[10px] font-black text-[#123A72]"
+              className="mt-3 flex items-center gap-4 rounded-[20px] bg-[#081B43] px-5 py-4 text-white shadow-[0_10px_24px_rgba(8,27,67,0.22)]"
             >
-              <MapPin size={14} />
-              Cómo llegar
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F8A400] text-[#081B43]">
+                <FaWhatsapp size={22} />
+              </div>
+
+              <div>
+                <p className="text-[13px] font-black">
+                  ¿Tenés alguna consulta?
+                </p>
+
+                <p className="text-[10px] font-semibold text-white/70">
+                  Escribinos por WhatsApp
+                </p>
+              </div>
             </a>
           </div>
-
-          <iframe
-            src="https://www.google.com/maps?q=Anastacio+Cabrera+y+San+Martin,+Candelaria,+Misiones,+Argentina+3308&output=embed"
-            className="h-[135px] w-full border-0"
-            loading="lazy"
-          />
         </div>
-      </div>
-
-      <a
-  href="https://wa.me/5491123193387"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="mt-3 flex items-center gap-4 rounded-[20px] bg-[#081B43] px-5 py-4 text-white shadow-[0_10px_24px_rgba(8,27,67,0.22)]"
->
-  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F8A400] text-[#081B43]">
-    <FaWhatsapp size={22} />
-  </div>
-
-  <div>
-    <p className="text-[13px] font-black">
-      ¿Tenés alguna consulta?
-    </p>
-
-    <p className="text-[10px] font-semibold text-white/70">
-      Escribinos por WhatsApp
-    </p>
-  </div>
-</a>
-    </div>
-  </div>
-)}
-
-</main>
+      )}
+    </main>
   );
 }

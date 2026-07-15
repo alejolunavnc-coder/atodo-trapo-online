@@ -24,6 +24,8 @@ import CalculadoraPaso2, {type DatosPasoDos,} from "./CalculadoraPaso2";
 type CalculadoraPinturaProps = {
   onVolver: () => void;
   onVolverInicio: () => void;
+  onAbrirMenu?: () => void;
+  onAbrirCarrito?: () => void;
   onContinuar?: (datos: DatosPasoUno) => void;
   cantidadCarrito?: number;
   productos: Producto[];
@@ -197,6 +199,8 @@ function nombreSuperficie(
 export default function CalculadoraPintura({
   onVolver,
   onVolverInicio,
+  onAbrirMenu,
+  onAbrirCarrito,
   onContinuar,
   cantidadCarrito = 0,
   productos,
@@ -469,6 +473,8 @@ if (pasoActual === 2 && datosPasoUno) {
       onAgregarAlCarrito={onAgregarAlCarrito}
       onFinalizado={onFinalizado}
       onVolverInicio={onVolverInicio}
+      onAbrirMenu={onAbrirMenu}
+      onAbrirCarrito={onAbrirCarrito}
     />
   );
 }
@@ -481,6 +487,8 @@ if (pasoActual === 2 && datosPasoUno) {
 
 <MobileHeaderCompartido
   cantidadCarrito={cantidadCarrito}
+  onAbrirMenu={onAbrirMenu}
+  onAbrirCarrito={onAbrirCarrito}
   onVolverInicio={onVolverInicio}
   mostrarBeneficios={true}
 />

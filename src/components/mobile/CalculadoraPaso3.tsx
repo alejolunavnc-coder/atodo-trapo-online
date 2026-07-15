@@ -51,6 +51,8 @@ type CalculadoraPaso3Props = {
   ) => void;
   onFinalizado: () => void;
   onVolverInicio: () => void;
+  onAbrirMenu?: () => void;
+  onAbrirCarrito?: () => void;
 };
 
 function normalizarTexto(valor: unknown) {
@@ -327,6 +329,8 @@ export default function CalculadoraPaso3({
   onAgregarAlCarrito,
   onFinalizado,
   onVolverInicio,
+  onAbrirMenu,
+  onAbrirCarrito,
 }: CalculadoraPaso3Props) {
   const [agregando, setAgregando] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] =
@@ -455,6 +459,8 @@ export default function CalculadoraPaso3({
     <main className="min-h-screen bg-[#F7F9FC] pb-44 text-[#081B43]">
       <MobileHeaderCompartido
         cantidadCarrito={cantidadCarrito}
+        onAbrirMenu={onAbrirMenu}
+        onAbrirCarrito={onAbrirCarrito}
         onVolverInicio={onVolverInicio}
         mostrarBeneficios={true}
       />
