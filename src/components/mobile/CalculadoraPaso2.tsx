@@ -479,10 +479,36 @@ export default function CalculadoraPaso2({
 
 
   useEffect(() => {
-
     setCantidadManos(0);
 
+    if (!pinturaSeleccionada) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      manosRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
   }, [pinturaSeleccionada]);
+
+  useEffect(() => {
+    if (cantidadManos <= 0) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      resumenRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [cantidadManos]);
 
 function moverCarrusel(direccion: "izquierda" | "derecha") {
   const carrusel = carruselRef.current;
@@ -503,16 +529,7 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 }
 
   function seleccionarPintura(pintura: PinturaAgrupada) {
-
     setPinturaSeleccionadaId(pintura.id);
-
-    window.setTimeout(() => {
-      manosRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 150);
-
   }
 
 
@@ -983,7 +1000,11 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
           <section
             ref={manosRef}
-            className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]"
+            className={`rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition-all duration-300 ${
+              cantidadManos === 0
+                ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/25"
+                : "border-gray-100"
+            }`}
           >
 
             <div className="flex items-start gap-2">
@@ -1056,13 +1077,6 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
                     onClick={() => {
                       setCantidadManos(cantidad);
-
-                      window.setTimeout(() => {
-                        resumenRef.current?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                      }, 150);
                     }}
 
                     className={`flex h-11 items-center justify-center rounded-full border text-[13px] font-black transition active:scale-95 ${
@@ -1151,7 +1165,11 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
         <section
           ref={resumenRef}
-          className="rounded-[22px] border border-gray-100 bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)]"
+          className={`rounded-[22px] border bg-white p-3 shadow-[0_7px_20px_rgba(8,27,67,0.07)] transition-all duration-300 ${
+            cantidadManos > 0
+              ? "border-[#1F9D55] ring-2 ring-[#1F9D55]/25"
+              : "border-gray-100"
+          }`}
         >
 
           <div className="mb-3 flex items-center gap-2">
