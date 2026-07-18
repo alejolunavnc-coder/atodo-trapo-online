@@ -7,7 +7,7 @@ export const negocioConfig = {
   banners: [
     "/banners/banner.png",
     "/banners/banner2.png",
-    "/banners/banner-3.png",
-    "/banners/banner-4.png",
+    "/banners/banner3.png",
+    "/banners/banner4.png",
   ],
 };
