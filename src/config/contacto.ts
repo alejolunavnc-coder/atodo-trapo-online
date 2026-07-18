@@ -4,5 +4,5 @@ export const contactoConfig = {
     usuario: "@atodo_trapo01",
   },
 
-  whatsapp: "5491123193387",
+  whatsapp: "5493765225808",
 };
