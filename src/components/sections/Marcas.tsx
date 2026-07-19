@@ -175,8 +175,11 @@ export default function Marcas({
   };
 
   return (
-    <section id="seccion-marcas" className="pt-5 pb-7">
-      <div className="mx-auto max-w-7xl px-6">
+    <section
+  id="seccion-marcas"
+  className="w-full pb-7 pt-5"
+>
+  <div className="w-full">
         <div className="relative">
           {mostrarFlechaIzquierda && (
             <button

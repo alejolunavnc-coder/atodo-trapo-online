@@ -7,7 +7,7 @@ export default function DesktopCatalogSection({
 }: DesktopCatalogSectionProps) {
   return (
     <div className="bg-slate-50">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="mx-auto w-full max-w-7xl px-6">
         {children}
       </div>
     </div>
