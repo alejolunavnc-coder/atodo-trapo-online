@@ -1068,16 +1068,7 @@ export default function MobileHome() {
 
                     <div className="aspect-[16/7]" />
 
-                    <button
-                      onClick={() =>
-                        setBannerActual((actual) =>
-                          actual === 2 ? 0 : actual + 1,
-                        )
-                      }
-                      className="absolute bottom-3 left-5 rounded-full bg-white px-4 py-2 text-[10px] font-black text-[#123A72] shadow-lg transition active:scale-95"
-                    >
-                      Ver más
-                    </button>
+                  
 
                     <div className="absolute bottom-4 right-5 flex gap-2">
                       {[0, 1, 2].map((i) => (
@@ -1926,7 +1917,7 @@ export default function MobileHome() {
           </button>
 
           <a
-            href="https://wa.me/5491123193387"
+            href="https://wa.me/5493765225808"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Abrir WhatsApp"
@@ -2216,7 +2207,7 @@ export default function MobileHome() {
 
                 <div className="px-3 pb-3">
                   <a
-                    href={`https://wa.me/5491123193387?text=${encodeURIComponent(
+                    href={`https://wa.me/5493765225808?text=${encodeURIComponent(
                       `Hola! Quiero hacer este pedido:\n\n${carrito
                         .map(
                           (item, index) =>
@@ -2443,7 +2434,7 @@ export default function MobileHome() {
                 </p>
 
                 <a
-                  href="https://wa.me/5491123193387?text=Hola!%20Quiero%20consultar%20por%20una%20p%C3%A1gina%20web%20para%20mi%20negocio."
+                  href="https://wa.me/5493765225808?text=Hola!%20Quiero%20consultar%20por%20una%20p%C3%A1gina%20web%20para%20mi%20negocio."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-5 inline-flex h-11 items-center gap-3 rounded-full bg-[#F8A400] px-6 text-[12px] font-black text-[#081B43] shadow-[0_10px_24px_rgba(248,164,0,0.28)] transition active:scale-95"
@@ -2454,7 +2445,7 @@ export default function MobileHome() {
               </div>
             </div>
 
-            <div className="px-4 pb-4">
+            <div className="px-4 pt-2 pb-4">
               <div className="rounded-[20px] bg-white px-4 py-3 text-center shadow-sm ring-1 ring-blue-50">
                 <p className="text-[12px] font-black text-[#123A72]">
                   Gracias por elegirnos 💙
@@ -2557,7 +2548,7 @@ export default function MobileHome() {
             </div>
 
             <a
-              href="https://wa.me/5491123193387"
+              href="https://wa.me/5493765225808"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 flex items-center gap-4 rounded-[20px] bg-[#081B43] px-5 py-4 text-white shadow-[0_10px_24px_rgba(8,27,67,0.22)]"
