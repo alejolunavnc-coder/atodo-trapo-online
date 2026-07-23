@@ -7,6 +7,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import Image from "next/image";
 import Papa from "papaparse";
 import { FaInstagram } from "react-icons/fa";
+import BotonInstalarWeb from "./instalacion/BotonInstalarWeb";
 import {
   BadgeCheck,
   Bug,
@@ -1758,8 +1759,14 @@ export default function MobileHome() {
                     </div>
                   </div>
                 </div>
-              );
+                            );
             })()}
+
+          {/* [Instalar la web - solamente en Inicio] */}
+
+          {categoriaActiva === "Inicio" && !hayBusquedaMobile && (
+            <BotonInstalarWeb />
+          )}
 
           {/* [Beneficio inferior] */}
 
