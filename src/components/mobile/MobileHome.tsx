@@ -265,13 +265,37 @@ export default function MobileHome() {
 
   // [Funciones]
 
+  const singularizarPalabra = (palabra: string) => {
+    if (palabra.length <= 3) return palabra;
+
+    if (palabra.endsWith("ces") && palabra.length > 4) {
+      return `${palabra.slice(0, -3)}z`;
+    }
+
+    if (palabra.endsWith("es") && palabra.length > 4) {
+      return palabra.slice(0, -2);
+    }
+
+    if (palabra.endsWith("s") && palabra.length > 3) {
+      return palabra.slice(0, -1);
+    }
+
+    return palabra;
+  };
+
   const normalizarTexto = (valor: any) =>
     String(valor || "")
       .replace(/^\uFEFF/, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
       .trim()
-      .toLowerCase();
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map(singularizarPalabra)
+      .join(" ");
 
   const tieneOferta = (producto: Producto) => {
     const precio = precioNumero(producto.Precio);
@@ -676,16 +700,32 @@ export default function MobileHome() {
   });
 
   const hayBusquedaMobile = busquedaMobile.trim() !== "";
-  const productosBuscadosMobile = busquedaMobile.trim()
-    ? productos.filter((producto) => {
-        const textoBusqueda = normalizarTexto(busquedaMobile);
 
-        return (
-          normalizarTexto(producto.Nombre).includes(textoBusqueda) ||
-          normalizarTexto(producto.Marca).includes(textoBusqueda) ||
-          normalizarTexto((producto as any).Linea).includes(textoBusqueda) ||
-          normalizarTexto(producto.Categoría).includes(textoBusqueda) ||
-          normalizarTexto(producto.Subcategoría).includes(textoBusqueda)
+  const productosBuscadosMobile = hayBusquedaMobile
+    ? productos.filter((producto) => {
+        const palabrasBuscadas = normalizarTexto(busquedaMobile)
+          .split(" ")
+          .filter(Boolean);
+
+        const textoProducto = normalizarTexto(
+          [
+            producto.Nombre,
+            producto.Marca,
+            (producto as any).Linea,
+            producto.Categoría,
+            producto.Subcategoría,
+            producto.Tamaño,
+            producto.Color,
+            producto.Fragancias,
+            (producto as any).Aromas,
+            (producto as any).Aroma,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        );
+
+        return palabrasBuscadas.every((palabra) =>
+          textoProducto.includes(palabra),
         );
       })
     : productosFiltradosMobile;
@@ -849,6 +889,35 @@ export default function MobileHome() {
   const finalizarCalculadora = () => {
     volverAlInicioGlobal();
   };
+
+  const totalCarritoMobile = carrito.reduce(
+    (total, item) => total + item.precio * item.cantidad,
+    0,
+  );
+
+  const mensajeWhatsAppCarrito =
+    "Hola! Quiero hacer este pedido:\n\n" +
+    carrito
+      .map((item, index) => {
+        const nombreProducto = [item.marca, item.nombre]
+          .map((valor) => String(valor || "").trim())
+          .filter(Boolean)
+          .join(" - ");
+
+        const detalles = [item.linea, item.tamano, item.variante]
+          .map((valor) => String(valor || "").trim())
+          .filter(Boolean);
+
+        return (
+          `${index + 1}) ${nombreProducto}` +
+          `${detalles.length > 0 ? `\n   ${detalles.join(" · ")}` : ""}` +
+          `\n   Cantidad: ${item.cantidad}` +
+          `\n   Subtotal: $${formatoPrecio(item.precio * item.cantidad)}`
+        );
+      })
+      .join("\n\n") +
+    `\n\nTotal del pedido: $${formatoPrecio(totalCarritoMobile)}` +
+    "\n\nMi dirección es:";
 
   // [Vista calculadora]
 
@@ -2208,25 +2277,7 @@ export default function MobileHome() {
                 <div className="px-3 pb-3">
                   <a
                     href={`https://wa.me/5493765225808?text=${encodeURIComponent(
-                      `Hola! Quiero hacer este pedido:\n\n${carrito
-                        .map(
-                          (item, index) =>
-                            `${index + 1}) ${item.nombre}${
-                              item.linea ? `\n   Línea: ${item.linea}` : ""
-                            }\n   Marca: ${item.marca || "-"}\n   Tamaño: ${
-                              item.tamano || "-"
-                            }\n   ${item.tipoVariante}: ${
-                              item.variante || "-"
-                            }\n   Cantidad: ${item.cantidad}\n   Precio unitario: $${formatoPrecio(
-                              item.precio,
-                            )}\n   Subtotal: $${formatoPrecio(item.precio * item.cantidad)}`,
-                        )
-                        .join("\n\n")}\n\nTotal del pedido: $${formatoPrecio(
-                        carrito.reduce(
-                          (total, item) => total + item.precio * item.cantidad,
-                          0,
-                        ),
-                      )}\n\nMi direccion es:`,
+                      mensajeWhatsAppCarrito,
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

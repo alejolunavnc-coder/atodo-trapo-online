@@ -4,9 +4,13 @@ import type { Producto } from "@/src/types/producto";
 
 type CarritoLateralProps = {
   mostrarCarrito: boolean;
-  setMostrarCarrito: React.Dispatch<React.SetStateAction<boolean>>;
+  setMostrarCarrito: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
   carrito: CarritoItem[];
-  setCarrito: React.Dispatch<React.SetStateAction<CarritoItem[]>>;
+  setCarrito: React.Dispatch<
+    React.SetStateAction<CarritoItem[]>
+  >;
   productos: Producto[];
 };
 
@@ -18,6 +22,60 @@ export default function CarritoLateral({
   productos,
 }: CarritoLateralProps) {
   if (!mostrarCarrito) return null;
+
+  const textoLimpio = (valor: unknown) =>
+    String(valor || "").trim();
+
+  const totalCarrito = carrito.reduce(
+    (total, producto) =>
+      total +
+      producto.precio *
+        ((producto as any).cantidad || 1),
+    0
+  );
+
+  const mensajeWhatsApp =
+    "Hola!\n" +
+    "Quiero realizar el siguiente pedido:\n\n" +
+    carrito
+      .map((producto, index) => {
+        const cantidad =
+          (producto as any).cantidad || 1;
+
+        const nombreProducto = [
+          textoLimpio(producto.marca),
+          textoLimpio(producto.nombre),
+        ]
+          .filter(Boolean)
+          .join(" - ");
+
+        const detalles = [
+          textoLimpio(producto.linea),
+          textoLimpio(producto.tamano),
+          textoLimpio(producto.color),
+          textoLimpio(producto.fragancia),
+        ].filter(Boolean);
+
+        const subtotal =
+          producto.precio * cantidad;
+
+        return (
+          `${index + 1}. ${nombreProducto}` +
+          `${cantidad > 1 ? ` x${cantidad}` : ""}` +
+          `${
+            detalles.length > 0
+              ? `\n   ${detalles.join(" · ")}`
+              : ""
+          }` +
+          `\n   $${subtotal.toLocaleString(
+            "es-AR"
+          )}`
+        );
+      })
+      .join("\n\n") +
+    "\n\nTotal: $" +
+    totalCarrito.toLocaleString("es-AR") +
+    "\n\nMi dirección es: ";
 
   return (
     <div className="hidden md:block fixed inset-0 z-[999]">
@@ -39,14 +97,18 @@ export default function CarritoLateral({
                   ? "Todavía no agregaste productos"
                   : `${carrito.reduce(
                       (total, producto) =>
-                        total + ((producto as any).cantidad || 1),
+                        total +
+                        ((producto as any)
+                          .cantidad || 1),
                       0
                     )} productos agregados`}
               </p>
             </div>
 
             <button
-              onClick={() => setMostrarCarrito(false)}
+              onClick={() =>
+                setMostrarCarrito(false)
+              }
               className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xl flex items-center justify-center transition"
             >
               ×
@@ -65,107 +127,161 @@ export default function CarritoLateral({
                 </h3>
 
                 <p className="text-sm text-gray-500 mt-2 max-w-[260px]">
-                  Agregá productos al carrito y después coordiná tu pedido por WhatsApp.
+                  Agregá productos al carrito y
+                  después coordiná tu pedido por
+                  WhatsApp.
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {carrito.map((producto, index) => {
-                  const imagenProducto = producto.imagen || "";
+                {carrito.map(
+                  (producto, index) => {
+                    const imagenProducto =
+                      producto.imagen || "";
 
-                  const precioOriginal = producto.precioOriginal;
+                    const precioOriginal =
+                      producto.precioOriginal;
 
-                  const ahorro =
-                    precioOriginal && precioOriginal > producto.precio
-                      ? precioOriginal - producto.precio
-                      : 0;
+                    const ahorro =
+                      precioOriginal &&
+                      precioOriginal >
+                        producto.precio
+                        ? precioOriginal -
+                          producto.precio
+                        : 0;
 
-                  return (
-                    <div
-                      key={index}
-                      className="bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex gap-3">
-                        <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
-                          {imagenProducto ? (
-                            <img
-                              src={imagenProducto}
-                              alt={producto.nombre}
-                              className="w-full h-full object-contain p-1.5"
-                            />
-                          ) : (
-                            <span className="text-2xl">🛒</span>
-                          )}
-                        </div>
+                    const detallesProducto = [
+                      textoLimpio(
+                        producto.linea
+                      ),
+                      textoLimpio(
+                        producto.tamano
+                      ),
+                      textoLimpio(
+                        producto.color
+                      ),
+                      textoLimpio(
+                        producto.fragancia
+                      ),
+                    ].filter(Boolean);
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between gap-3">
-                            <div>
-                              {producto.marca?.trim() && (
-  <span className="inline-flex items-center bg-blue-950 text-white text-[9px] font-extrabold uppercase tracking-[0.10em] px-2.5 py-0.5 rounded-full shadow-sm mb-1">
-    {producto.marca}
-  </span>
-)}
-
-                              <p className="text-sm font-bold text-slate-800 leading-snug line-clamp-2">
-                                {producto.nombre || "Producto"}
-                              </p>
-
-                              <p className="text-xs text-gray-500 mt-1 leading-snug">
-                                {[
-                                  producto.linea,
-                                  producto.tamano,
-                                  producto.fragancia || producto.color,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" · ")}
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={() =>
-                                setCarrito(carrito.filter((_, i) => i !== index))
-                              }
-                              className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold transition shrink-0"
-                            >
-                              ×
-                            </button>
+                    return (
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:shadow-md transition"
+                      >
+                        <div className="flex gap-3">
+                          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                            {imagenProducto ? (
+                              <img
+                                src={
+                                  imagenProducto
+                                }
+                                alt={
+                                  producto.nombre
+                                }
+                                className="w-full h-full object-contain p-1.5"
+                              />
+                            ) : (
+                              <span className="text-2xl">
+                                🛒
+                              </span>
+                            )}
                           </div>
 
-                          <div className="flex items-end justify-between mt-3">
-                            <div>
-                              {precioOriginal && precioOriginal > producto.precio && (
-                                <p className="text-xs text-gray-400 line-through">
-                                  ${precioOriginal.toLocaleString("es-AR")}
-                                </p>
-                              )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between gap-3">
+                              <div>
+                                {producto.marca?.trim() && (
+                                  <span className="inline-flex items-center bg-blue-950 text-white text-[9px] font-extrabold uppercase tracking-[0.10em] px-2.5 py-0.5 rounded-full shadow-sm mb-1">
+                                    {
+                                      producto.marca
+                                    }
+                                  </span>
+                                )}
 
-                              <p className="text-lg font-bold text-green-700 leading-none">
-                                ${(
-                                  producto.precio *
-                                  ((producto as any).cantidad || 1)
-                                ).toLocaleString("es-AR")}
-                              </p>
-
-                              {ahorro > 0 && (
-                                <p className="text-xs font-semibold text-green-600 mt-1">
-                                  Ahorrás ${(
-                                    ahorro *
-                                    ((producto as any).cantidad || 1)
-                                  ).toLocaleString("es-AR")}
+                                <p className="text-sm font-bold text-slate-800 leading-snug line-clamp-2">
+                                  {producto.nombre ||
+                                    "Producto"}
                                 </p>
-                              )}
+
+                                {detallesProducto.length >
+                                  0 && (
+                                  <p className="text-xs text-gray-500 mt-1 leading-snug">
+                                    {detallesProducto.join(
+                                      " · "
+                                    )}
+                                  </p>
+                                )}
+                              </div>
+
+                              <button
+                                onClick={() =>
+                                  setCarrito(
+                                    carrito.filter(
+                                      (_, i) =>
+                                        i !==
+                                        index
+                                    )
+                                  )
+                                }
+                                className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 font-bold transition shrink-0"
+                              >
+                                ×
+                              </button>
                             </div>
 
-                            <div className="text-sm font-bold text-blue-950">
-  x{(producto as any).cantidad || 1}
-</div>
+                            <div className="flex items-end justify-between mt-3">
+                              <div>
+                                {precioOriginal &&
+                                  precioOriginal >
+                                    producto.precio && (
+                                    <p className="text-xs text-gray-400 line-through">
+                                      $
+                                      {precioOriginal.toLocaleString(
+                                        "es-AR"
+                                      )}
+                                    </p>
+                                  )}
+
+                                <p className="text-lg font-bold text-green-700 leading-none">
+                                  $
+                                  {(
+                                    producto.precio *
+                                    ((producto as any)
+                                      .cantidad || 1)
+                                  ).toLocaleString(
+                                    "es-AR"
+                                  )}
+                                </p>
+
+                                {ahorro > 0 && (
+                                  <p className="text-xs font-semibold text-green-600 mt-1">
+                                    Ahorrás $
+                                    {(
+                                      ahorro *
+                                      ((producto as any)
+                                        .cantidad ||
+                                        1)
+                                    ).toLocaleString(
+                                      "es-AR"
+                                    )}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="text-sm font-bold text-blue-950">
+                                x
+                                {(producto as any)
+                                  .cantidad || 1}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
               </div>
             )}
           </div>
@@ -174,50 +290,64 @@ export default function CarritoLateral({
             <div className="border-t border-gray-100 px-6 py-5 bg-white">
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
+                  <span className="text-gray-500">
+                    Subtotal
+                  </span>
+
                   <span className="font-semibold text-slate-800">
                     $
-                    {carrito
-                      .reduce(
-                        (total, producto) =>
-                          total +
-                          producto.precio *
-                            ((producto as any).cantidad || 1),
-                        0
-                      )
-                      .toLocaleString("es-AR")}
+                    {totalCarrito.toLocaleString(
+                      "es-AR"
+                    )}
                   </span>
                 </div>
 
                 {(() => {
-                  const ahorroTotal = carrito.reduce((totalAhorro, producto) => {
-                    const ahorro =
-                      producto.precioOriginal &&
-                      producto.precioOriginal > producto.precio
-                        ? producto.precioOriginal - producto.precio
-                        : 0;
+                  const ahorroTotal =
+                    carrito.reduce(
+                      (
+                        totalAhorro,
+                        producto
+                      ) => {
+                        const ahorro =
+                          producto.precioOriginal &&
+                          producto.precioOriginal >
+                            producto.precio
+                            ? producto.precioOriginal -
+                              producto.precio
+                            : 0;
 
-                    return (
-                      totalAhorro +
-                      ahorro *
-                        ((producto as any).cantidad || 1)
+                        return (
+                          totalAhorro +
+                          ahorro *
+                            ((producto as any)
+                              .cantidad || 1)
+                        );
+                      },
+                      0
                     );
-                  }, 0);
 
                   return ahorroTotal > 0 ? (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-green-600 font-semibold">
                         Ahorrás
                       </span>
+
                       <span className="font-bold text-green-600">
-                        ${ahorroTotal.toLocaleString("es-AR")}
+                        $
+                        {ahorroTotal.toLocaleString(
+                          "es-AR"
+                        )}
                       </span>
                     </div>
                   ) : null;
                 })()}
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Envío</span>
+                  <span className="text-gray-500">
+                    Envío
+                  </span>
+
                   <span className="font-semibold text-blue-900">
                     A coordinar
                   </span>
@@ -231,39 +361,17 @@ export default function CarritoLateral({
 
                 <span className="text-3xl font-black text-slate-900">
                   $
-                  {carrito
-                    .reduce(
-                      (total, producto) =>
-                        total +
-                        producto.precio *
-                          ((producto as any).cantidad || 1),
-                      0
-                    )
-                    .toLocaleString("es-AR")}
+                  {totalCarrito.toLocaleString(
+                    "es-AR"
+                  )}
                 </span>
               </div>
 
               <a
-                href={`https://wa.me/${contactoConfig.whatsapp}?text=${encodeURIComponent(
-                  "Hola!\n" +
-                    "Quiero realizar el siguiente pedido:\n\n" +
-                    carrito
-                      .map(
-                        (producto, index) =>
-                          `${index + 1}. ${producto.nombre}\n   $${producto.precio.toLocaleString("es-AR")}`
-                      )
-                      .join("\n\n") +
-                    "\n\nTotal: $" +
-                    carrito
-                      .reduce(
-                        (total, producto) =>
-                          total +
-                          producto.precio *
-                            ((producto as any).cantidad || 1),
-                        0
-                      )
-                      .toLocaleString("es-AR") +
-                    "\n\nMi dirección es: "
+                href={`https://wa.me/${
+                  contactoConfig.whatsapp
+                }?text=${encodeURIComponent(
+                  mensajeWhatsApp
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

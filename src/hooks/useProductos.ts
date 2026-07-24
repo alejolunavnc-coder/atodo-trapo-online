@@ -131,10 +131,108 @@ export default function useProductos({
       )
     );
 
+  /*
+   * Normaliza las palabras del buscador:
+   * - ignora mayúsculas y minúsculas;
+   * - elimina acentos;
+   * - elimina signos innecesarios;
+   * - compara singular y plural.
+   */
+  const normalizarTextoBusqueda = (valor: any) =>
+    String(valor || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9ñ\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const singularizarPalabra = (palabra: string) => {
+    if (palabra.length <= 3) {
+      return palabra;
+    }
+
+    /*
+     * Ejemplos:
+     * luces → luz
+     * barnices → barniz
+     */
+    if (
+      palabra.endsWith("ces") &&
+      palabra.length > 4
+    ) {
+      return `${palabra.slice(0, -3)}z`;
+    }
+
+    /*
+     * Ejemplos:
+     * paredes → pared
+     * colores → color
+     * interiores → interior
+     */
+    if (
+      palabra.endsWith("es") &&
+      palabra.length > 4
+    ) {
+      return palabra.slice(0, -2);
+    }
+
+    /*
+     * Ejemplos:
+     * pinturas → pintura
+     * rodillos → rodillo
+     * brochas → brocha
+     */
+    if (
+      palabra.endsWith("s") &&
+      palabra.length > 3
+    ) {
+      const letraAnterior =
+        palabra[palabra.length - 2];
+
+      if ("aeiou".includes(letraAnterior)) {
+        return palabra.slice(0, -1);
+      }
+    }
+
+    return palabra;
+  };
+
+  const obtenerPalabrasBusqueda = (valor: any) =>
+    normalizarTextoBusqueda(valor)
+      .split(" ")
+      .filter(Boolean)
+      .map(singularizarPalabra);
+
+  const coincideConBusqueda = (
+    textoProducto: string,
+    textoBuscado: string
+  ) => {
+    const palabrasBuscadas =
+      obtenerPalabrasBusqueda(textoBuscado);
+
+    if (palabrasBuscadas.length === 0) {
+      return true;
+    }
+
+    const palabrasProducto =
+      obtenerPalabrasBusqueda(textoProducto);
+
+    return palabrasBuscadas.every(
+      (palabraBuscada) =>
+        palabrasProducto.some(
+          (palabraProducto) =>
+            palabraProducto.includes(
+              palabraBuscada
+            )
+        )
+    );
+  };
+
   const productosBuscados = agrupar(
     productosDisponibles.filter(
-      (producto: Producto) =>
-        (
+      (producto: Producto) => {
+        const textoProducto =
           (producto.Nombre || "") +
           " " +
           (producto.Marca || "") +
@@ -151,14 +249,13 @@ export default function useProductos({
           " " +
           (producto.Tamaño || "") +
           " " +
-          (producto.Categoría || "")
-        )
-          .toLowerCase()
-          .includes(
-            String(busqueda || "")
-              .trim()
-              .toLowerCase()
-          )
+          (producto.Categoría || "");
+
+        return coincideConBusqueda(
+          textoProducto,
+          busqueda
+        );
+      }
     )
   );
 

@@ -12,6 +12,9 @@ export default function useCarrito(
         .trim()
     ) || 0;
 
+  const textoLimpio = (valor: any) =>
+    String(valor || "").trim();
+
   function agregarAlCarrito(producto: any) {
     const precioNormal = precioNumero(
       producto.Precio
@@ -27,14 +30,14 @@ export default function useCarrito(
       precioOferta < precioNormal;
 
     const nuevoProducto = {
-      categoria: producto.Categoría || "",
-      marca: producto.Marca || "",
-      nombre: producto.Nombre || "",
-      linea: producto.Linea || "",
-      tamano: producto.Tamaño || "",
-      color: producto.Color || "",
-      fragancia: producto.Fragancias || "",
-      imagen: producto.Imagen || "",
+      categoria: textoLimpio(producto.Categoría),
+      marca: textoLimpio(producto.Marca),
+      nombre: textoLimpio(producto.Nombre),
+      linea: textoLimpio(producto.Linea),
+      tamano: textoLimpio(producto.Tamaño),
+      color: textoLimpio(producto.Color),
+      fragancia: textoLimpio(producto.Fragancias),
+      imagen: textoLimpio(producto.Imagen),
       cantidad: 1,
 
       precio: tieneOferta
@@ -50,6 +53,7 @@ export default function useCarrito(
       (item) =>
         item.nombre === nuevoProducto.nombre &&
         item.marca === nuevoProducto.marca &&
+        item.linea === nuevoProducto.linea &&
         item.tamano === nuevoProducto.tamano &&
         item.color === nuevoProducto.color &&
         item.fragancia === nuevoProducto.fragancia
@@ -60,6 +64,7 @@ export default function useCarrito(
         carrito.map((item) =>
           item.nombre === nuevoProducto.nombre &&
           item.marca === nuevoProducto.marca &&
+          item.linea === nuevoProducto.linea &&
           item.tamano === nuevoProducto.tamano &&
           item.color === nuevoProducto.color &&
           item.fragancia === nuevoProducto.fragancia
@@ -109,29 +114,40 @@ export default function useCarrito(
     "Hola!\n" +
     "Quiero realizar el siguiente pedido:\n\n" +
     carrito
-      .map(
-        (producto: any, index: number) =>
-          `${index + 1}. ${
-            producto.marca
-              ? producto.marca + " - "
+      .map((producto: any, index: number) => {
+        const cantidad =
+          producto.cantidad || 1;
+
+        const detalles = [
+          textoLimpio(producto.linea),
+          textoLimpio(producto.tamano),
+          textoLimpio(producto.color),
+          textoLimpio(producto.fragancia),
+        ].filter(Boolean);
+
+        const nombreProducto = [
+          textoLimpio(producto.marca),
+          textoLimpio(producto.nombre),
+        ]
+          .filter(Boolean)
+          .join(" - ");
+
+        const subtotal =
+          producto.precio * cantidad;
+
+        return (
+          `${index + 1}. ${nombreProducto}` +
+          `${cantidad > 1 ? ` x${cantidad}` : ""}` +
+          `${
+            detalles.length > 0
+              ? `\n   ${detalles.join(" · ")}`
               : ""
-          }${producto.nombre}${
-            producto.cantidad > 1
-              ? ` x${producto.cantidad}`
-              : ""
-          }\n` +
-          `   ${[
-            producto.tamano,
-            producto.fragancia ||
-              producto.color,
-          ]
-            .filter(Boolean)
-            .join(" · ")}\n` +
-          `   $${(
-            producto.precio *
-            (producto.cantidad || 1)
-          ).toLocaleString("es-AR")}`
-      )
+          }` +
+          `\n   $${subtotal.toLocaleString(
+            "es-AR"
+          )}`
+        );
+      })
       .join("\n\n") +
     "\n\nTotal: $" +
     totalCarrito.toLocaleString("es-AR") +
