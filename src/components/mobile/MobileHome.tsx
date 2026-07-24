@@ -694,7 +694,13 @@ export default function MobileHome() {
 
     const subcategoriaActual = normalizarTexto(subcategoriaActiva);
 
-    if (!subcategoriaActual || subcategoriaActual === "todas") return true;
+if (
+  !subcategoriaActual ||
+  subcategoriaActual === "toda" ||
+  subcategoriaActual === "todas"
+) {
+  return true;
+}
 
     return normalizarTexto(producto.Subcategoría) === subcategoriaActual;
   });
