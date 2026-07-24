@@ -34,7 +34,7 @@ const categoriasOrdenadas = [
   {
     categoria: "Auto y Moto",
     nombre: "Auto y Moto",
-    icono: "auto-y-moto.png",
+    icono: "automoto.png",
   },
   {
     categoria: "Aromatizantes",

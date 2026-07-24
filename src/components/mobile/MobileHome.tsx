@@ -211,7 +211,7 @@ export default function MobileHome() {
     Piscinas: "piscina",
     Ofertas: "ofertas",
     Limpieza: "limpieza",
-    "Auto y Moto": "auto-y-moto",
+    "Auto y Moto": "automoto",
     Aromatizantes: "aromatizantes",
     Plásticos: "plasticos",
     Plasticos: "plasticos",
