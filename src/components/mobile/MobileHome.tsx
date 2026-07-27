@@ -102,6 +102,28 @@ export default function MobileHome() {
 
   const textoVozPendienteRef = useRef("");
 
+  const estadoNavegacionRef = useRef({
+    categoriaActiva: "Inicio",
+    subcategoriaActiva: "Todas",
+    busquedaMobile: "",
+    productoAbierto: null as any,
+    carritoAbierto: false,
+    menuAbierto: false,
+    ubicacionAbierta: false,
+    calculadoraAbierta: false,
+  });
+
+  estadoNavegacionRef.current = {
+    categoriaActiva,
+    subcategoriaActiva,
+    busquedaMobile,
+    productoAbierto,
+    carritoAbierto,
+    menuAbierto,
+    ubicacionAbierta,
+    calculadoraAbierta,
+  };
+
   // [Paleta dinámica]
 
   const esInicio = categoriaActiva === "Inicio";
@@ -177,6 +199,146 @@ export default function MobileHome() {
 
     cargarProductos();
   }, []);
+
+  // [Navegación con el botón Atrás del celular]
+
+  useEffect(() => {
+    window.history.replaceState(
+      {
+        ...window.history.state,
+        atodoTrapoMobile: true,
+      },
+      "",
+    );
+
+    const manejarAtras = () => {
+      const estado = estadoNavegacionRef.current;
+
+      if (estado.ubicacionAbierta) {
+        setUbicacionAbierta(false);
+        return;
+      }
+
+      if (estado.menuAbierto) {
+        setMenuAbierto(false);
+        return;
+      }
+
+      if (estado.carritoAbierto) {
+        setCarritoAbierto(false);
+        return;
+      }
+
+      if (estado.productoAbierto) {
+        setProductoAbierto(null);
+        setCantidadDetalle(1);
+        return;
+      }
+
+      if (estado.calculadoraAbierta) {
+        setCalculadoraAbierta(false);
+        return;
+      }
+
+      if (estado.busquedaMobile.trim()) {
+        cancelarBusquedaPorVoz();
+        setBusquedaMobile("");
+        return;
+      }
+
+      if (
+        estado.subcategoriaActiva !== "Todas" &&
+        estado.categoriaActiva.toLowerCase().includes("pintura")
+      ) {
+        setSubcategoriaActiva("Todas");
+        return;
+      }
+
+      if (estado.categoriaActiva !== "Inicio") {
+        setCategoriaActiva("Inicio");
+        setSubcategoriaActiva("Todas");
+
+        window.setTimeout(() => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }, 50);
+      }
+    };
+
+    window.addEventListener("popstate", manejarAtras);
+
+    return () => {
+      window.removeEventListener("popstate", manejarAtras);
+    };
+  }, []);
+
+  const registrarPasoNavegacion = () => {
+    window.history.pushState(
+      {
+        atodoTrapoMobile: true,
+      },
+      "",
+    );
+  };
+
+  const volverConHistorial = () => {
+    window.history.back();
+  };
+
+  const abrirMenuConHistorial = () => {
+    registrarPasoNavegacion();
+    setMenuAbierto(true);
+  };
+
+  const abrirCarritoConHistorial = () => {
+    registrarPasoNavegacion();
+    setCarritoAbierto(true);
+  };
+
+  const abrirCalculadoraConHistorial = () => {
+    registrarPasoNavegacion();
+    setCalculadoraAbierta(true);
+  };
+
+  const cambiarCategoriaConHistorial = (categoria: string) => {
+    if (categoria === categoriaActiva) return;
+
+    registrarPasoNavegacion();
+    setCategoriaActiva(categoria);
+    setSubcategoriaActiva("Todas");
+  };
+
+  const cambiarSubcategoriaConHistorial = (subcategoria: string) => {
+    if (subcategoria === subcategoriaActiva) return;
+
+    registrarPasoNavegacion();
+    setSubcategoriaActiva(subcategoria);
+  };
+
+  const abrirProductoConHistorial = (grupo: any) => {
+    registrarPasoNavegacion();
+    setProductoAbierto(grupo);
+    setCantidadDetalle(1);
+  };
+
+  const cambiarBusquedaMobile = (valor: string) => {
+    if (!busquedaMobile.trim() && valor.trim()) {
+      registrarPasoNavegacion();
+    }
+
+    setBusquedaMobile(valor);
+  };
+
+  const limpiarBusquedaConHistorial = () => {
+    if (busquedaMobile.trim()) {
+      volverConHistorial();
+      return;
+    }
+
+    setBusquedaMobile("");
+  };
 
   // [Categorías]
 
@@ -652,6 +814,10 @@ export default function MobileHome() {
       if (textoEscuchado) {
         const textoCorregido = corregirBusquedaConProductos(textoEscuchado);
 
+        if (!estadoNavegacionRef.current.busquedaMobile.trim()) {
+          registrarPasoNavegacion();
+        }
+
         setBusquedaMobile(textoCorregido);
       }
 
@@ -694,13 +860,13 @@ export default function MobileHome() {
 
     const subcategoriaActual = normalizarTexto(subcategoriaActiva);
 
-if (
-  !subcategoriaActual ||
-  subcategoriaActual === "toda" ||
-  subcategoriaActual === "todas"
-) {
-  return true;
-}
+    if (
+      !subcategoriaActual ||
+      subcategoriaActual === "toda" ||
+      subcategoriaActual === "todas"
+    ) {
+      return true;
+    }
 
     return normalizarTexto(producto.Subcategoría) === subcategoriaActual;
   });
@@ -893,7 +1059,7 @@ if (
   };
 
   const finalizarCalculadora = () => {
-    volverAlInicioGlobal();
+    volverConHistorial();
   };
 
   const totalCarritoMobile = carrito.reduce(
@@ -931,10 +1097,10 @@ if (
     <CalculadoraPintura
       productos={productos}
       cantidadCarrito={cantidadCarrito}
-      onVolver={volverAlInicioGlobal}
+      onVolver={volverConHistorial}
       onVolverInicio={volverAlInicioGlobal}
-      onAbrirMenu={() => setMenuAbierto(true)}
-      onAbrirCarrito={() => setCarritoAbierto(true)}
+      onAbrirMenu={abrirMenuConHistorial}
+      onAbrirCarrito={abrirCarritoConHistorial}
       onContinuar={(datosPasoUno) => {
         console.log("Datos del Paso 1:", datosPasoUno);
       }}
@@ -955,8 +1121,8 @@ if (
 
           <MobileHeaderCompartido
             cantidadCarrito={cantidadCarrito}
-            onAbrirMenu={() => setMenuAbierto(true)}
-            onAbrirCarrito={() => setCarritoAbierto(true)}
+            onAbrirMenu={abrirMenuConHistorial}
+            onAbrirCarrito={abrirCarritoConHistorial}
             onVolverInicio={volverAlInicioGlobal}
             mostrarBeneficios={
               categoriaActiva === "Inicio" && !hayBusquedaMobile
@@ -985,7 +1151,7 @@ if (
                   inputMode="search"
                   enterKeyHint="search"
                   value={busquedaMobile}
-                  onChange={(e) => setBusquedaMobile(e.target.value)}
+                  onChange={(e) => cambiarBusquedaMobile(e.target.value)}
                   onBlur={() => {
                     window.setTimeout(() => {
                       window.scrollTo({
@@ -1001,7 +1167,7 @@ if (
 
                 {busquedaMobile && (
                   <button
-                    onClick={() => setBusquedaMobile("")}
+                    onClick={limpiarBusquedaConHistorial}
                     className="text-[16px] font-bold text-gray-400"
                   >
                     ×
@@ -1063,7 +1229,7 @@ if (
 
           {categoriaActiva === "Inicio" && !hayBusquedaMobile && (
             <BotonCalculadoraPintura
-              onClick={() => setCalculadoraAbierta(true)}
+              onClick={abrirCalculadoraConHistorial}
             />
           )}
 
@@ -1080,10 +1246,9 @@ if (
                       return (
                         <button
                           key={nombre}
-                          onClick={() => {
-                            setCategoriaActiva(nombre);
-                            setSubcategoriaActiva("Todas");
-                          }}
+                          onClick={() =>
+                            cambiarCategoriaConHistorial(nombre)
+                          }
                           className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 text-center transition-all duration-150 active:scale-90"
                         >
                           <div
@@ -1251,7 +1416,7 @@ if (
                     return (
                       <button
                         key={subcategoria}
-                        onClick={() => setSubcategoriaActiva(subcategoria)}
+                        onClick={() => cambiarSubcategoriaConHistorial(subcategoria)}
                         className={`group w-[92px] shrink-0 overflow-hidden rounded-[16px] border bg-white text-left shadow-sm transition-all duration-200 active:scale-95 ${
                           activa
                             ? "border-[#F8A400] shadow-[0_8px_20px_rgba(248,164,0,0.18)] ring-2 ring-[#F8A400]/20"
@@ -1293,7 +1458,7 @@ if (
 
           {esCategoriaProductos && esPinturas && !hayBusquedaMobile && (
             <BotonCalculadoraPintura
-              onClick={() => setCalculadoraAbierta(true)}
+              onClick={abrirCalculadoraConHistorial}
             />
           )}
 
@@ -1308,8 +1473,7 @@ if (
               {categoriaActiva !== "Ofertas" && (
                 <button
                   onClick={() => {
-                    setCategoriaActiva("Ofertas");
-                    setSubcategoriaActiva("Todas");
+                    cambiarCategoriaConHistorial("Ofertas");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className="flex items-center gap-1 text-[10px] font-black text-[#123A72]"
@@ -1367,10 +1531,7 @@ if (
                   <button
                     key={`${grupo.linea}-${grupo.nombre}-${index}`}
                     data-oferta-mobile={esCarruselInicio ? "true" : undefined}
-                    onClick={() => {
-                      setProductoAbierto(grupo);
-                      setCantidadDetalle(1);
-                    }}
+                    onClick={() => abrirProductoConHistorial(grupo)}
                     className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
                       esCarruselInicio
                         ? "w-[calc((100vw-32px)/3)] shrink-0"
@@ -1512,7 +1673,7 @@ if (
 
               return (
                 <div
-                  onClick={() => setProductoAbierto(null)}
+                  onClick={volverConHistorial}
                   className="fixed inset-0 z-[100] flex items-end bg-black/45 backdrop-blur-[2px]"
                 >
                   <div
@@ -1522,7 +1683,7 @@ if (
                     <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
 
                     <button
-                      onClick={() => setProductoAbierto(null)}
+                      onClick={volverConHistorial}
                       className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#173F2A] shadow"
                     >
                       ×
@@ -1918,43 +2079,6 @@ if (
             </div>
           </footer>
 
-          {/* [Botón volver] */}
-
-          {esCategoriaProductos && (
-            <button
-              onClick={() => {
-                setCategoriaActiva("Inicio");
-                setSubcategoriaActiva("Todas");
-
-                setTimeout(() => {
-                  window.scrollTo({
-                    top: 0,
-                    behavior: "smooth",
-                  });
-                }, 50);
-              }}
-              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-         flex items-center gap-2
-         bg-white/95 backdrop-blur-md
-         border border-gray-200
-         rounded-full
-         px-2.5 py-1.5
-         shadow-[0_12px_35px_rgba(0,0,0,0.18)]
-         hover:shadow-[0_18px_45px_rgba(0,0,0,0.22)]
-         hover:-translate-y-1
-         transition-all duration-300"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-950 text-white shadow-sm">
-                <span className="relative -top-[2px] text-[16px] font-bold leading-none">
-                  ←
-                </span>
-              </div>
-
-              <span className="pr-2 text-[13px] font-extrabold tracking-[-0.02em] text-blue-950">
-                Volver
-              </span>
-            </button>
-          )}
         </>
       )}
 
@@ -1967,7 +2091,7 @@ if (
         <>
           <button
             type="button"
-            onClick={() => setCarritoAbierto(true)}
+            onClick={abrirCarritoConHistorial}
             aria-label="Abrir carrito"
             className={`fixed right-4 z-[80] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#111827] text-white shadow-[0_12px_30px_rgba(0,0,0,0.34)] ring-1 ring-white/15 transition-all duration-200 active:scale-90 ${
   calculadoraAbierta ? "bottom-[222px]" : "bottom-[84px]"
@@ -2023,7 +2147,7 @@ if (
 
       {carritoAbierto && (
         <div
-          onClick={() => setCarritoAbierto(false)}
+          onClick={volverConHistorial}
           className="fixed inset-0 z-[110] bg-black/45 backdrop-blur-[2px]"
         >
           <div
@@ -2046,7 +2170,7 @@ if (
               </div>
 
               <button
-                onClick={() => setCarritoAbierto(false)}
+                onClick={volverConHistorial}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF1EA] text-xl font-light text-[#173F2A]"
               >
                 ×
@@ -2070,7 +2194,7 @@ if (
                 </p>
 
                 <button
-                  onClick={() => setCarritoAbierto(false)}
+                  onClick={volverConHistorial}
                   className="mt-5 rounded-full bg-[#173F2A] px-5 py-2.5 text-[11px] font-black text-white shadow-[0_10px_24px_rgba(23,63,42,0.25)] active:scale-95"
                 >
                   Seguir comprando
@@ -2354,7 +2478,7 @@ if (
 
       {menuAbierto && (
         <div
-          onClick={() => setMenuAbierto(false)}
+          onClick={volverConHistorial}
           className="fixed inset-0 z-[140] bg-black/45 backdrop-blur-[2px]"
         >
           <div
@@ -2369,7 +2493,7 @@ if (
               />
 
               <button
-                onClick={() => setMenuAbierto(false)}
+                onClick={volverConHistorial}
                 className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[28px] font-light text-[#123A72] shadow-lg backdrop-blur-md transition active:scale-95"
               >
                 ×
@@ -2382,7 +2506,7 @@ if (
                   onClick={() => {
                     setCategoriaActiva("Inicio");
                     setSubcategoriaActiva("Todas");
-                    setMenuAbierto(false);
+                    volverConHistorial();
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className="flex w-full items-center gap-3 rounded-[18px] bg-white px-3 py-3 text-left shadow-sm ring-1 ring-blue-50"
@@ -2517,7 +2641,7 @@ if (
 
       {ubicacionAbierta && (
         <div
-          onClick={() => setUbicacionAbierta(false)}
+          onClick={volverConHistorial}
           className="fixed inset-0 z-[150] flex items-end bg-black/45 backdrop-blur-[2px]"
         >
           <div
@@ -2527,7 +2651,7 @@ if (
             <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-gray-300" />
 
             <button
-              onClick={() => setUbicacionAbierta(false)}
+              onClick={volverConHistorial}
               className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xl font-light text-[#123A72] shadow"
             >
               ×
