@@ -7,6 +7,9 @@ const SHEET_PRODUCTOS_URL =
 const SHEET_PINTURAS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRonjC9Bv3YGK1Wpr8CN2EZh9370FkdcEXo94iCA-rJPiw7Y2gLT9hipzcTk4UWcFCRQaEvN0XT0Q_/pub?gid=921992274&single=true&output=csv";
 
+const SHEET_PISCINA_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRonjC9Bv3YGK1Wpr8CN2EZh9370FkdcEXo94iCA-rJPiw7Y2gLT9hipzcTk4UWcFCRQaEvN0XT0Q_/pub?gid=731975557&single=true&output=csv";
+
 type FilaProducto = Record<string, string>;
 
 function limpiarFila(fila: FilaProducto): FilaProducto {
@@ -32,7 +35,33 @@ function parsearCSV(csv: string): FilaProducto[] {
     skipEmptyLines: true,
   });
 
-  return resultado.data.map(limpiarFila);
+  return resultado.data
+    .map(limpiarFila)
+    .filter(
+      (fila) =>
+        String(fila.Nombre || "").trim() !== ""
+    );
+}
+
+function normalizarTexto(valor: unknown): string {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function esCategoriaPiscina(
+  fila: FilaProducto
+): boolean {
+  const categoria = normalizarTexto(
+    fila.Categoría
+  );
+
+  return (
+    categoria === "piscina" ||
+    categoria === "piscinas"
+  );
 }
 
 function obtenerTodasLasColumnas(
@@ -57,7 +86,8 @@ function completarColumnas(
     const filaCompleta: FilaProducto = {};
 
     columnas.forEach((columna) => {
-      filaCompleta[columna] = fila[columna] ?? "";
+      filaCompleta[columna] =
+        fila[columna] ?? "";
     });
 
     return filaCompleta;
@@ -66,16 +96,23 @@ function completarColumnas(
 
 export async function GET() {
   try {
-    const [respuestaProductos, respuestaPinturas] =
-      await Promise.all([
-        fetch(SHEET_PRODUCTOS_URL, {
-          cache: "no-store",
-        }),
+    const [
+      respuestaProductos,
+      respuestaPinturas,
+      respuestaPiscina,
+    ] = await Promise.all([
+      fetch(SHEET_PRODUCTOS_URL, {
+        cache: "no-store",
+      }),
 
-        fetch(SHEET_PINTURAS_URL, {
-          cache: "no-store",
-        }),
-      ]);
+      fetch(SHEET_PINTURAS_URL, {
+        cache: "no-store",
+      }),
+
+      fetch(SHEET_PISCINA_URL, {
+        cache: "no-store",
+      }),
+    ]);
 
     if (!respuestaProductos.ok) {
       throw new Error(
@@ -89,22 +126,56 @@ export async function GET() {
       );
     }
 
-    const [csvProductos, csvPinturas] =
-      await Promise.all([
-        respuestaProductos.text(),
-        respuestaPinturas.text(),
-      ]);
+    if (!respuestaPiscina.ok) {
+      throw new Error(
+        `No se pudo cargar Piscina: ${respuestaPiscina.status}`
+      );
+    }
 
-    const productos = parsearCSV(csvProductos);
-    const pinturas = parsearCSV(csvPinturas);
+    const [
+      csvProductos,
+      csvPinturas,
+      csvPiscina,
+    ] = await Promise.all([
+      respuestaProductos.text(),
+      respuestaPinturas.text(),
+      respuestaPiscina.text(),
+    ]);
+
+    const productosGenerales =
+      parsearCSV(csvProductos);
+
+    const pinturas =
+      parsearCSV(csvPinturas);
+
+    const productosPiscina =
+      parsearCSV(csvPiscina);
+
+    /*
+     * Evita duplicados:
+     *
+     * Los productos de Piscinas que todavía permanecen
+     * en la hoja principal no se incorporan al catálogo.
+     *
+     * Para esa categoría se utiliza solamente la nueva
+     * hoja Piscina.
+     */
+    const productosSinPiscina =
+      productosGenerales.filter(
+        (producto) =>
+          !esCategoriaPiscina(producto)
+      );
 
     const catalogoCompleto = [
-      ...productos,
+      ...productosSinPiscina,
       ...pinturas,
+      ...productosPiscina,
     ];
 
     const columnasCompletas =
-      obtenerTodasLasColumnas(catalogoCompleto);
+      obtenerTodasLasColumnas(
+        catalogoCompleto
+      );
 
     const catalogoNormalizado =
       completarColumnas(

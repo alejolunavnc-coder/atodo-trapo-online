@@ -27,6 +27,7 @@ import MenuPrincipal from "@/src/components/menu/MenuPrincipal";
 import DesktopShell from "@/src/components/desktop/home/DesktopShell";
 import DesktopCatalogSection from "@/src/components/desktop/home/DesktopCatalogSection";
 import CalculadoraPinturaPC from "@/src/components/desktop/calculadora/CalculadoraPinturaPC";
+import CalculadoraPiscinaPC from "@/src/components/desktop/calculadora-piscina/CalculadoraPiscinaPC";
 
 /* Componente principal */
 
@@ -56,7 +57,8 @@ export default function DesktopHome() {
   const [bannerActual, setBannerActual] = useState(0);
   const [posicionAntesBusqueda, setPosicionAntesBusqueda] = useState(0);
   const [busquedaActiva, setBusquedaActiva] = useState(false);
-  const [calculadoraPinturaAbierta, setCalculadoraPinturaAbierta] =useState(false);
+  const [calculadoraPinturaAbierta, setCalculadoraPinturaAbierta] = useState(false);
+  const [calculadoraPiscinaAbierta, setCalculadoraPiscinaAbierta] = useState(false);
   const {
     agregarAlCarrito,
     vaciarCarrito,
@@ -127,6 +129,7 @@ export default function DesktopHome() {
         setMostrarCarrito={setMostrarCarrito}
         onVolverInicio={() => {
           setCalculadoraPinturaAbierta(false);
+          setCalculadoraPiscinaAbierta(false);
           setVista("categorias");
           setCategoria("");
           setSubcategoria("Todas");
@@ -164,6 +167,7 @@ export default function DesktopHome() {
   setMarca={setSubcategoria}
   setVista={setVista}
   onAbrirCalculadoraPintura={() => {
+    setCalculadoraPiscinaAbierta(false);
     setCalculadoraPinturaAbierta(true);
 
     setTimeout(() => {
@@ -175,9 +179,22 @@ export default function DesktopHome() {
         });
     }, 50);
   }}
+  onAbrirCalculadoraPiscina={() => {
+    setCalculadoraPinturaAbierta(false);
+    setCalculadoraPiscinaAbierta(true);
+
+    setTimeout(() => {
+      document
+        .getElementById("calculadora-piscina-pc")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }, 50);
+  }}
 />
 
-{!calculadoraPinturaAbierta && (
+{!calculadoraPinturaAbierta && !calculadoraPiscinaAbierta && (
   <>
     <BannerPrincipal
       bannerActual={bannerActual}
@@ -254,8 +271,56 @@ export default function DesktopHome() {
   </section>
 )}
 
+
+{calculadoraPiscinaAbierta && (
+  <section
+    id="calculadora-piscina-pc"
+    className="mx-auto min-h-[650px] max-w-7xl scroll-mt-36 px-6 py-8"
+  >
+    <div className="rounded-[28px] border border-sky-200 bg-white p-8 shadow-[0_18px_50px_rgba(15,23,42,0.10)]">
+      <div className="flex items-center justify-between gap-6">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-[0.16em] text-sky-600">
+            Herramienta gratuita
+          </p>
+
+          <h1 className="mt-2 text-[32px] font-black tracking-[-0.04em] text-blue-950">
+            Calculadora de piscina
+          </h1>
+
+          <p className="mt-2 text-[15px] font-medium text-gray-500">
+            Calculá los litros de tu piscina y la dosis correcta de cada producto.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCalculadoraPiscinaAbierta(false);
+
+            setTimeout(() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }, 50);
+          }}
+          className="flex h-11 shrink-0 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-[13px] font-black text-blue-950 shadow-sm transition hover:bg-gray-50"
+        >
+          ← Volver al inicio
+        </button>
+      </div>
+
+      <div className="mt-8">
+        <CalculadoraPiscinaPC />
+      </div>
+    </div>
+  </section>
+)}
+
       {/* Contenedor principal del catálogo */}
 
+      {!calculadoraPinturaAbierta && !calculadoraPiscinaAbierta && (
       <DesktopCatalogSection>
 
           <div className="col-span-3"></div>
@@ -330,6 +395,7 @@ export default function DesktopHome() {
           <PorqueElegirnos />
 
         </DesktopCatalogSection>
+      )}
 
       <Footer />
 
@@ -362,7 +428,10 @@ export default function DesktopHome() {
       {/* Botón flotante carrito eliminado en PC */}
 
       {/* Botón volver flotante */}
-      {(vista !== "categorias" || busqueda !== "") && !detalleAbierto && (
+      {(vista !== "categorias" || busqueda !== "") &&
+        !detalleAbierto &&
+        !calculadoraPinturaAbierta &&
+        !calculadoraPiscinaAbierta && (
         <button
           onClick={() => {
             if (busqueda !== "") {
@@ -451,4 +520,3 @@ export default function DesktopHome() {
   );
   
 }
-

@@ -140,3 +140,31 @@ body {
     transform: scale(1.025);
   }
 }
+@keyframes latido-calculadora {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.035);
+  }
+
+  55% {
+    transform: scale(1.015);
+  }
+
+  70% {
+    transform: scale(1.035);
+  }
+}
+
+.boton-latido {
+  animation: latido-calculadora 2.4s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.boton-latido-retrasado {
+  animation-delay: 1.2s;
+}
