@@ -27,8 +27,6 @@ export default function MenuPrincipal({
     <>
       <nav className="hidden border-b border-gray-200 bg-white md:block">
         <div className="mx-auto flex h-[54px] max-w-7xl items-center justify-between px-6">
-          {/* Navegación izquierda */}
-
           <div className="flex items-center gap-3 text-[14px] font-semibold text-[#162a63]">
             <button
               type="button"
@@ -44,8 +42,6 @@ export default function MenuPrincipal({
 
               <span className="absolute -bottom-[17px] left-0 h-[3px] w-full rounded-full bg-yellow-400" />
             </button>
-
-            {/* Calculadora de pintura */}
 
             <button
               type="button"
@@ -80,8 +76,6 @@ export default function MenuPrincipal({
               <span className="pointer-events-none absolute inset-y-0 left-[-45%] w-[30%] skew-x-[-20deg] bg-white/30 blur-[1px] transition-all duration-700 group-hover:left-[120%]" />
             </button>
 
-            {/* Calculadora de piscina */}
-
             <button
               type="button"
               onClick={onAbrirCalculadoraPiscina}
@@ -96,11 +90,11 @@ export default function MenuPrincipal({
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#0878BC] shadow-sm">
                 <Waves
                   size={17}
-                  strokeWidth={2.5}
+                  strokeWidth={2.4}
                 />
               </span>
 
-              <span className="text-[14px] font-black tracking-[-0.02em]">
+              <span className="text-[14px] font-extrabold tracking-[-0.015em]">
                 Calculadora de piscina
               </span>
 
@@ -116,8 +110,6 @@ export default function MenuPrincipal({
               <span className="pointer-events-none absolute inset-y-0 left-[-45%] w-[30%] skew-x-[-20deg] bg-white/30 blur-[1px] transition-all duration-700 group-hover:left-[120%]" />
             </button>
           </div>
-
-          {/* WhatsApp */}
 
           <a
             href={`https://wa.me/${

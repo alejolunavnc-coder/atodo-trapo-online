@@ -312,7 +312,20 @@ export default function DesktopHome() {
       </div>
 
       <div className="mt-8">
-        <CalculadoraPiscinaPC />
+        <CalculadoraPiscinaPC
+          onAgregarAlCarrito={(producto) => {
+            agregarAlCarrito(
+              producto as unknown as Producto
+            );
+
+            setCarritoAnimado(true);
+
+            window.setTimeout(() => {
+              setCarritoAnimado(false);
+              setMostrarCarrito(true);
+            }, 450);
+          }}
+        />
       </div>
     </div>
   </section>

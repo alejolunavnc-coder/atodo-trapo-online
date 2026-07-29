@@ -7,7 +7,9 @@ import {
 } from "react";
 import {
   CircleCheck,
+  Clock3,
   Droplets,
+  ShoppingCart,
 } from "lucide-react";
 
 import Paso1VolumenPiscina, {
@@ -29,13 +31,53 @@ import Paso4ResultadoPiscina from "./Paso4ResultadoPiscina";
 
 type PasoCalculadora = 1 | 2 | 3 | 4;
 
+function formatearRecirculacion(
+  litrosPiscina: number
+) {
+  if (litrosPiscina <= 0) {
+    return "—";
+  }
+
+  const minutosTotales = Math.max(
+    1,
+    Math.round(
+      (litrosPiscina / 10000) * 60
+    )
+  );
+
+  const horas = Math.floor(
+    minutosTotales / 60
+  );
+
+  const minutos =
+    minutosTotales % 60;
+
+  if (horas > 0 && minutos > 0) {
+    return `${horas} h ${minutos} min`;
+  }
+
+  if (horas > 0) {
+    return `${horas} h`;
+  }
+
+  return `${minutos} min`;
+}
+
 function formatearNumero(valor: number) {
   return valor.toLocaleString("es-AR", {
     maximumFractionDigits: 0,
   });
 }
 
-export default function CalculadoraPiscinaPC() {
+type CalculadoraPiscinaPCProps = {
+  onAgregarAlCarrito: (
+    producto: import("./Paso3TratamientoPiscina").ProductoPiscina
+  ) => void;
+};
+
+export default function CalculadoraPiscinaPC({
+  onAgregarAlCarrito,
+}: CalculadoraPiscinaPCProps) {
   const [pasoActual, setPasoActual] =
     useState<PasoCalculadora>(1);
 
@@ -476,8 +518,12 @@ export default function CalculadoraPiscinaPC() {
           )}
         </div>
 
-        <div className="mt-5 rounded-[20px] bg-gradient-to-br from-[#0D5EA8] to-[#078ACB] px-5 py-5 text-white">
-          <div className="flex items-center gap-2">
+        <div className="relative mt-5 overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] px-5 py-5 text-white shadow-[0_16px_34px_rgba(8,121,197,0.22)]">
+          <div className="pointer-events-none absolute -bottom-16 -right-12 h-40 w-64 rounded-[50%] border border-white/15" />
+          <div className="pointer-events-none absolute -bottom-20 right-4 h-40 w-72 rounded-[50%] border border-white/10" />
+          <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+
+          <div className="relative z-10 flex items-center gap-2">
             <Droplets
               size={18}
               strokeWidth={2.5}
@@ -488,14 +534,61 @@ export default function CalculadoraPiscinaPC() {
             </p>
           </div>
 
-          <p className="mt-2 text-[34px] font-black leading-none">
+          <p className="relative z-10 mt-2 text-[34px] font-black leading-none">
             {formatearNumero(litrosPiscina)}
           </p>
 
-          <p className="mt-1 text-[14px] font-black text-white/85">
+          <p className="relative z-10 mt-1 text-[14px] font-black text-white/85">
             litros
           </p>
+
+          {litrosPiscina > 0 && (
+            <div className="relative z-10 mt-4 flex items-start gap-3 rounded-[15px] border border-white/20 bg-white/10 px-3.5 py-3 backdrop-blur-sm">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                <Clock3
+                  size={16}
+                  strokeWidth={2.5}
+                />
+              </span>
+
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.12em] text-white/70">
+                  Recirculación diaria
+                </p>
+
+                <p className="mt-0.5 text-[12px] font-black text-white">
+                  {formatearRecirculacion(
+                    litrosPiscina
+                  )}{" "}
+                  DIARIAMENTE
+                </p>
+
+                <p className="mt-1 text-[9px] font-semibold leading-relaxed text-white/70">
+                  Calculado a razón de 1 hora cada 10.000 litros.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
+
+        {tratamientoSeleccionado !== null && (
+          <button
+            type="button"
+            onClick={() =>
+              onAgregarAlCarrito(
+                tratamientoSeleccionado
+              )
+            }
+            className="mt-4 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] bg-teal-700 px-5 text-[13px] font-black text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+          >
+            <ShoppingCart
+              size={18}
+              strokeWidth={2.6}
+            />
+
+            Agregar al carrito
+          </button>
+        )}
 
         <div className="mt-4 rounded-[16px] bg-sky-50 px-4 py-3">
           <p className="text-[10px] font-semibold leading-relaxed text-blue-950">

@@ -11,6 +11,7 @@ import {
   Calculator,
   Circle,
   CircleCheck,
+  Clock3,
   Droplets,
   Ruler,
   Waves,
@@ -46,6 +47,38 @@ type Paso1VolumenPiscinaProps = {
     resumen: ResumenVolumenPiscina
   ) => void;
 };
+
+function formatearRecirculacion(
+  litrosPiscina: number
+) {
+  if (litrosPiscina <= 0) {
+    return "—";
+  }
+
+  const minutosTotales = Math.max(
+    1,
+    Math.round(
+      (litrosPiscina / 10000) * 60
+    )
+  );
+
+  const horas = Math.floor(
+    minutosTotales / 60
+  );
+
+  const minutos =
+    minutosTotales % 60;
+
+  if (horas > 0 && minutos > 0) {
+    return `${horas} h ${minutos} min`;
+  }
+
+  if (horas > 0) {
+    return `${horas} h`;
+  }
+
+  return `${minutos} min`;
+}
 
 function convertirNumero(valor: string) {
   const numero = Number(
@@ -671,6 +704,52 @@ export default function Paso1VolumenPiscina({
             <p className="text-[11px] font-black uppercase tracking-[0.14em]">
               Paso 1 completado
             </p>
+          </div>
+
+          <div className="mb-4 grid grid-cols-[1fr_auto] items-center gap-4 rounded-[18px] border border-sky-200 bg-white px-5 py-4 shadow-sm">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-sky-600">
+                Capacidad calculada
+              </p>
+
+              <p className="mt-1 text-[24px] font-black leading-none text-blue-950">
+                {litrosPiscina.toLocaleString(
+                  "es-AR",
+                  {
+                    maximumFractionDigits: 0,
+                  }
+                )}{" "}
+                <span className="text-[13px] text-sky-700">
+                  litros
+                </span>
+              </p>
+            </div>
+
+            <div className="flex min-w-[250px] items-start gap-3 rounded-[15px] bg-sky-50 px-4 py-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white">
+                <Clock3
+                  size={17}
+                  strokeWidth={2.5}
+                />
+              </span>
+
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.12em] text-sky-700">
+                  Recirculación diaria
+                </p>
+
+                <p className="mt-0.5 text-[12px] font-black text-blue-950">
+                  {formatearRecirculacion(
+                    litrosPiscina
+                  )}{" "}
+                  DIARIAMENTE
+                </p>
+
+                <p className="mt-0.5 text-[9px] font-semibold text-gray-500">
+                  1 hora cada 10.000 litros.
+                </p>
+              </div>
+            </div>
           </div>
 
           <button

@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CircleAlert,
   Droplets,
+  Info,
   PaintBucket,
   Zap,
 } from "lucide-react";
@@ -77,26 +78,6 @@ function formatearCantidad(
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
-}
-
-function separarModoDeUso(
-  valor: string
-) {
-  return valor
-    .replace(
-      /(\d)\.(\d{3})(?=\D|$)/g,
-      "$1__MILES__$2"
-    )
-    .split(/(?:\r?\n|;|\.\s+)+/)
-    .map((paso) =>
-      paso
-        .replace(
-          /__MILES__/g,
-          "."
-        )
-        .trim()
-    )
-    .filter(Boolean);
 }
 
 function tieneDosisPotenciada(
@@ -180,20 +161,26 @@ export default function Paso4ResultadoPiscina({
       "Unidad dosis"
     ) || "unidades";
 
-  const modoUso =
-    obtenerValor(
-      producto,
-      "Modo de uso"
-    );
-
-  const pasosModoUso =
-    separarModoDeUso(modoUso);
+  const pasosModoUso = [
+    "Cepillar piso y paredes.",
+    "Estabilizar el pH entre 7,2 y 7,6.",
+    "Diluir el producto en un balde con agua y esparcir la mezcla en la piscina.",
+    "Aplicar al finalizar la jornada de bañistas.",
+  ];
 
   const advertencia =
     obtenerValor(
       producto,
       "Advertencia"
     );
+
+  const datos =
+    obtenerValor(
+      producto,
+      "Datos",
+      "Tiempo de espera"
+    );
+
 
   const mostrarPotenciada =
     tieneDosisPotenciada(producto);
@@ -266,36 +253,42 @@ export default function Paso4ResultadoPiscina({
             {nombre}
           </h3>
 
-          <div className="relative mt-5 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] p-5 text-white shadow-[0_18px_38px_rgba(8,121,197,0.24)]">
-            <div className="pointer-events-none absolute -bottom-16 -right-12 h-44 w-72 rounded-[50%] border border-white/15" />
-            <div className="pointer-events-none absolute -bottom-20 -right-2 h-44 w-80 rounded-[50%] border border-white/10" />
-            <div className="pointer-events-none absolute -bottom-24 right-8 h-44 w-80 rounded-[50%] border border-white/10" />
-            <div className="pointer-events-none absolute right-6 top-5 h-20 w-20 rounded-full bg-white/5 blur-2xl" />
+          <div className="relative mt-5 overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0759A8] via-[#087CC8] to-[#20A9E8] p-5 text-white shadow-[0_20px_44px_rgba(8,124,200,0.30)]">
+            <div className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full border border-white/15" />
+            <div className="pointer-events-none absolute -right-3 -top-8 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+            <div className="pointer-events-none absolute -bottom-20 -left-12 h-44 w-72 rounded-[50%] border border-white/15" />
+            <div className="pointer-events-none absolute -bottom-24 left-12 h-44 w-80 rounded-[50%] border border-white/10" />
+            <div className="pointer-events-none absolute bottom-2 right-6 h-16 w-16 rounded-full bg-cyan-200/10 blur-2xl" />
 
             <div className="relative z-10 flex items-center gap-2">
-              <Droplets
-                size={19}
-                strokeWidth={2.5}
-              />
+              <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
+                <Droplets
+                  size={19}
+                  strokeWidth={2.5}
+                />
+              </span>
 
-              <p className="text-[11px] font-black uppercase tracking-[0.1em] text-white/75">
+              <p className="text-[11px] font-black uppercase tracking-[0.1em] text-white/80">
                 Dosis recomendada para tu piscina
               </p>
             </div>
 
-            <p className="relative z-10 mt-3 text-[38px] font-black leading-none">
-              {dosisCalculada > 0
-                ? formatearCantidad(
-                    dosisCalculada
-                  )
-                : "—"}
-            </p>
+            <div className="relative z-10 mt-4 flex items-end gap-2">
+              <p className="text-[42px] font-black leading-none">
+                {dosisCalculada > 0
+                  ? formatearCantidad(
+                      dosisCalculada
+                    )
+                  : "—"}
+              </p>
 
-            <p className="relative z-10 mt-1 text-[15px] font-black text-white/85">
-              {dosisCalculada > 0
-                ? unidad
-                : "Faltan datos de dosis"}
-            </p>
+              <p className="pb-1 text-[16px] font-black text-white/90">
+                {dosisCalculada > 0
+                  ? unidad
+                  : "Faltan datos"}
+              </p>
+            </div>
+
           </div>
 
           {mostrarPotenciada &&
@@ -344,50 +337,110 @@ export default function Paso4ResultadoPiscina({
               </p>
             </div>
           )}
+
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-[20px] border border-gray-200 bg-white p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-sky-600">
-            Modo de uso
-          </p>
+      <div className="grid grid-cols-[1.1fr_0.9fr] gap-4">
+        <div className="rounded-[22px] border border-sky-200 bg-gradient-to-br from-white to-sky-50/40 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-sky-100 text-sky-700 ring-1 ring-sky-200">
+              <Droplets
+                size={21}
+                strokeWidth={2.5}
+              />
+            </div>
 
-          {pasosModoUso.length > 0 ? (
-            <ol className="mt-4 space-y-3">
-              {pasosModoUso.map(
-                (paso, indice) => (
-                  <li
-                    key={`${paso}-${indice}`}
-                    className="flex items-start gap-3"
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sky-600 text-[10px] font-black text-white">
-                      {indice + 1}
-                    </span>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-sky-700">
+                Modo de uso
+              </p>
 
-                    <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-gray-700">
-                      {paso}.
-                    </p>
-                  </li>
-                )
-              )}
-            </ol>
-          ) : (
-            <p className="mt-3 text-[11px] font-semibold leading-relaxed text-gray-500">
-              Sin información cargada
-            </p>
-          )}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="h-[3px] w-12 rounded-full bg-sky-600" />
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+              </div>
+            </div>
+          </div>
+
+          <ol className="mt-4 space-y-2.5">
+            {pasosModoUso.map(
+              (paso, indice) => (
+                <li
+                  key={`${paso}-${indice}`}
+                  className="group flex items-start gap-4 rounded-[15px] border border-sky-100 bg-white px-3.5 py-3 shadow-[0_8px_20px_rgba(15,23,42,0.05)]"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-600 to-blue-700 text-[10px] font-black text-white shadow-sm">
+                    {indice + 1}
+                  </span>
+
+                  <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-slate-700">
+                    {paso}
+                  </p>
+                </li>
+              )
+            )}
+          </ol>
         </div>
 
-        <div className="rounded-[20px] border border-red-300 bg-red-50 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-red-700">
-            Advertencia
-          </p>
+        <div className="grid grid-rows-2 gap-4">
+          <div className="rounded-[22px] border border-red-300 bg-gradient-to-br from-red-50 to-white p-5 shadow-[0_10px_24px_rgba(127,29,29,0.07)]">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-red-100 text-red-700 ring-1 ring-red-200">
+                <CircleAlert
+                  size={21}
+                  strokeWidth={2.6}
+                />
+              </div>
 
-          <p className="mt-3 text-[11px] font-semibold leading-relaxed text-red-900">
-            {advertencia ||
-              "Sin advertencias cargadas"}
-          </p>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-red-700">
+                  Advertencia
+                </p>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="h-[3px] w-12 rounded-full bg-red-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-[15px] border-l-4 border-red-500 bg-white px-4 py-4 shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+              <p className="text-[11px] font-bold leading-relaxed text-red-950">
+                {advertencia ||
+                  "Sin advertencias cargadas"}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-[22px] border border-emerald-300 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-[0_10px_24px_rgba(6,95,70,0.07)]">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                <Info
+                  size={21}
+                  strokeWidth={2.6}
+                />
+              </div>
+
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700">
+                  Datos importantes
+                </p>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="h-[3px] w-12 rounded-full bg-emerald-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-[15px] border-l-4 border-emerald-500 bg-white px-4 py-4 shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+              <p className="text-[11px] font-bold leading-relaxed text-emerald-950">
+                {datos ||
+                  "Sin datos adicionales cargados"}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
