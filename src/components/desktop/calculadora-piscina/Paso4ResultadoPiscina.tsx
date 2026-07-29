@@ -79,6 +79,26 @@ function formatearCantidad(
   });
 }
 
+function separarModoDeUso(
+  valor: string
+) {
+  return valor
+    .replace(
+      /(\d)\.(\d{3})(?=\D|$)/g,
+      "$1__MILES__$2"
+    )
+    .split(/(?:\r?\n|;|\.\s+)+/)
+    .map((paso) =>
+      paso
+        .replace(
+          /__MILES__/g,
+          "."
+        )
+        .trim()
+    )
+    .filter(Boolean);
+}
+
 function tieneDosisPotenciada(
   producto: ProductoPiscina
 ) {
@@ -166,11 +186,8 @@ export default function Paso4ResultadoPiscina({
       "Modo de uso"
     );
 
-  const tiempoEspera =
-    obtenerValor(
-      producto,
-      "Tiempo de espera"
-    );
+  const pasosModoUso =
+    separarModoDeUso(modoUso);
 
   const advertencia =
     obtenerValor(
@@ -223,7 +240,13 @@ export default function Paso4ResultadoPiscina({
       </div>
 
       <div className="grid grid-cols-[280px_minmax(0,1fr)] gap-6 rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex min-h-[280px] items-center justify-center rounded-[20px] bg-gray-50 p-5">
+        <div className="relative flex min-h-[280px] items-center justify-center rounded-[20px] bg-gray-50 p-5">
+          {marca && (
+            <span className="absolute left-4 top-4 z-10 inline-flex max-w-[150px] truncate rounded-full bg-white px-3 py-1.5 text-[10px] font-black text-sky-700 shadow-sm ring-1 ring-sky-100">
+              {marca}
+            </span>
+          )}
+
           {imagen ? (
             <img
               src={imagen}
@@ -239,18 +262,17 @@ export default function Paso4ResultadoPiscina({
         </div>
 
         <div>
-          {marca && (
-            <span className="inline-flex rounded-full bg-sky-100 px-3 py-1.5 text-[10px] font-black text-sky-700">
-              {marca}
-            </span>
-          )}
-
-          <h3 className="mt-3 text-[24px] font-black tracking-[-0.03em] text-blue-950">
+          <h3 className="text-[24px] font-black tracking-[-0.03em] text-blue-950">
             {nombre}
           </h3>
 
-          <div className="mt-5 rounded-[22px] bg-gradient-to-br from-[#0D5EA8] to-[#078ACB] p-5 text-white">
-            <div className="flex items-center gap-2">
+          <div className="relative mt-5 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] p-5 text-white shadow-[0_18px_38px_rgba(8,121,197,0.24)]">
+            <div className="pointer-events-none absolute -bottom-16 -right-12 h-44 w-72 rounded-[50%] border border-white/15" />
+            <div className="pointer-events-none absolute -bottom-20 -right-2 h-44 w-80 rounded-[50%] border border-white/10" />
+            <div className="pointer-events-none absolute -bottom-24 right-8 h-44 w-80 rounded-[50%] border border-white/10" />
+            <div className="pointer-events-none absolute right-6 top-5 h-20 w-20 rounded-full bg-white/5 blur-2xl" />
+
+            <div className="relative z-10 flex items-center gap-2">
               <Droplets
                 size={19}
                 strokeWidth={2.5}
@@ -261,7 +283,7 @@ export default function Paso4ResultadoPiscina({
               </p>
             </div>
 
-            <p className="mt-3 text-[38px] font-black leading-none">
+            <p className="relative z-10 mt-3 text-[38px] font-black leading-none">
               {dosisCalculada > 0
                 ? formatearCantidad(
                     dosisCalculada
@@ -269,7 +291,7 @@ export default function Paso4ResultadoPiscina({
                 : "—"}
             </p>
 
-            <p className="mt-1 text-[15px] font-black text-white/85">
+            <p className="relative z-10 mt-1 text-[15px] font-black text-white/85">
               {dosisCalculada > 0
                 ? unidad
                 : "Faltan datos de dosis"}
@@ -325,66 +347,49 @@ export default function Paso4ResultadoPiscina({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <DatoResultado
-          titulo="Modo de uso"
-          valor={
-            modoUso ||
-            "Sin información cargada"
-          }
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-[20px] border border-gray-200 bg-white p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-sky-600">
+            Modo de uso
+          </p>
 
-        <DatoResultado
-          titulo="Tiempo de espera"
-          valor={
-            tiempoEspera ||
-            "Sin información cargada"
-          }
-        />
+          {pasosModoUso.length > 0 ? (
+            <ol className="mt-4 space-y-3">
+              {pasosModoUso.map(
+                (paso, indice) => (
+                  <li
+                    key={`${paso}-${indice}`}
+                    className="flex items-start gap-3"
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sky-600 text-[10px] font-black text-white">
+                      {indice + 1}
+                    </span>
 
-        <DatoResultado
-          titulo="Advertencia"
-          valor={
-            advertencia ||
-            "Sin advertencias cargadas"
-          }
-          advertencia
-        />
+                    <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-gray-700">
+                      {paso}.
+                    </p>
+                  </li>
+                )
+              )}
+            </ol>
+          ) : (
+            <p className="mt-3 text-[11px] font-semibold leading-relaxed text-gray-500">
+              Sin información cargada
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-[20px] border border-red-300 bg-red-50 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-red-700">
+            Advertencia
+          </p>
+
+          <p className="mt-3 text-[11px] font-semibold leading-relaxed text-red-900">
+            {advertencia ||
+              "Sin advertencias cargadas"}
+          </p>
+        </div>
       </div>
     </section>
-  );
-}
-
-function DatoResultado({
-  titulo,
-  valor,
-  advertencia = false,
-}: {
-  titulo: string;
-  valor: string;
-  advertencia?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-[20px] border p-5 ${
-        advertencia
-          ? "border-amber-300 bg-amber-50"
-          : "border-gray-200 bg-white"
-      }`}
-    >
-      <p
-        className={`text-[10px] font-black uppercase tracking-[0.12em] ${
-          advertencia
-            ? "text-amber-700"
-            : "text-sky-600"
-        }`}
-      >
-        {titulo}
-      </p>
-
-      <p className="mt-3 text-[11px] font-semibold leading-relaxed text-gray-700">
-        {valor}
-      </p>
-    </div>
   );
 }
