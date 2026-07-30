@@ -57,16 +57,13 @@ export default function useProductos({
 
   const productosFiltrados = productosDisponibles.filter(
     (producto: Producto) => {
-      if (esOfertas) {
-        return tieneOferta(producto);
-      }
+      if (esOfertas) return tieneOferta(producto);
 
       const mismaCategoria =
         producto.Categoría?.trim().toLowerCase() ===
         categoriaActual;
 
       if (!mismaCategoria) return false;
-
       if (!esPinturas) return true;
 
       const subcategoriaActual = String(
@@ -97,6 +94,14 @@ export default function useProductos({
     items: Producto[];
   };
 
+  const normalizarClaveGrupo = (valor: unknown) =>
+    String(valor || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
   const agrupar = (
     lista: Producto[]
   ): GrupoProducto[] =>
@@ -106,13 +111,24 @@ export default function useProductos({
           acc: Record<string, GrupoProducto>,
           producto: Producto
         ) => {
-          const nombre =
-            producto.Nombre || "Producto sin nombre";
+          const nombre = String(
+            producto.Nombre ||
+              "Producto sin nombre"
+          ).trim();
 
-          const linea = producto.Linea || "";
-          const marca = producto.Marca || "";
+          const linea = String(
+            producto.Linea || ""
+          ).trim();
 
-          const clave = `${linea}-${nombre}-${marca}`;
+          const marca = String(
+            producto.Marca || ""
+          ).trim();
+
+          const clave = JSON.stringify([
+            normalizarClaveGrupo(marca),
+            normalizarClaveGrupo(linea),
+            normalizarClaveGrupo(nombre),
+          ]);
 
           if (!acc[clave]) {
             acc[clave] = {
@@ -131,13 +147,6 @@ export default function useProductos({
       )
     );
 
-  /*
-   * Normaliza las palabras del buscador:
-   * - ignora mayúsculas y minúsculas;
-   * - elimina acentos;
-   * - elimina signos innecesarios;
-   * - compara singular y plural.
-   */
   const normalizarTextoBusqueda = (valor: any) =>
     String(valor || "")
       .normalize("NFD")
@@ -148,15 +157,8 @@ export default function useProductos({
       .trim();
 
   const singularizarPalabra = (palabra: string) => {
-    if (palabra.length <= 3) {
-      return palabra;
-    }
+    if (palabra.length <= 3) return palabra;
 
-    /*
-     * Ejemplos:
-     * luces → luz
-     * barnices → barniz
-     */
     if (
       palabra.endsWith("ces") &&
       palabra.length > 4
@@ -164,12 +166,6 @@ export default function useProductos({
       return `${palabra.slice(0, -3)}z`;
     }
 
-    /*
-     * Ejemplos:
-     * paredes → pared
-     * colores → color
-     * interiores → interior
-     */
     if (
       palabra.endsWith("es") &&
       palabra.length > 4
@@ -177,12 +173,6 @@ export default function useProductos({
       return palabra.slice(0, -2);
     }
 
-    /*
-     * Ejemplos:
-     * pinturas → pintura
-     * rodillos → rodillo
-     * brochas → brocha
-     */
     if (
       palabra.endsWith("s") &&
       palabra.length > 3
