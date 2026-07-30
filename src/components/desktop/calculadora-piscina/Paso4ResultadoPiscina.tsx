@@ -5,6 +5,7 @@ import {
   CircleAlert,
   Droplets,
   Info,
+  PackageCheck,
   PaintBucket,
   Zap,
 } from "lucide-react";
@@ -16,6 +17,244 @@ import type {
 import type {
   ProductoPiscina,
 } from "./Paso3TratamientoPiscina";
+
+export type ItemCompraPiscina = {
+  producto: ProductoPiscina;
+  cantidad: number;
+  contenidoBase: number;
+  contenidoTexto: string;
+  precioUnitario: number;
+};
+
+export type CompraEconomicaPiscina = {
+  items: ItemCompraPiscina[];
+  cantidadNecesariaBase: number;
+  cantidadCompradaBase: number;
+  sobranteBase: number;
+  precioTotal: number;
+  unidadBase: "ml" | "g";
+  unidadVisual: "L" | "kg";
+};
+
+function normalizarUnidad(valor: unknown) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\./g, "");
+}
+
+function convertirABase(cantidad: number, unidad: string) {
+  const unidadNormalizada = normalizarUnidad(unidad);
+
+  if (unidadNormalizada === "l" || unidadNormalizada.includes("litro")) {
+    return { valor: cantidad * 1000, unidadBase: "ml" as const, unidadVisual: "L" as const };
+  }
+
+  if (unidadNormalizada === "ml" || unidadNormalizada.includes("mililitro")) {
+    return { valor: cantidad, unidadBase: "ml" as const, unidadVisual: "L" as const };
+  }
+
+  if (unidadNormalizada === "kg" || unidadNormalizada.includes("kilo")) {
+    return { valor: cantidad * 1000, unidadBase: "g" as const, unidadVisual: "kg" as const };
+  }
+
+  if (unidadNormalizada === "g" || unidadNormalizada.includes("gramo")) {
+    return { valor: cantidad, unidadBase: "g" as const, unidadVisual: "kg" as const };
+  }
+
+  return null;
+}
+
+function obtenerPresentaciones(producto: ProductoPiscina) {
+  const serializadas = producto.__PresentacionesPiscina;
+
+  if (!serializadas) {
+    return [producto];
+  }
+
+  try {
+    const presentaciones = JSON.parse(serializadas);
+    return Array.isArray(presentaciones)
+      ? (presentaciones as ProductoPiscina[])
+      : [producto];
+  } catch {
+    return [producto];
+  }
+}
+
+function obtenerContenidoPresentacion(producto: ProductoPiscina) {
+  const texto = obtenerValor(producto, "Tamaño", "Tamano");
+  const coincidencia = texto.match(/(\d+(?:[.,]\d+)?)\s*(ml|mililitros?|l|litros?|g|gramos?|kg|kilos?)/i);
+
+  if (!coincidencia) {
+    return null;
+  }
+
+  const cantidad = numeroDesdeTexto(coincidencia[1]);
+  const convertido = convertirABase(cantidad, coincidencia[2]);
+
+  if (!convertido || convertido.valor <= 0) {
+    return null;
+  }
+
+  return { ...convertido, texto };
+}
+
+function obtenerPrecioFinal(producto: ProductoPiscina) {
+  const precio = numeroDesdeTexto(obtenerValor(producto, "Precio"));
+  const precioOferta = numeroDesdeTexto(obtenerValor(producto, "Precio oferta"));
+
+  if (precioOferta > 0 && (precio <= 0 || precioOferta < precio)) {
+    return precioOferta;
+  }
+
+  return precio;
+}
+
+export function calcularCompraEconomica(
+  producto: ProductoPiscina,
+  dosisCalculada: number
+): CompraEconomicaPiscina | null {
+  if (dosisCalculada <= 0) {
+    return null;
+  }
+
+  const unidadDosis = obtenerValor(producto, "Unidad dosis");
+  const dosisBase = convertirABase(dosisCalculada, unidadDosis);
+
+  if (!dosisBase) {
+    return null;
+  }
+
+  const opciones = obtenerPresentaciones(producto)
+    .map((presentacion) => {
+      const contenido = obtenerContenidoPresentacion(presentacion);
+      const precio = obtenerPrecioFinal(presentacion);
+
+      if (!contenido || precio <= 0 || contenido.unidadBase !== dosisBase.unidadBase) {
+        return null;
+      }
+
+      return {
+        producto: presentacion,
+        contenidoBase: Math.round(contenido.valor),
+        contenidoTexto: contenido.texto,
+        precioUnitario: precio,
+      };
+    })
+    .filter((opcion): opcion is NonNullable<typeof opcion> => opcion !== null);
+
+  if (opciones.length === 0) {
+    return null;
+  }
+
+  const necesaria = Math.ceil(dosisBase.valor);
+  let mejor: {
+    cantidades: number[];
+    total: number;
+    comprado: number;
+    envases: number;
+  } | null = null;
+
+  const cantidades = new Array(opciones.length).fill(0);
+
+  function esMejor(total: number, comprado: number, envases: number) {
+    if (!mejor) return true;
+    if (total !== mejor.total) return total < mejor.total;
+
+    const sobrante = comprado - necesaria;
+    const mejorSobrante = mejor.comprado - necesaria;
+    if (sobrante !== mejorSobrante) return sobrante < mejorSobrante;
+
+    return envases < mejor.envases;
+  }
+
+  function explorar(indice: number, comprado: number, total: number, envases: number) {
+    if (mejor && total > mejor.total) return;
+
+    if (indice === opciones.length) {
+      if (comprado >= necesaria && esMejor(total, comprado, envases)) {
+        mejor = {
+          cantidades: [...cantidades],
+          total,
+          comprado,
+          envases,
+        };
+      }
+      return;
+    }
+
+    const opcion = opciones[indice];
+    const faltante = Math.max(0, necesaria - comprado);
+    const maximoNecesario = Math.ceil(faltante / opcion.contenidoBase) + 1;
+
+    for (let cantidad = 0; cantidad <= maximoNecesario; cantidad += 1) {
+      cantidades[indice] = cantidad;
+      explorar(
+        indice + 1,
+        comprado + cantidad * opcion.contenidoBase,
+        total + cantidad * opcion.precioUnitario,
+        envases + cantidad
+      );
+    }
+
+    cantidades[indice] = 0;
+  }
+
+  explorar(0, 0, 0, 0);
+
+  if (!mejor) {
+    return null;
+  }
+
+  const resultado = mejor as {
+    cantidades: number[];
+    total: number;
+    comprado: number;
+    envases: number;
+  };
+
+  const items = opciones
+    .map((opcion, indice) => ({
+      ...opcion,
+      cantidad:
+        resultado.cantidades[indice],
+    }))
+    .filter(
+      (item) => item.cantidad > 0
+    );
+
+  return {
+    items,
+    cantidadNecesariaBase:
+      necesaria,
+    cantidadCompradaBase:
+      resultado.comprado,
+    sobranteBase:
+      resultado.comprado - necesaria,
+    precioTotal:
+      resultado.total,
+    unidadBase:
+      dosisBase.unidadBase,
+    unidadVisual:
+      dosisBase.unidadVisual,
+  };
+}
+
+export function formatearBaseCompra(
+  valorBase: number,
+  unidadBase: "ml" | "g",
+  unidadVisual: "L" | "kg"
+) {
+  const valor = valorBase / 1000;
+
+  return `${valor.toLocaleString("es-AR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })} ${unidadVisual}`;
+}
 
 type Paso4ResultadoPiscinaProps = {
   litrosPiscina: number;
@@ -194,6 +433,12 @@ export default function Paso4ResultadoPiscina({
         litrosReferencia
       : 0;
 
+  const compraEconomica =
+    calcularCompraEconomica(
+      producto,
+      dosisCalculada
+    );
+
   return (
     <section className="space-y-6">
       <div className="rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm">
@@ -338,6 +583,90 @@ export default function Paso4ResultadoPiscina({
             </div>
           )}
 
+          {compraEconomica && (
+            <div className="mt-4 rounded-[20px] border border-emerald-300 bg-gradient-to-br from-emerald-50 via-white to-emerald-50 p-5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+                  <PackageCheck size={20} strokeWidth={2.6} />
+                </span>
+
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-emerald-700">
+                    Opción más económica
+                  </p>
+
+                  <p className="mt-1 text-[13px] font-black text-blue-950">
+                    Compra recomendada
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {compraEconomica.items.map((item, indice) => (
+                  <div
+                    key={`${item.contenidoTexto}-${indice}`}
+                    className="flex items-center justify-between gap-4 rounded-[14px] border border-emerald-100 bg-white px-4 py-3"
+                  >
+                    <p className="text-[11px] font-bold text-slate-700">
+                      {item.cantidad} {item.cantidad === 1 ? "envase" : "envases"} de {item.contenidoTexto}
+                    </p>
+
+                    <p className="text-[11px] font-black text-emerald-700">
+                      {(item.precioUnitario * item.cantidad).toLocaleString("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <DatoCompra
+                  etiqueta="Necesitás"
+                  valor={formatearBaseCompra(
+                    compraEconomica.cantidadNecesariaBase,
+                    compraEconomica.unidadBase,
+                    compraEconomica.unidadVisual
+                  )}
+                />
+
+                <DatoCompra
+                  etiqueta="Comprás"
+                  valor={formatearBaseCompra(
+                    compraEconomica.cantidadCompradaBase,
+                    compraEconomica.unidadBase,
+                    compraEconomica.unidadVisual
+                  )}
+                />
+
+                <DatoCompra
+                  etiqueta="Sobrante"
+                  valor={formatearBaseCompra(
+                    compraEconomica.sobranteBase,
+                    compraEconomica.unidadBase,
+                    compraEconomica.unidadVisual
+                  )}
+                />
+              </div>
+
+              <div className="mt-3 flex items-center justify-between rounded-[14px] bg-emerald-600 px-4 py-3 text-white">
+                <span className="text-[11px] font-black uppercase tracking-[0.08em]">
+                  Total estimado
+                </span>
+
+                <span className="text-[17px] font-black">
+                  {compraEconomica.precioTotal.toLocaleString("es-AR", {
+                    style: "currency",
+                    currency: "ARS",
+                    maximumFractionDigits: 0,
+                  })}
+                </span>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -444,5 +773,25 @@ export default function Paso4ResultadoPiscina({
         </div>
       </div>
     </section>
+  );
+}
+
+function DatoCompra({
+  etiqueta,
+  valor,
+}: {
+  etiqueta: string;
+  valor: string;
+}) {
+  return (
+    <div className="rounded-[13px] border border-emerald-100 bg-white px-3 py-2.5 text-center">
+      <p className="text-[8px] font-black uppercase tracking-[0.08em] text-gray-400">
+        {etiqueta}
+      </p>
+
+      <p className="mt-1 text-[11px] font-black text-blue-950">
+        {valor}
+      </p>
+    </div>
   );
 }

@@ -27,7 +27,10 @@ import Paso3TratamientoPiscina, {
   type TratamientoSeleccionado,
 } from "./Paso3TratamientoPiscina";
 
-import Paso4ResultadoPiscina from "./Paso4ResultadoPiscina";
+import Paso4ResultadoPiscina, {
+  calcularCompraEconomica,
+  formatearBaseCompra,
+} from "./Paso4ResultadoPiscina";
 
 type PasoCalculadora = 1 | 2 | 3 | 4;
 
@@ -69,9 +72,43 @@ function formatearNumero(valor: number) {
   });
 }
 
+function numeroDesdeTexto(valor: unknown) {
+  const texto = String(valor || "").trim().replace(/\s/g, "");
+  if (!texto) return 0;
+
+  const normalizado =
+    texto.includes(",") && texto.includes(".")
+      ? texto.lastIndexOf(",") > texto.lastIndexOf(".")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto.replace(/,/g, "")
+      : texto.replace(",", ".");
+
+  const numero = Number(normalizado);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function obtenerValor(
+  producto: import("./Paso3TratamientoPiscina").ProductoPiscina | null,
+  ...claves: string[]
+) {
+  if (!producto) return "";
+
+  for (const clave of claves) {
+    const valor = producto[clave];
+    if (typeof valor === "string" && valor.trim() !== "") {
+      return valor.trim();
+    }
+  }
+
+  return "";
+}
+
 type CalculadoraPiscinaPCProps = {
   onAgregarAlCarrito: (
-    producto: import("./Paso3TratamientoPiscina").ProductoPiscina
+    items: {
+      producto: import("./Paso3TratamientoPiscina").ProductoPiscina;
+      cantidad: number;
+    }[]
   ) => void;
 };
 
@@ -306,6 +343,42 @@ export default function CalculadoraPiscinaPC({
       });
     }, 420);
   }
+
+  const dosisSeleccionada =
+    tratamientoSeleccionado !== null
+      ? numeroDesdeTexto(
+          obtenerValor(
+            tratamientoSeleccionado,
+            "Dosis"
+          )
+        )
+      : 0;
+
+  const litrosReferenciaSeleccionada =
+    tratamientoSeleccionado !== null
+      ? numeroDesdeTexto(
+          obtenerValor(
+            tratamientoSeleccionado,
+            "Litros referencia"
+          )
+        )
+      : 0;
+
+  const dosisCalculadaSeleccionada =
+    litrosPiscina > 0 &&
+    dosisSeleccionada > 0 &&
+    litrosReferenciaSeleccionada > 0
+      ? (litrosPiscina * dosisSeleccionada) /
+        litrosReferenciaSeleccionada
+      : 0;
+
+  const compraEconomica =
+    tratamientoSeleccionado !== null
+      ? calcularCompraEconomica(
+          tratamientoSeleccionado,
+          dosisCalculadaSeleccionada
+        )
+      : null;
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-6">
@@ -571,23 +644,42 @@ export default function CalculadoraPiscinaPC({
           )}
         </div>
 
-        {tratamientoSeleccionado !== null && (
-          <button
-            type="button"
-            onClick={() =>
-              onAgregarAlCarrito(
-                tratamientoSeleccionado
-              )
-            }
-            className="mt-4 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] bg-teal-700 px-5 text-[13px] font-black text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
-          >
-            <ShoppingCart
-              size={18}
-              strokeWidth={2.6}
-            />
+        {compraEconomica && (
+          <div className="mt-4 rounded-[18px] border border-emerald-200 bg-emerald-50 p-4">
+            <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
+              Opción más económica
+            </p>
 
-            Agregar al carrito
-          </button>
+            <p className="mt-1 text-[11px] font-black text-blue-950">
+              {compraEconomica.items
+                .map((item) => `${item.cantidad} × ${item.contenidoTexto}`)
+                .join(" + ")}
+            </p>
+
+            <p className="mt-1 text-[9px] font-semibold text-gray-500">
+              Sobrante: {formatearBaseCompra(
+                compraEconomica.sobranteBase,
+                compraEconomica.unidadBase,
+                compraEconomica.unidadVisual
+              )}
+            </p>
+
+            <button
+              type="button"
+              onClick={() =>
+                onAgregarAlCarrito(
+                  compraEconomica.items.map((item) => ({
+                    producto: item.producto,
+                    cantidad: item.cantidad,
+                  }))
+                )
+              }
+              className="mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] bg-teal-700 px-5 text-[13px] font-black text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+            >
+              <ShoppingCart size={18} strokeWidth={2.6} />
+              Agregar compra recomendada
+            </button>
+          </div>
         )}
 
         <div className="mt-4 rounded-[16px] bg-sky-50 px-4 py-3">

@@ -308,11 +308,17 @@ function buscarMejorCombinacion(
       continue;
     }
 
-    if (mejorTotal === -1) {
+    if (!mejorEstado) {
       mejorTotal = total;
       mejorEstado = estado;
       continue;
     }
+
+    const precioActual =
+      estado.precio;
+
+    const mejorPrecio =
+      mejorEstado.precio;
 
     const sobranteActual =
       total - objetivo;
@@ -320,11 +326,36 @@ function buscarMejorCombinacion(
     const mejorSobrante =
       mejorTotal - objetivo;
 
+    const envasesActuales =
+      estado.cantidades.reduce(
+        (suma, cantidad) =>
+          suma + cantidad,
+        0
+      );
+
+    const mejoresEnvases =
+      mejorEstado.cantidades.reduce(
+        (suma, cantidad) =>
+          suma + cantidad,
+        0
+      );
+
+    const esMasEconomica =
+      precioActual < mejorPrecio;
+
+    const empataPrecioYDejaMenosSobrante =
+      precioActual === mejorPrecio &&
+      sobranteActual < mejorSobrante;
+
+    const empataPrecioYSobranteYUsaMenosEnvases =
+      precioActual === mejorPrecio &&
+      sobranteActual === mejorSobrante &&
+      envasesActuales < mejoresEnvases;
+
     if (
-      sobranteActual < mejorSobrante ||
-      (sobranteActual === mejorSobrante &&
-        estado.precio <
-          (mejorEstado?.precio ?? Infinity))
+      esMasEconomica ||
+      empataPrecioYDejaMenosSobrante ||
+      empataPrecioYSobranteYUsaMenosEnvases
     ) {
       mejorTotal = total;
       mejorEstado = estado;
@@ -522,7 +553,7 @@ export default function CalculadoraPaso3PC({
           </p>
 
           <p className="text-[11px] font-semibold text-[#16813A]/80">
-            Esta es la combinación de envases recomendada.
+            Esta es la opción más económica entre las presentaciones disponibles.
           </p>
         </div>
       </section>
@@ -605,11 +636,11 @@ export default function CalculadoraPaso3PC({
 
               <div>
                 <h2 className="text-[20px] font-black text-blue-950">
-                  Qué envases comprar
+                  Opción más económica
                 </h2>
 
                 <p className="text-[12px] font-medium text-gray-500">
-                  Elegimos la combinación con menor sobrante.
+                  Elegimos la combinación más económica que alcance la cantidad necesaria.
                 </p>
               </div>
             </div>

@@ -180,12 +180,18 @@ function obtenerClaveSeleccion(
   producto: ProductoPiscina
 ) {
   return [
-    obtenerValor(producto, "Marca"),
-    obtenerValor(producto, "Nombre"),
-    obtenerValor(
-      producto,
-      "Tamaño",
-      "Tamano"
+    normalizarTexto(
+      obtenerValor(producto, "Marca")
+    ),
+    normalizarTexto(
+      obtenerValor(producto, "Nombre")
+    ),
+    normalizarTexto(
+      obtenerValor(
+        producto,
+        "Linea",
+        "Línea"
+      )
     ),
   ].join("::");
 }
@@ -331,6 +337,44 @@ export default function Paso3TratamientoPiscina({
       palabraClave,
     ]);
 
+  const productosAgrupados =
+    useMemo(() => {
+      const grupos = new Map<
+        string,
+        ProductoPiscina[]
+      >();
+
+      productosFiltrados.forEach(
+        (producto) => {
+          const clave =
+            obtenerClaveSeleccion(
+              producto
+            );
+
+          const grupo =
+            grupos.get(clave) || [];
+
+          grupo.push(producto);
+          grupos.set(clave, grupo);
+        }
+      );
+
+      return Array.from(
+        grupos.values()
+      ).map((presentaciones) => {
+        const representante = {
+          ...presentaciones[0],
+        };
+
+        representante.__PresentacionesPiscina =
+          JSON.stringify(
+            presentaciones
+          );
+
+        return representante;
+      });
+    }, [productosFiltrados]);
+
   const mostrarPreparacion =
     camino === "guiado" &&
     problema === "agua_turbia";
@@ -420,7 +464,7 @@ export default function Paso3TratamientoPiscina({
           </div>
         ) : error ? (
           <AvisoError texto={error} />
-        ) : productosFiltrados.length ===
+        ) : productosAgrupados.length ===
           0 ? (
           <AvisoError
             texto={
@@ -431,7 +475,7 @@ export default function Paso3TratamientoPiscina({
           />
         ) : (
           <div className="mt-6 grid grid-cols-3 gap-4 xl:grid-cols-4">
-            {productosFiltrados.map(
+            {productosAgrupados.map(
               (producto, indice) => {
                 const id =
                   obtenerIdProducto(

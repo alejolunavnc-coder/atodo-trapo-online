@@ -15,7 +15,17 @@ export default function useCarrito(
   const textoLimpio = (valor: any) =>
     String(valor || "").trim();
 
-  function agregarAlCarrito(producto: any) {
+  function agregarAlCarrito(
+    producto: any,
+    cantidadAgregar = 1
+  ) {
+    const cantidadSegura = Math.max(
+      1,
+      Math.floor(
+        Number(cantidadAgregar) || 1
+      )
+    );
+
     const precioNormal = precioNumero(
       producto.Precio
     );
@@ -38,7 +48,7 @@ export default function useCarrito(
       color: textoLimpio(producto.Color),
       fragancia: textoLimpio(producto.Fragancias),
       imagen: textoLimpio(producto.Imagen),
-      cantidad: 1,
+      cantidad: cantidadSegura,
 
       precio: tieneOferta
         ? precioOferta
@@ -49,39 +59,37 @@ export default function useCarrito(
         : null,
     };
 
-    const productoExistente = carrito.find(
-      (item) =>
+    setCarrito((carritoActual: any[]) => {
+      const coincide = (item: any) =>
         item.nombre === nuevoProducto.nombre &&
         item.marca === nuevoProducto.marca &&
         item.linea === nuevoProducto.linea &&
         item.tamano === nuevoProducto.tamano &&
         item.color === nuevoProducto.color &&
-        item.fragancia === nuevoProducto.fragancia
-    );
+        item.fragancia === nuevoProducto.fragancia;
 
-    if (productoExistente) {
-      setCarrito(
-        carrito.map((item) =>
-          item.nombre === nuevoProducto.nombre &&
-          item.marca === nuevoProducto.marca &&
-          item.linea === nuevoProducto.linea &&
-          item.tamano === nuevoProducto.tamano &&
-          item.color === nuevoProducto.color &&
-          item.fragancia === nuevoProducto.fragancia
-            ? {
-                ...item,
-                cantidad:
-                  (item.cantidad || 1) + 1,
-              }
-            : item
-        )
-      );
-    } else {
-      setCarrito([
-        ...carrito,
+      const productoExistente =
+        carritoActual.find(coincide);
+
+      if (productoExistente) {
+        return carritoActual.map(
+          (item: any) =>
+            coincide(item)
+              ? {
+                  ...item,
+                  cantidad:
+                    (item.cantidad || 1) +
+                    cantidadSegura,
+                }
+              : item
+        );
+      }
+
+      return [
+        ...carritoActual,
         nuevoProducto,
-      ]);
-    }
+      ];
+    });
 
     setCarritoAnimado(true);
 
