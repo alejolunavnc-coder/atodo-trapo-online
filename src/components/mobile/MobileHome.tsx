@@ -472,7 +472,7 @@ export default function MobileHome() {
         const nombre = producto.Nombre || "Producto sin nombre";
         const linea = (producto as any).Linea || "";
         const marca = producto.Marca || "";
-        const clave = `${linea}-${nombre}`;
+        const clave = `${marca}-${linea}-${nombre}`;
 
         if (!acc[clave]) {
           acc[clave] = {
@@ -993,7 +993,7 @@ export default function MobileHome() {
         const linea = (producto as any).Linea || "";
         const marca = producto.Marca || "";
 
-        const clave = `${linea}-${nombre}-${tamano}-${variante}`;
+        const clave = `${marca}-${linea}-${nombre}-${tamano}-${variante}`;
 
         const itemCarrito = {
           clave,
@@ -1529,7 +1529,7 @@ export default function MobileHome() {
 
                 return (
                   <button
-                    key={`${grupo.linea}-${grupo.nombre}-${index}`}
+                    key={`${grupo.marca}-${grupo.linea}-${grupo.nombre}-${index}`}
                     data-oferta-mobile={esCarruselInicio ? "true" : undefined}
                     onClick={() => abrirProductoConHistorial(grupo)}
                     className={`rounded-2xl border border-gray-100 bg-white p-1.5 text-left shadow-[0_5px_15px_rgba(0,0,0,0.08)] transition active:scale-[0.98] ${
@@ -1591,7 +1591,7 @@ export default function MobileHome() {
 
           {productoAbierto &&
             (() => {
-              const claveDetalle = `${productoAbierto.linea}-${productoAbierto.nombre}`;
+              const claveDetalle = `${productoAbierto.marca}-${productoAbierto.linea}-${productoAbierto.nombre}`;
 
               const tamanos: string[] = Array.from(
                 new Set(
@@ -1899,7 +1899,7 @@ export default function MobileHome() {
                     <button
                       onClick={() => {
                         const itemCarrito = {
-                          clave: `${productoAbierto.nombre}-${tamanoSeleccionado}-${varianteSeleccionada}`,
+                          clave: `${productoAbierto.marca}-${productoAbierto.linea}-${productoAbierto.nombre}-${tamanoSeleccionado}-${varianteSeleccionada}`,
                           nombre: productoAbierto.nombre,
                           linea: productoAbierto.linea,
                           marca: productoAbierto.marca,
