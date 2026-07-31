@@ -73,18 +73,97 @@ function formatearNumero(valor: number) {
 }
 
 function numeroDesdeTexto(valor: unknown) {
-  const texto = String(valor || "").trim().replace(/\s/g, "");
-  if (!texto) return 0;
+  const texto = String(valor || "")
+    .trim()
+    .replace(/\s/g, "");
 
-  const normalizado =
-    texto.includes(",") && texto.includes(".")
-      ? texto.lastIndexOf(",") > texto.lastIndexOf(".")
-        ? texto.replace(/\./g, "").replace(",", ".")
-        : texto.replace(/,/g, "")
-      : texto.replace(",", ".");
+  if (!texto) {
+    return 0;
+  }
+
+  const soloNumero = texto.replace(
+    /[^0-9,.-]/g,
+    ""
+  );
+
+  if (!soloNumero) {
+    return 0;
+  }
+
+  const tieneComa =
+    soloNumero.includes(",");
+
+  const tienePunto =
+    soloNumero.includes(".");
+
+  let normalizado = soloNumero;
+
+  if (tieneComa && tienePunto) {
+    const ultimaComa =
+      soloNumero.lastIndexOf(",");
+
+    const ultimoPunto =
+      soloNumero.lastIndexOf(".");
+
+    const separadorDecimal =
+      ultimaComa > ultimoPunto
+        ? ","
+        : ".";
+
+    const separadorMiles =
+      separadorDecimal === ","
+        ? "."
+        : ",";
+
+    normalizado = soloNumero
+      .replace(
+        new RegExp(
+          `\\${separadorMiles}`,
+          "g"
+        ),
+        ""
+      )
+      .replace(
+        separadorDecimal,
+        "."
+      );
+  } else if (tieneComa || tienePunto) {
+    const separador =
+      tieneComa ? "," : ".";
+
+    const partes =
+      soloNumero.split(separador);
+
+    const ultimaParte =
+      partes[partes.length - 1] || "";
+
+    const pareceSeparadorDeMiles =
+      partes.length > 1 &&
+      partes
+        .slice(1)
+        .every(
+          (parte) =>
+            parte.length === 3
+        );
+
+    if (pareceSeparadorDeMiles) {
+      normalizado =
+        partes.join("");
+    } else {
+      normalizado =
+        partes.length === 2
+          ? `${partes[0]}.${partes[1]}`
+          : `${partes
+              .slice(0, -1)
+              .join("")}.${ultimaParte}`;
+    }
+  }
 
   const numero = Number(normalizado);
-  return Number.isFinite(numero) ? numero : 0;
+
+  return Number.isFinite(numero)
+    ? numero
+    : 0;
 }
 
 function obtenerValor(
@@ -644,40 +723,77 @@ export default function CalculadoraPiscinaPC({
           )}
         </div>
 
-        {compraEconomica && (
-          <div className="mt-4 rounded-[18px] border border-emerald-200 bg-emerald-50 p-4">
-            <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
+        {tratamientoSeleccionado !== null && (
+          <div
+            className={`mt-4 rounded-[18px] border p-4 ${
+              compraEconomica
+                ? "border-emerald-200 bg-emerald-50"
+                : "border-amber-200 bg-amber-50"
+            }`}
+          >
+            <p
+              className={`text-[9px] font-black uppercase tracking-[0.12em] ${
+                compraEconomica
+                  ? "text-emerald-700"
+                  : "text-amber-700"
+              }`}
+            >
               Opción más económica
             </p>
 
-            <p className="mt-1 text-[11px] font-black text-blue-950">
-              {compraEconomica.items
-                .map((item) => `${item.cantidad} × ${item.contenidoTexto}`)
-                .join(" + ")}
-            </p>
+            {compraEconomica ? (
+              <>
+                <p className="mt-1 text-[11px] font-black text-blue-950">
+                  {compraEconomica.items
+                    .map(
+                      (item) =>
+                        `${item.cantidad} × ${item.contenidoTexto}`
+                    )
+                    .join(" + ")}
+                </p>
 
-            <p className="mt-1 text-[9px] font-semibold text-gray-500">
-              Sobrante: {formatearBaseCompra(
-                compraEconomica.sobranteBase,
-                compraEconomica.unidadBase,
-                compraEconomica.unidadVisual
-              )}
-            </p>
+                <p className="mt-1 text-[9px] font-semibold text-gray-500">
+                  Sobrante:{" "}
+                  {formatearBaseCompra(
+                    compraEconomica.sobranteBase,
+                    compraEconomica.unidadBase,
+                    compraEconomica.unidadVisual
+                  )}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-[10px] font-semibold leading-relaxed text-amber-900">
+                Todavía no se pudo calcular la combinación de envases.
+                Revisá que el producto tenga Tamaño, Precio, Dosis,
+                Unidad dosis y Litros referencia.
+              </p>
+            )}
 
             <button
               type="button"
-              onClick={() =>
+              disabled={!compraEconomica}
+              onClick={() => {
+                if (!compraEconomica) {
+                  return;
+                }
+
                 onAgregarAlCarrito(
                   compraEconomica.items.map((item) => ({
                     producto: item.producto,
                     cantidad: item.cantidad,
                   }))
-                )
-              }
-              className="mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] bg-teal-700 px-5 text-[13px] font-black text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+                );
+              }}
+              className={`mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] px-5 text-[13px] font-black transition ${
+                compraEconomica
+                  ? "bg-teal-700 text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+                  : "cursor-not-allowed bg-gray-200 text-gray-400"
+              }`}
             >
               <ShoppingCart size={18} strokeWidth={2.6} />
-              Agregar compra recomendada
+              {compraEconomica
+                ? "Agregar compra recomendada"
+                : "Compra todavía no disponible"}
             </button>
           </div>
         )}

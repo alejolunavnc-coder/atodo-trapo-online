@@ -46,22 +46,58 @@ function normalizarUnidad(valor: unknown) {
 }
 
 function convertirABase(cantidad: number, unidad: string) {
-  const unidadNormalizada = normalizarUnidad(unidad);
+  const unidadNormalizada = normalizarUnidad(unidad)
+    .replace(/³/g, "3")
+    .replace(/\s+/g, "");
 
-  if (unidadNormalizada === "l" || unidadNormalizada.includes("litro")) {
-    return { valor: cantidad * 1000, unidadBase: "ml" as const, unidadVisual: "L" as const };
+  if (
+    unidadNormalizada === "l" ||
+    unidadNormalizada === "lt" ||
+    unidadNormalizada === "lts" ||
+    unidadNormalizada.includes("litro")
+  ) {
+    return {
+      valor: cantidad * 1000,
+      unidadBase: "ml" as const,
+      unidadVisual: "L" as const,
+    };
   }
 
-  if (unidadNormalizada === "ml" || unidadNormalizada.includes("mililitro")) {
-    return { valor: cantidad, unidadBase: "ml" as const, unidadVisual: "L" as const };
+  if (
+    unidadNormalizada === "ml" ||
+    unidadNormalizada === "cc" ||
+    unidadNormalizada === "cm3" ||
+    unidadNormalizada.includes("mililitro") ||
+    unidadNormalizada.includes("centimetrocubico")
+  ) {
+    return {
+      valor: cantidad,
+      unidadBase: "ml" as const,
+      unidadVisual: "L" as const,
+    };
   }
 
-  if (unidadNormalizada === "kg" || unidadNormalizada.includes("kilo")) {
-    return { valor: cantidad * 1000, unidadBase: "g" as const, unidadVisual: "kg" as const };
+  if (
+    unidadNormalizada === "kg" ||
+    unidadNormalizada.includes("kilo")
+  ) {
+    return {
+      valor: cantidad * 1000,
+      unidadBase: "g" as const,
+      unidadVisual: "kg" as const,
+    };
   }
 
-  if (unidadNormalizada === "g" || unidadNormalizada.includes("gramo")) {
-    return { valor: cantidad, unidadBase: "g" as const, unidadVisual: "kg" as const };
+  if (
+    unidadNormalizada === "g" ||
+    unidadNormalizada === "gr" ||
+    unidadNormalizada.includes("gramo")
+  ) {
+    return {
+      valor: cantidad,
+      unidadBase: "g" as const,
+      unidadVisual: "kg" as const,
+    };
   }
 
   return null;
@@ -86,7 +122,9 @@ function obtenerPresentaciones(producto: ProductoPiscina) {
 
 function obtenerContenidoPresentacion(producto: ProductoPiscina) {
   const texto = obtenerValor(producto, "Tamaño", "Tamano");
-  const coincidencia = texto.match(/(\d+(?:[.,]\d+)?)\s*(ml|mililitros?|l|litros?|g|gramos?|kg|kilos?)/i);
+  const coincidencia = texto.match(
+    /(\d+(?:[.,]\d+)?)\s*(ml|mililitros?|cc|cm³|cm3|centímetros?\s*cúbicos?|l|lt|lts|litros?|g|gr|gramos?|kg|kilos?)/i
+  );
 
   if (!coincidencia) {
     return null;

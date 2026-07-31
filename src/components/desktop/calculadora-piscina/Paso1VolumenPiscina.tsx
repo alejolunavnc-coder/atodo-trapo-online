@@ -81,11 +81,97 @@ function formatearRecirculacion(
 }
 
 function convertirNumero(valor: string) {
-  const numero = Number(
-    valor.replace(/\./g, "").replace(",", ".")
+  const texto = String(valor || "")
+    .trim()
+    .replace(/\s/g, "");
+
+  if (!texto) {
+    return 0;
+  }
+
+  const soloNumero = texto.replace(
+    /[^0-9,.-]/g,
+    ""
   );
 
-  return Number.isFinite(numero) ? numero : 0;
+  if (!soloNumero) {
+    return 0;
+  }
+
+  const tieneComa =
+    soloNumero.includes(",");
+
+  const tienePunto =
+    soloNumero.includes(".");
+
+  let normalizado = soloNumero;
+
+  if (tieneComa && tienePunto) {
+    const ultimaComa =
+      soloNumero.lastIndexOf(",");
+
+    const ultimoPunto =
+      soloNumero.lastIndexOf(".");
+
+    const separadorDecimal =
+      ultimaComa > ultimoPunto
+        ? ","
+        : ".";
+
+    const separadorMiles =
+      separadorDecimal === ","
+        ? "."
+        : ",";
+
+    normalizado = soloNumero
+      .replace(
+        new RegExp(
+          `\\${separadorMiles}`,
+          "g"
+        ),
+        ""
+      )
+      .replace(
+        separadorDecimal,
+        "."
+      );
+  } else if (tieneComa || tienePunto) {
+    const separador =
+      tieneComa ? "," : ".";
+
+    const partes =
+      soloNumero.split(separador);
+
+    const ultimaParte =
+      partes[partes.length - 1] || "";
+
+    const pareceSeparadorDeMiles =
+      partes.length > 1 &&
+      partes
+        .slice(1)
+        .every(
+          (parte) =>
+            parte.length === 3
+        );
+
+    if (pareceSeparadorDeMiles) {
+      normalizado =
+        partes.join("");
+    } else {
+      normalizado =
+        partes.length === 2
+          ? `${partes[0]}.${partes[1]}`
+          : `${partes
+              .slice(0, -1)
+              .join("")}.${ultimaParte}`;
+    }
+  }
+
+  const numero = Number(normalizado);
+
+  return Number.isFinite(numero)
+    ? numero
+    : 0;
 }
 
 function formatearDecimal(valor: number) {
