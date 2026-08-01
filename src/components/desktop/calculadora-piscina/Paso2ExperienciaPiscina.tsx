@@ -415,7 +415,9 @@ export default function Paso2ExperienciaPiscina({
               />
             </span>
 
-            Ir al Paso 3: tratamiento
+            {problema === "mantenimiento"
+              ? "Ir al Paso 3: mantenimiento"
+              : "Ir al Paso 3: tratamiento"}
           </button>
 
           <style jsx>{`

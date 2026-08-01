@@ -5,6 +5,8 @@ import {
   ArrowRight,
   Check,
   CircleAlert,
+  ClipboardList,
+  Clock3,
   Droplets,
   FlaskConical,
   Layers3,
@@ -18,6 +20,7 @@ import Papa from "papaparse";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -196,6 +199,91 @@ function obtenerClaveSeleccion(
   ].join("::");
 }
 
+
+function formatearCantidadMantenimiento(
+  valor: number
+) {
+  return valor.toLocaleString("es-AR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
+function calcularDosisMantenimiento(
+  producto: ProductoPiscina | undefined,
+  litrosPiscina: number
+) {
+  if (!producto || litrosPiscina <= 0) {
+    return "Sin datos disponibles";
+  }
+
+  const dosis = numeroDesdeTexto(
+    obtenerValor(producto, "Dosis")
+  );
+
+  const litrosReferencia =
+    numeroDesdeTexto(
+      obtenerValor(
+        producto,
+        "Litros referencia"
+      )
+    );
+
+  const unidad =
+    obtenerValor(
+      producto,
+      "Unidad dosis"
+    );
+
+  if (
+    dosis <= 0 ||
+    litrosReferencia <= 0 ||
+    !unidad
+  ) {
+    return "Faltan datos en Google Sheets";
+  }
+
+  const cantidad =
+    (litrosPiscina * dosis) /
+    litrosReferencia;
+
+  return `${formatearCantidadMantenimiento(
+    cantidad
+  )} ${unidad}`;
+}
+
+function formatearRecirculacionMantenimiento(
+  litrosPiscina: number
+) {
+  if (litrosPiscina <= 0) {
+    return "—";
+  }
+
+  const minutosTotales = Math.max(
+    1,
+    Math.round(
+      (litrosPiscina / 10000) * 60
+    )
+  );
+
+  const horas = Math.floor(
+    minutosTotales / 60
+  );
+
+  const minutos =
+    minutosTotales % 60;
+
+  if (horas > 0 && minutos > 0) {
+    return `${horas} h ${minutos} min`;
+  }
+
+  if (horas > 0) {
+    return `${horas} h`;
+  }
+
+  return `${minutos} min`;
+}
+
 export default function Paso3TratamientoPiscina({
   transicionando,
   camino,
@@ -214,6 +302,14 @@ export default function Paso3TratamientoPiscina({
 
   const [error, setError] =
     useState("");
+
+  const [
+    mostrarCatalogoMantenimiento,
+    setMostrarCatalogoMantenimiento,
+  ] = useState(false);
+
+  const catalogoMantenimientoRef =
+    useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -274,12 +370,7 @@ export default function Paso3TratamientoPiscina({
     };
   }, []);
 
-  const palabraClave =
-    problema !== null
-      ? PALABRAS_CLAVE[problema]
-      : "";
-
-  const productosFiltrados =
+  const productosPiscinaCalculadora =
     useMemo(() => {
       return productos.filter(
         (producto) => {
@@ -304,23 +395,119 @@ export default function Paso3TratamientoPiscina({
               )
             ) === "x";
 
-          if (!esPiscina || oculto) {
-            return false;
-          }
+          const tieneUsoPiscina =
+            obtenerValor(
+              producto,
+              "Uso piscina",
+              "Uso Piscina"
+            ) !== "";
 
-          if (camino === "directo") {
-            return true;
-          }
+          return (
+            esPiscina &&
+            !oculto &&
+            tieneUsoPiscina
+          );
+        }
+      );
+    }, [productos]);
 
-          if (!palabraClave) {
-            return false;
-          }
+  const productosMantenimiento =
+    useMemo(() => {
+      function buscarProducto(
+        palabras: string[]
+      ) {
+        return productosPiscinaCalculadora.find(
+          (producto) => {
+            const texto = normalizarTexto(
+              [
+                obtenerValor(
+                  producto,
+                  "Nombre"
+                ),
+                obtenerValor(
+                  producto,
+                  "Linea",
+                  "Línea"
+                ),
+                obtenerValor(
+                  producto,
+                  "Uso piscina",
+                  "Uso Piscina"
+                ),
+              ].join(" ")
+            );
 
+            return palabras.some(
+              (palabra) =>
+                texto.includes(palabra)
+            );
+          }
+        );
+      }
+
+      return {
+        cloro: buscarProducto([
+          "cloro",
+        ]),
+        alguicida: buscarProducto([
+          "alguicida",
+          "algicida",
+        ]),
+        clarificador: buscarProducto([
+          "clarificador",
+        ]),
+      };
+    }, [productosPiscinaCalculadora]);
+
+  const esMantenimiento =
+    camino === "guiado" &&
+    problema === "mantenimiento";
+
+  useEffect(() => {
+    if (!esMantenimiento) {
+      setMostrarCatalogoMantenimiento(
+        false
+      );
+    }
+  }, [esMantenimiento]);
+
+  function abrirCatalogoMantenimiento() {
+    setMostrarCatalogoMantenimiento(true);
+
+    window.setTimeout(() => {
+      catalogoMantenimientoRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  }
+
+  const palabraClave =
+    problema !== null
+      ? PALABRAS_CLAVE[problema]
+      : "";
+
+  const productosFiltrados =
+    useMemo(() => {
+      if (
+        camino === "directo" ||
+        esMantenimiento
+      ) {
+        return productosPiscinaCalculadora;
+      }
+
+      if (!palabraClave) {
+        return [];
+      }
+
+      return productosPiscinaCalculadora.filter(
+        (producto) => {
           const usos =
             separarPalabrasClave(
               obtenerValor(
                 producto,
-                "Uso piscina"
+                "Uso piscina",
+                "Uso Piscina"
               )
             );
 
@@ -332,8 +519,9 @@ export default function Paso3TratamientoPiscina({
         }
       );
     }, [
-      productos,
+      productosPiscinaCalculadora,
       camino,
+      esMantenimiento,
       palabraClave,
     ]);
 
@@ -403,11 +591,17 @@ export default function Paso3TratamientoPiscina({
               </p>
 
               <h2 className="mt-1 text-[21px] font-black tracking-[-0.03em] text-blue-950">
-                Elegí un producto
+                {esMantenimiento
+                  ? "Mantenimiento completo"
+                  : "Elegí un producto"}
               </h2>
 
               <p className="mt-1 text-[13px] font-medium text-gray-500">
-                Mostramos los productos de Google Sheets que coinciden con el uso seleccionado.
+                {esMantenimiento
+                  ? "Te mostramos qué necesita tu piscina y con qué frecuencia aplicarlo."
+                  : camino === "directo"
+                    ? "Elegí directamente el producto que necesitás."
+                    : "Mostramos los productos que coinciden con el problema seleccionado."}
               </p>
             </div>
           </div>
@@ -431,13 +625,142 @@ export default function Paso3TratamientoPiscina({
         <PreparacionTratamiento />
       )}
 
-      <div className="rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm">
+
+      {esMantenimiento && (
+        <div className="rounded-[24px] border border-sky-200 bg-gradient-to-br from-white via-sky-50/40 to-blue-50/60 p-6 shadow-sm">
+          <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-sm">
+              <ClipboardList
+                size={24}
+                strokeWidth={2.5}
+              />
+            </span>
+
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-sky-700">
+                Guía de mantenimiento
+              </p>
+
+              <h3 className="mt-1 text-[22px] font-black tracking-[-0.03em] text-blue-950">
+                Mantenimiento completo para{" "}
+                {litrosPiscina.toLocaleString(
+                  "es-AR",
+                  {
+                    maximumFractionDigits: 0,
+                  }
+                )}{" "}
+                litros
+              </h3>
+
+              <p className="mt-2 max-w-[720px] text-[12px] font-semibold leading-relaxed text-gray-500">
+                Estas cantidades se calculan con la dosis y los litros de referencia cargados en Google Sheets.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <ItemMantenimiento
+              numero={1}
+              titulo="Cloro"
+              cantidad={calcularDosisMantenimiento(
+                productosMantenimiento.cloro,
+                litrosPiscina
+              )}
+              frecuencia="Uso diario"
+              descripcion="Aplicá la dosis indicada todos los días para mantener el agua desinfectada."
+            />
+
+            <ItemMantenimiento
+              numero={2}
+              titulo="Alguicida preventivo"
+              cantidad={calcularDosisMantenimiento(
+                productosMantenimiento.alguicida,
+                litrosPiscina
+              )}
+              frecuencia="Una vez por semana"
+              descripcion="Ayuda a prevenir la formación de algas en paredes, piso y agua."
+            />
+
+            <ItemMantenimiento
+              numero={3}
+              titulo="Clarificador"
+              cantidad={calcularDosisMantenimiento(
+                productosMantenimiento.clarificador,
+                litrosPiscina
+              )}
+              frecuencia="Una vez por semana"
+              descripcion="Ayuda a mantener el agua clara y a reunir las partículas suspendidas."
+            />
+
+            <ItemMantenimiento
+              numero={4}
+              titulo="Recirculación"
+              cantidad={formatearRecirculacionMantenimiento(
+                litrosPiscina
+              )}
+              frecuencia="Todos los días"
+              descripcion="Calculado a razón de 1 hora cada 10.000 litros de agua."
+            />
+          </div>
+
+          <div className="mt-4 rounded-[20px] border border-violet-200 bg-violet-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-violet-700">
+              Control y regulación del pH
+            </p>
+
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <DatoPh
+                titulo="Menor a 7,2"
+                texto="Usar pH+"
+              />
+
+              <DatoPh
+                titulo="Entre 7,2 y 7,6"
+                texto="Nivel correcto"
+              />
+
+              <DatoPh
+                titulo="Mayor a 7,6"
+                texto="Usar pH-"
+              />
+            </div>
+
+            <p className="mt-3 text-[10px] font-semibold leading-relaxed text-violet-900">
+              Primero medí el pH. La calculadora no calcula la cantidad de pH+ o pH- porque depende del resultado de esa medición.
+            </p>
+          </div>
+
+          {!mostrarCatalogoMantenimiento && (
+            <button
+              type="button"
+              onClick={abrirCatalogoMantenimiento}
+              className="group mt-5 flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.30)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
+            >
+              Elegir productos para el mantenimiento
+
+              <ArrowRight
+                size={18}
+                strokeWidth={2.7}
+              />
+            </button>
+          )}
+        </div>
+      )}
+
+      {(!esMantenimiento ||
+        mostrarCatalogoMantenimiento) && (
+      <div
+        ref={catalogoMantenimientoRef}
+        className="scroll-mt-24 rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm"
+      >
         <div className="flex items-center justify-between gap-5">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-sky-600">
-              {camino === "directo"
-                ? "Productos para piscina"
-                : palabraClave || "Tratamiento"}
+              {esMantenimiento
+                ? "Catálogo de piscina"
+                : camino === "directo"
+                  ? "Productos para piscina"
+                  : palabraClave || "Tratamiento"}
             </p>
 
             <h3 className="mt-1 text-[20px] font-black tracking-[-0.03em] text-blue-950">
@@ -445,7 +768,11 @@ export default function Paso3TratamientoPiscina({
             </h3>
 
             <p className="mt-2 max-w-[680px] text-[12px] font-semibold leading-relaxed text-gray-500">
-              Elegí el producto que preferís. La dosis se calcula automáticamente según los litros de tu piscina y los datos cargados en Google Sheets.
+              {esMantenimiento
+                ? "Elegí libremente los productos, marcas y presentaciones que quieras comprar para el mantenimiento."
+                : camino === "directo"
+                  ? "Compará los productos y elegí el que necesitás. Al seleccionarlo vas a encontrar el modo de uso completo más abajo."
+                  : "Elegí una de las soluciones compatibles. La dosis se calcula automáticamente según los litros de tu piscina y los datos cargados en Google Sheets."}
             </p>
           </div>
 
@@ -497,6 +824,7 @@ export default function Paso3TratamientoPiscina({
                     litrosPiscina={
                       litrosPiscina
                     }
+                    camino={camino}
                     activo={
                       tratamiento !== null &&
                       obtenerClaveSeleccion(
@@ -515,6 +843,69 @@ export default function Paso3TratamientoPiscina({
                 );
               }
             )}
+          </div>
+        )}
+
+        {tratamiento !== null &&
+          camino === "directo" && (
+          <div className="mt-5 rounded-[24px] border border-sky-300 bg-gradient-to-br from-sky-50 via-white to-blue-50 p-5 shadow-[0_14px_34px_rgba(14,165,233,0.14)]">
+            <div className="flex items-start gap-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-sky-600 text-white shadow-sm">
+                <ClipboardList
+                  size={21}
+                  strokeWidth={2.6}
+                />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-sky-700">
+                  Modo de uso del producto seleccionado
+                </p>
+
+                <h3 className="mt-1 text-[16px] font-black text-blue-950">
+                  {obtenerNombreTratamiento(tratamiento)}
+                </h3>
+
+                {obtenerValor(
+                  tratamiento,
+                  "Modo de uso",
+                  "Modo uso",
+                  "Modo de Uso",
+                  "Modo Uso"
+                ) ? (
+                  <ol className="mt-4 space-y-2">
+                    {obtenerValor(
+                      tratamiento,
+                      "Modo de uso",
+                      "Modo uso",
+                      "Modo de Uso",
+                      "Modo Uso"
+                    )
+                      .split(".")
+                      .map((item) => item.trim())
+                      .filter(Boolean)
+                      .map((item, indice) => (
+                        <li
+                          key={`${item}-${indice}`}
+                          className="flex items-start gap-3 rounded-[14px] border border-sky-100 bg-white px-4 py-3"
+                        >
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-600 text-[10px] font-black text-white">
+                            {indice + 1}
+                          </span>
+
+                          <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-slate-700">
+                            {item}.
+                          </p>
+                        </li>
+                      ))}
+                  </ol>
+                ) : (
+                  <p className="mt-3 text-[11px] font-semibold text-gray-500">
+                    Este producto no tiene un modo de uso cargado en Google Sheets.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -555,6 +946,7 @@ export default function Paso3TratamientoPiscina({
           </div>
         )}
       </div>
+      )}
 
       {problema === "agua_turbia" && (
         <ExplicacionProductos />
@@ -566,11 +958,13 @@ export default function Paso3TratamientoPiscina({
 function TarjetaProducto({
   producto,
   litrosPiscina: _litrosPiscina,
+  camino,
   activo,
   onClick,
 }: {
   producto: ProductoPiscina;
   litrosPiscina: number;
+  camino: CaminoExperiencia | null;
   activo: boolean;
   onClick: () => void;
 }) {
@@ -589,6 +983,14 @@ function TarjetaProducto({
     producto,
     "Linea",
     "Línea"
+  );
+
+  const modoUso = obtenerValor(
+    producto,
+    "Modo de uso",
+    "Modo uso",
+    "Modo de Uso",
+    "Modo Uso"
   );
 
   const imagen = obtenerValor(
@@ -686,6 +1088,21 @@ function TarjetaProducto({
           </p>
         )}
 
+        {modoUso &&
+          camino === "directo" && (
+            <div className="mt-2 flex items-center gap-1.5 rounded-[10px] border border-sky-100 bg-sky-50 px-2.5 py-2">
+              <ClipboardList
+                size={12}
+                strokeWidth={2.4}
+                className="shrink-0 text-sky-700"
+              />
+
+              <p className="text-[8px] font-black leading-tight text-sky-700">
+                Modo de uso disponible abajo
+              </p>
+            </div>
+          )}
+
         <div className="mt-1.5">
           <p className="text-[8px] font-bold uppercase tracking-[0.08em] text-gray-400">
             Precio
@@ -711,6 +1128,68 @@ function TarjetaProducto({
 
       </div>
     </button>
+  );
+}
+
+function ItemMantenimiento({
+  numero,
+  titulo,
+  cantidad,
+  frecuencia,
+  descripcion,
+}: {
+  numero: number;
+  titulo: string;
+  cantidad: string;
+  frecuencia: string;
+  descripcion: string;
+}) {
+  return (
+    <div className="rounded-[20px] border border-sky-100 bg-white p-5 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-[12px] font-black text-white">
+          {numero}
+        </span>
+
+        <div className="min-w-0">
+          <h4 className="text-[14px] font-black text-blue-950">
+            {titulo}
+          </h4>
+
+          <p className="mt-1 text-[17px] font-black text-sky-700">
+            {cantidad}
+          </p>
+
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.08em] text-emerald-700">
+            {frecuencia}
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-3 text-[10px] font-semibold leading-relaxed text-gray-500">
+        {descripcion}
+      </p>
+    </div>
+  );
+}
+
+function DatoPh({
+  titulo,
+  texto,
+}: {
+  titulo: string;
+  texto: string;
+}) {
+  return (
+    <div className="rounded-[15px] border border-violet-100 bg-white px-4 py-3 text-center">
+      <p className="text-[11px] font-black text-blue-950">
+        {titulo}
+      </p>
+
+      <p className="mt-1 text-[10px] font-black text-violet-700">
+        {texto}
+      </p>
+    </div>
   );
 }
 
@@ -742,8 +1221,8 @@ function PreparacionTratamiento() {
                   strokeWidth={2.4}
                 />
               }
-              titulo="Cepillá"
-              texto="Cepillá las paredes y el piso antes de aplicar el producto."
+              titulo="Revisá el modo de uso"
+              texto="Seguí la indicación específica cargada en Google Sheets para el producto que elijas."
             />
 
             <Consejo

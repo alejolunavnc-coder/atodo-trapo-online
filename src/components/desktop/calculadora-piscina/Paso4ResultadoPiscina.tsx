@@ -438,12 +438,19 @@ export default function Paso4ResultadoPiscina({
       "Unidad dosis"
     ) || "unidades";
 
-  const pasosModoUso = [
-    "Cepillar piso y paredes.",
-    "Estabilizar el pH entre 7,2 y 7,6.",
-    "Diluir el producto en un balde con agua y esparcir la mezcla en la piscina.",
-    "Aplicar al finalizar la jornada de bañistas.",
-  ];
+  const modoUso =
+    obtenerValor(
+      producto,
+      "Modo de uso",
+      "Modo uso",
+      "Modo de Uso",
+      "Modo Uso"
+    );
+
+  const pasosModoUso = modoUso
+    .split(".")
+    .map((paso) => paso.trim())
+    .filter(Boolean);
 
   const advertencia =
     obtenerValor(
@@ -730,24 +737,32 @@ export default function Paso4ResultadoPiscina({
             </div>
           </div>
 
-          <ol className="mt-4 space-y-2.5">
-            {pasosModoUso.map(
-              (paso, indice) => (
-                <li
-                  key={`${paso}-${indice}`}
-                  className="group flex items-start gap-4 rounded-[15px] border border-sky-100 bg-white px-3.5 py-3 shadow-[0_8px_20px_rgba(15,23,42,0.05)]"
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-600 to-blue-700 text-[10px] font-black text-white shadow-sm">
-                    {indice + 1}
-                  </span>
+          {pasosModoUso.length > 0 ? (
+            <ol className="mt-4 space-y-2.5">
+              {pasosModoUso.map(
+                (paso, indice) => (
+                  <li
+                    key={`${paso}-${indice}`}
+                    className="group flex items-start gap-4 rounded-[15px] border border-sky-100 bg-white px-3.5 py-3 shadow-[0_8px_20px_rgba(15,23,42,0.05)]"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-600 to-blue-700 text-[10px] font-black text-white shadow-sm">
+                      {indice + 1}
+                    </span>
 
-                  <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-slate-700">
-                    {paso}
-                  </p>
-                </li>
-              )
-            )}
-          </ol>
+                    <p className="pt-0.5 text-[11px] font-semibold leading-relaxed text-slate-700">
+                      {paso}.
+                    </p>
+                  </li>
+                )
+              )}
+            </ol>
+          ) : (
+            <div className="mt-4 rounded-[15px] border border-amber-200 bg-amber-50 px-4 py-4">
+              <p className="text-[11px] font-bold leading-relaxed text-amber-900">
+                Este producto no tiene un modo de uso cargado en Google Sheets.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-rows-2 gap-4">

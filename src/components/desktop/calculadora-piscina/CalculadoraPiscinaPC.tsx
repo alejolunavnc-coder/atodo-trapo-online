@@ -484,7 +484,11 @@ export default function CalculadoraPiscinaPC({
 
             <Paso
               numero={3}
-              titulo="Tratamiento"
+              titulo={
+                problemaAgua === "mantenimiento"
+                  ? "Mantenimiento"
+                  : "Tratamiento"
+              }
               activo={pasoActual === 3}
               completado={pasoActual > 3}
             />
@@ -557,7 +561,7 @@ export default function CalculadoraPiscinaPC({
         ) : null}
       </div>
 
-      <aside className="sticky top-28 rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
+      <aside className="sticky top-20 rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
         <p className="text-[11px] font-black uppercase tracking-[0.14em] text-sky-600">
           Resumen en vivo
         </p>
@@ -798,11 +802,6 @@ export default function CalculadoraPiscinaPC({
           </div>
         )}
 
-        <div className="mt-4 rounded-[16px] bg-sky-50 px-4 py-3">
-          <p className="text-[10px] font-semibold leading-relaxed text-blue-950">
-            Esta cantidad será usada para calcular la dosis de cada producto.
-          </p>
-        </div>
       </aside>
     </div>
   );

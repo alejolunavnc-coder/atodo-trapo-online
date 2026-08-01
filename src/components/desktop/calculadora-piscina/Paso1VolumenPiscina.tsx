@@ -560,8 +560,8 @@ export default function Paso1VolumenPiscina({
 
         <div className="mt-5 grid grid-cols-2 gap-4">
           <BotonModo
-            titulo="Sí, ya sé los litros"
-            descripcion="Ingresar la capacidad directamente"
+            titulo="Sí"
+            descripcion="Ingresar los litros"
             activo={modoVolumen === "manual"}
             onClick={() =>
               setModoVolumen("manual")
@@ -575,8 +575,8 @@ export default function Paso1VolumenPiscina({
           />
 
           <BotonModo
-            titulo="No, quiero calcularlos"
-            descripcion="Usar forma y medidas"
+            titulo="No"
+            descripcion="Calcular con las medidas"
             activo={modoVolumen === "calcular"}
             onClick={() =>
               setModoVolumen("calcular")
