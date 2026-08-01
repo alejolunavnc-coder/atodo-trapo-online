@@ -11,6 +11,7 @@ import {
   FlaskConical,
   Layers3,
   LoaderCircle,
+  MessageCircle,
   PaintBucket,
   Paintbrush,
   ShieldCheck,
@@ -776,6 +777,32 @@ export default function Paso3TratamientoPiscina({
             </p>
           </div>
 
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-[18px] border border-emerald-200 bg-emerald-50 px-5 py-4">
+          <div>
+            <p className="text-[12px] font-black text-blue-950">
+              ¿Tenés una consulta específica sobre algún producto?
+            </p>
+
+            <p className="mt-1 text-[10px] font-semibold text-gray-500">
+              Contactanos por WhatsApp y te ayudamos a elegir la opción adecuada.
+            </p>
+          </div>
+
+          <a
+            href="https://wa.me/5493765225808?text=Hola%2C%20tengo%20una%20consulta%20sobre%20un%20producto%20de%20piscina."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 text-[12px] font-black text-white shadow-[0_10px_24px_rgba(37,211,102,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1ebe5d] active:scale-[0.98]"
+          >
+            <MessageCircle
+              size={18}
+              strokeWidth={2.6}
+            />
+
+            Consultar por WhatsApp
+          </a>
         </div>
 
         {cargando ? (
