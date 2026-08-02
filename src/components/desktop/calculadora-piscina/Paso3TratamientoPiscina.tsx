@@ -45,8 +45,12 @@ type Paso3TratamientoPiscinaProps = {
   problema: ProblemaAgua | null;
   litrosPiscina: number;
   tratamiento: TratamientoSeleccionado;
+  seleccionMantenimiento: ProductoPiscina[];
   onCambiarTratamiento: (
     tratamiento: ProductoPiscina
+  ) => void;
+  onAlternarMantenimiento: (
+    producto: ProductoPiscina
   ) => void;
   onVolver: () => void;
   onContinuar: () => void;
@@ -210,6 +214,75 @@ function formatearCantidadMantenimiento(
   });
 }
 
+
+function esProductoSolidoPiscina(
+  producto: ProductoPiscina
+) {
+  const texto = normalizarTexto(
+    [
+      obtenerValor(producto, "Nombre"),
+      obtenerValor(
+        producto,
+        "Linea",
+        "Línea"
+      ),
+      obtenerValor(
+        producto,
+        "Tamaño",
+        "Tamano"
+      ),
+    ].join(" ")
+  );
+
+  return (
+    texto.includes("granulado") ||
+    texto.includes("granular") ||
+    texto.includes("pastilla") ||
+    texto.includes("tableta") ||
+    /(^|\s)\d+(?:[.,]\d+)?\s*(kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)(\s|$)/i.test(
+      texto
+    )
+  );
+}
+
+function obtenerUnidadDosisCorregida(
+  producto: ProductoPiscina
+) {
+  const unidadOriginal =
+    obtenerValor(
+      producto,
+      "Unidad dosis"
+    );
+
+  const unidadNormalizada =
+    normalizarTexto(unidadOriginal)
+      .replace(/³/g, "3")
+      .replace(/\s+/g, "");
+
+  const esUnidadLiquida =
+    unidadNormalizada === "ml" ||
+    unidadNormalizada === "cc" ||
+    unidadNormalizada === "cm3" ||
+    unidadNormalizada === "l" ||
+    unidadNormalizada === "lt" ||
+    unidadNormalizada === "lts" ||
+    unidadNormalizada.includes(
+      "litro"
+    ) ||
+    unidadNormalizada.includes(
+      "mililitro"
+    );
+
+  if (
+    esProductoSolidoPiscina(producto) &&
+    esUnidadLiquida
+  ) {
+    return "g";
+  }
+
+  return unidadOriginal;
+}
+
 function calcularDosisMantenimiento(
   producto: ProductoPiscina | undefined,
   litrosPiscina: number
@@ -231,9 +304,8 @@ function calcularDosisMantenimiento(
     );
 
   const unidad =
-    obtenerValor(
-      producto,
-      "Unidad dosis"
+    obtenerUnidadDosisCorregida(
+      producto
     );
 
   if (
@@ -291,7 +363,9 @@ export default function Paso3TratamientoPiscina({
   problema,
   litrosPiscina,
   tratamiento,
+  seleccionMantenimiento,
   onCambiarTratamiento,
+  onAlternarMantenimiento,
   onVolver,
   onContinuar,
 }: Paso3TratamientoPiscinaProps) {
@@ -415,48 +489,84 @@ export default function Paso3TratamientoPiscina({
   const productosMantenimiento =
     useMemo(() => {
       function buscarProducto(
-        palabras: string[]
+        palabras: string[],
+        priorizarSolido = false
       ) {
-        return productosPiscinaCalculadora.find(
+        const coincidentes =
+          productosPiscinaCalculadora.filter(
+            (producto) => {
+              const texto = normalizarTexto(
+                [
+                  obtenerValor(
+                    producto,
+                    "Nombre"
+                  ),
+                  obtenerValor(
+                    producto,
+                    "Linea",
+                    "Línea"
+                  ),
+                  obtenerValor(
+                    producto,
+                    "Uso piscina",
+                    "Uso Piscina"
+                  ),
+                ].join(" ")
+              );
+
+              return palabras.some(
+                (palabra) =>
+                  texto.includes(palabra)
+              );
+            }
+          );
+
+        if (priorizarSolido) {
+          return (
+            coincidentes.find(
+              esProductoSolidoPiscina
+            ) || coincidentes[0]
+          );
+        }
+
+        return coincidentes[0];
+      }
+
+      const clarificadorClasico =
+        productosPiscinaCalculadora.find(
           (producto) => {
-            const texto = normalizarTexto(
-              [
+            const nombre =
+              normalizarTexto(
                 obtenerValor(
                   producto,
                   "Nombre"
-                ),
-                obtenerValor(
-                  producto,
-                  "Linea",
-                  "Línea"
-                ),
-                obtenerValor(
-                  producto,
-                  "Uso piscina",
-                  "Uso Piscina"
-                ),
-              ].join(" ")
-            );
+                )
+              );
 
-            return palabras.some(
-              (palabra) =>
-                texto.includes(palabra)
+            return (
+              nombre ===
+                "clarificador clasico" ||
+              nombre.includes(
+                "clarificador clasico"
+              )
             );
           }
         );
-      }
 
       return {
-        cloro: buscarProducto([
-          "cloro",
-        ]),
+        cloro: buscarProducto(
+          ["cloro"],
+          true
+        ),
         alguicida: buscarProducto([
           "alguicida",
           "algicida",
         ]),
-        clarificador: buscarProducto([
-          "clarificador",
-        ]),
+        clarificador:
+          clarificadorClasico ||
+          buscarProducto([
+            "clarificador",
+          ]),
       };
     }, [productosPiscinaCalculadora]);
 
@@ -476,11 +586,59 @@ export default function Paso3TratamientoPiscina({
     setMostrarCatalogoMantenimiento(true);
 
     window.setTimeout(() => {
-      catalogoMantenimientoRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 120);
+      const catalogo =
+        catalogoMantenimientoRef.current;
+
+      if (!catalogo) {
+        return;
+      }
+
+      const inicio = window.scrollY;
+      const destino =
+        inicio +
+        catalogo.getBoundingClientRect().top -
+        105;
+
+      const distancia = destino - inicio;
+      const duracion = 750;
+      const comienzo = performance.now();
+
+      function animarScroll(
+        tiempoActual: number
+      ) {
+        const progreso = Math.min(
+          (tiempoActual - comienzo) /
+            duracion,
+          1
+        );
+
+        const suavizado =
+          progreso < 0.5
+            ? 4 * progreso * progreso * progreso
+            : 1 -
+              Math.pow(
+                -2 * progreso + 2,
+                3
+              ) /
+                2;
+
+        window.scrollTo(
+          0,
+          inicio +
+            distancia * suavizado
+        );
+
+        if (progreso < 1) {
+          window.requestAnimationFrame(
+            animarScroll
+          );
+        }
+      }
+
+      window.requestAnimationFrame(
+        animarScroll
+      );
+    }, 180);
   }
 
   const palabraClave =
@@ -752,7 +910,7 @@ export default function Paso3TratamientoPiscina({
         mostrarCatalogoMantenimiento) && (
       <div
         ref={catalogoMantenimientoRef}
-        className="scroll-mt-24 rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm"
+        className="scroll-mt-24 animate-[fadeIn_.35s_ease-out] rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm"
       >
         <div className="flex items-center justify-between gap-5">
           <div>
@@ -853,19 +1011,36 @@ export default function Paso3TratamientoPiscina({
                     }
                     camino={camino}
                     activo={
-                      tratamiento !== null &&
-                      obtenerClaveSeleccion(
-                        tratamiento
-                      ) ===
-                        obtenerClaveSeleccion(
-                          producto
-                        )
+                      esMantenimiento
+                        ? seleccionMantenimiento.some(
+                            (seleccionado) =>
+                              obtenerClaveSeleccion(
+                                seleccionado
+                              ) ===
+                              obtenerClaveSeleccion(
+                                producto
+                              )
+                          )
+                        : tratamiento !== null &&
+                          obtenerClaveSeleccion(
+                            tratamiento
+                          ) ===
+                            obtenerClaveSeleccion(
+                              producto
+                            )
                     }
-                    onClick={() =>
+                    onClick={() => {
+                      if (esMantenimiento) {
+                        onAlternarMantenimiento(
+                          producto
+                        );
+                        return;
+                      }
+
                       onCambiarTratamiento(
                         producto
-                      )
-                    }
+                      );
+                    }}
                   />
                 );
               }
@@ -936,41 +1111,69 @@ export default function Paso3TratamientoPiscina({
           </div>
         )}
 
-        {tratamiento !== null && (
-          <div className="mt-5 rounded-[24px] border border-emerald-400 bg-gradient-to-r from-emerald-50 via-white to-emerald-50 p-5 shadow-[0_14px_34px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/15">
-            <div className="mb-3 flex items-center justify-center gap-2 text-emerald-700">
-              <Check
-                size={18}
-                strokeWidth={2.8}
-              />
+        {esMantenimiento ? (
+          seleccionMantenimiento.length > 0 && (
+            <div className="mt-5 rounded-[24px] border border-emerald-400 bg-gradient-to-r from-emerald-50 via-white to-emerald-50 p-5 shadow-[0_14px_34px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/15">
+              <div className="mb-3 flex items-center justify-center gap-2 text-emerald-700">
+                <Check
+                  size={18}
+                  strokeWidth={2.8}
+                />
 
-              <p className="text-[11px] font-black uppercase tracking-[0.14em]">
-                Paso 3 completado
+                <p className="text-[11px] font-black uppercase tracking-[0.14em]">
+                  Productos seleccionados
+                </p>
+              </div>
+
+              <p className="text-center text-[13px] font-bold text-blue-950">
+                {seleccionMantenimiento.length}{" "}
+                {seleccionMantenimiento.length === 1
+                  ? "producto seleccionado"
+                  : "productos seleccionados"}
+              </p>
+
+              <p className="mt-3 text-center text-[10px] font-semibold text-gray-500">
+                Tocá nuevamente una tarjeta para quitarla. La compra se confirma desde el Resumen en vivo.
               </p>
             </div>
-
-            <p className="mb-4 text-center text-[13px] font-bold text-blue-950">
-              Producto seleccionado:{" "}
-              {obtenerNombreTratamiento(
-                tratamiento
-              )}
-            </p>
-
-            <button
-              type="button"
-              onClick={onContinuar}
-              className="group flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.34)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-                <ArrowRight
+          )
+        ) : (
+          tratamiento !== null && (
+            <div className="mt-5 rounded-[24px] border border-emerald-400 bg-gradient-to-r from-emerald-50 via-white to-emerald-50 p-5 shadow-[0_14px_34px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/15">
+              <div className="mb-3 flex items-center justify-center gap-2 text-emerald-700">
+                <Check
                   size={18}
-                  strokeWidth={2.7}
+                  strokeWidth={2.8}
                 />
-              </span>
 
-              Ir al Paso 4: ver resultado
-            </button>
-          </div>
+                <p className="text-[11px] font-black uppercase tracking-[0.14em]">
+                  Paso 3 completado
+                </p>
+              </div>
+
+              <p className="mb-4 text-center text-[13px] font-bold text-blue-950">
+                Producto seleccionado:{" "}
+                {obtenerNombreTratamiento(
+                  tratamiento
+                )}
+              </p>
+
+              <button
+                type="button"
+                onClick={onContinuar}
+                className="group flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.34)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
+                  <ArrowRight
+                    size={18}
+                    strokeWidth={2.7}
+                  />
+                </span>
+
+                Ir al Paso 4: ver resultado
+              </button>
+            </div>
+          )
         )}
       </div>
       )}

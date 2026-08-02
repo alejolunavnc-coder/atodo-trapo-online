@@ -79,6 +79,7 @@ function convertirABase(cantidad: number, unidad: string) {
 
   if (
     unidadNormalizada === "kg" ||
+    unidadNormalizada === "kgs" ||
     unidadNormalizada.includes("kilo")
   ) {
     return {
@@ -91,6 +92,8 @@ function convertirABase(cantidad: number, unidad: string) {
   if (
     unidadNormalizada === "g" ||
     unidadNormalizada === "gr" ||
+    unidadNormalizada === "grs" ||
+    unidadNormalizada === "gs" ||
     unidadNormalizada.includes("gramo")
   ) {
     return {
@@ -123,7 +126,7 @@ function obtenerPresentaciones(producto: ProductoPiscina) {
 function obtenerContenidoPresentacion(producto: ProductoPiscina) {
   const texto = obtenerValor(producto, "Tamaño", "Tamano");
   const coincidencia = texto.match(
-    /(\d+(?:[.,]\d+)?)\s*(ml|mililitros?|cc|cm³|cm3|centímetros?\s*cúbicos?|l|lt|lts|litros?|g|gr|gramos?|kg|kilos?)/i
+    /(\d+(?:[.,]\d+)?)\s*(ml|mililitros?|cc|cm³|cm3|centímetros?\s*cúbicos?|l|lt|lts|litros?|g|gr|grs|gs|gramos?|kg|kgs|kilos?)/i
   );
 
   if (!coincidencia) {
@@ -151,6 +154,85 @@ function obtenerPrecioFinal(producto: ProductoPiscina) {
   return precio;
 }
 
+
+function normalizarTextoProducto(
+  valor: unknown
+) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function esProductoSolidoPiscina(
+  producto: ProductoPiscina
+) {
+  const texto = normalizarTextoProducto(
+    [
+      obtenerValor(producto, "Nombre"),
+      obtenerValor(
+        producto,
+        "Linea",
+        "Línea"
+      ),
+      obtenerValor(
+        producto,
+        "Tamaño",
+        "Tamano"
+      ),
+    ].join(" ")
+  );
+
+  return (
+    texto.includes("granulado") ||
+    texto.includes("granular") ||
+    texto.includes("pastilla") ||
+    texto.includes("tableta") ||
+    /(^|\s)\d+(?:[.,]\d+)?\s*(kg|kgs|kilo|kilos|g|gr|grs|gramo|gramos)(\s|$)/i.test(
+      texto
+    )
+  );
+}
+
+function obtenerUnidadDosisCorregida(
+  producto: ProductoPiscina
+) {
+  const unidadOriginal =
+    obtenerValor(
+      producto,
+      "Unidad dosis"
+    );
+
+  const unidadNormalizada =
+    normalizarUnidad(unidadOriginal)
+      .replace(/³/g, "3")
+      .replace(/\s+/g, "");
+
+  const esUnidadLiquida =
+    unidadNormalizada === "ml" ||
+    unidadNormalizada === "cc" ||
+    unidadNormalizada === "cm3" ||
+    unidadNormalizada === "l" ||
+    unidadNormalizada === "lt" ||
+    unidadNormalizada === "lts" ||
+    unidadNormalizada.includes(
+      "litro"
+    ) ||
+    unidadNormalizada.includes(
+      "mililitro"
+    );
+
+  if (
+    esProductoSolidoPiscina(producto) &&
+    esUnidadLiquida
+  ) {
+    return "g";
+  }
+
+  return unidadOriginal;
+}
+
 export function calcularCompraEconomica(
   producto: ProductoPiscina,
   dosisCalculada: number
@@ -159,7 +241,10 @@ export function calcularCompraEconomica(
     return null;
   }
 
-  const unidadDosis = obtenerValor(producto, "Unidad dosis");
+  const unidadDosis =
+    obtenerUnidadDosisCorregida(
+      producto
+    );
   const dosisBase = convertirABase(dosisCalculada, unidadDosis);
 
   if (!dosisBase) {
@@ -433,9 +518,8 @@ export default function Paso4ResultadoPiscina({
     );
 
   const unidad =
-    obtenerValor(
-      producto,
-      "Unidad dosis"
+    obtenerUnidadDosisCorregida(
+      producto
     ) || "unidades";
 
   const modoUso =

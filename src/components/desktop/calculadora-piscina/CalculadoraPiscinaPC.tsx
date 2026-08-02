@@ -24,6 +24,7 @@ import Paso2ExperienciaPiscina, {
 
 import Paso3TratamientoPiscina, {
   obtenerNombreTratamiento,
+  type ProductoPiscina,
   type TratamientoSeleccionado,
 } from "./Paso3TratamientoPiscina";
 
@@ -182,6 +183,67 @@ function obtenerValor(
   return "";
 }
 
+
+function normalizarTexto(valor: unknown) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function obtenerClaveProducto(
+  producto: ProductoPiscina
+) {
+  return [
+    normalizarTexto(
+      obtenerValor(producto, "Marca")
+    ),
+    normalizarTexto(
+      obtenerValor(producto, "Nombre")
+    ),
+    normalizarTexto(
+      obtenerValor(
+        producto,
+        "Linea",
+        "Línea"
+      )
+    ),
+  ].join("::");
+}
+
+function obtenerPrecioFinalProducto(
+  producto: ProductoPiscina
+) {
+  const precio = numeroDesdeTexto(
+    obtenerValor(producto, "Precio")
+  );
+
+  const precioOferta = numeroDesdeTexto(
+    obtenerValor(
+      producto,
+      "Precio oferta"
+    )
+  );
+
+  if (
+    precioOferta > 0 &&
+    (precio <= 0 || precioOferta < precio)
+  ) {
+    return precioOferta;
+  }
+
+  return precio;
+}
+
+function formatearPrecio(valor: number) {
+  return valor.toLocaleString("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  });
+}
+
 type CalculadoraPiscinaPCProps = {
   onAgregarAlCarrito: (
     items: {
@@ -217,6 +279,11 @@ export default function CalculadoraPiscinaPC({
 
   const [tratamientoSeleccionado, setTratamientoSeleccionado] =
     useState<TratamientoSeleccionado | null>(null);
+
+  const [
+    seleccionMantenimiento,
+    setSeleccionMantenimiento,
+  ] = useState<ProductoPiscina[]>([]);
 
   const pasoDosRef =
     useRef<HTMLDivElement | null>(null);
@@ -385,6 +452,7 @@ export default function CalculadoraPiscinaPC({
   function irAlPasoCuatro() {
     if (
       transicionando ||
+      problemaAgua === "mantenimiento" ||
       tratamientoSeleccionado === null
     ) {
       return;
@@ -422,6 +490,64 @@ export default function CalculadoraPiscinaPC({
       });
     }, 420);
   }
+
+  function alternarProductoMantenimiento(
+    producto: ProductoPiscina
+  ) {
+    const clave =
+      obtenerClaveProducto(producto);
+
+    setSeleccionMantenimiento(
+      (seleccionActual) => {
+        const yaSeleccionado =
+          seleccionActual.some(
+            (item) =>
+              obtenerClaveProducto(item) ===
+              clave
+          );
+
+        if (yaSeleccionado) {
+          return seleccionActual.filter(
+            (item) =>
+              obtenerClaveProducto(item) !==
+              clave
+          );
+        }
+
+        return [
+          ...seleccionActual,
+          producto,
+        ];
+      }
+    );
+  }
+
+  function agregarMantenimientoAlCarrito() {
+    if (
+      seleccionMantenimiento.length === 0
+    ) {
+      return;
+    }
+
+    onAgregarAlCarrito(
+      seleccionMantenimiento.map(
+        (producto) => ({
+          producto,
+          cantidad: 1,
+        })
+      )
+    );
+  }
+
+  const totalMantenimiento =
+    seleccionMantenimiento.reduce(
+      (total, producto) =>
+        total +
+        obtenerPrecioFinalProducto(
+          producto
+        ),
+      0
+    );
 
   const dosisSeleccionada =
     tratamientoSeleccionado !== null
@@ -493,13 +619,17 @@ export default function CalculadoraPiscinaPC({
               completado={pasoActual > 3}
             />
 
-            <Linea />
+            {problemaAgua !== "mantenimiento" && (
+              <>
+                <Linea />
 
-            <Paso
-              numero={4}
-              titulo="Resultado"
-              activo={pasoActual === 4}
-            />
+                <Paso
+                  numero={4}
+                  titulo="Resultado"
+                  activo={pasoActual === 4}
+                />
+              </>
+            )}
           </div>
         </section>
 
@@ -517,6 +647,7 @@ export default function CalculadoraPiscinaPC({
               problema={problemaAgua}
               onChange={(camino) => {
                 setTratamientoSeleccionado(null);
+                setSeleccionMantenimiento([]);
 
                 if (camino === "directo") {
                   setProblemaAgua(null);
@@ -526,6 +657,7 @@ export default function CalculadoraPiscinaPC({
               }}
               onCambiarProblema={(problema) => {
                 setTratamientoSeleccionado(null);
+                setSeleccionMantenimiento([]);
                 setProblemaAgua(problema);
               }}
               onVolver={volverAlPasoUno}
@@ -540,8 +672,14 @@ export default function CalculadoraPiscinaPC({
               problema={problemaAgua}
               litrosPiscina={litrosPiscina}
               tratamiento={tratamientoSeleccionado}
+              seleccionMantenimiento={
+                seleccionMantenimiento
+              }
               onCambiarTratamiento={
                 setTratamientoSeleccionado
+              }
+              onAlternarMantenimiento={
+                alternarProductoMantenimiento
               }
               onVolver={volverAlPasoDos}
               onContinuar={irAlPasoCuatro}
@@ -561,7 +699,7 @@ export default function CalculadoraPiscinaPC({
         ) : null}
       </div>
 
-      <aside className="sticky top-20 rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
+      <aside className="sticky top-24 rounded-[24px] border border-gray-200 bg-white p-6 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
         <p className="text-[11px] font-black uppercase tracking-[0.14em] text-sky-600">
           Resumen en vivo
         </p>
@@ -664,70 +802,140 @@ export default function CalculadoraPiscinaPC({
 
 
           {pasoActual >= 3 &&
-            tratamientoSeleccionado !== null && (
+          problemaAgua === "mantenimiento" ? (
             <FilaResumen
-              etiqueta="Producto"
-              valor={obtenerNombreTratamiento(
-                tratamientoSeleccionado
-              )}
+              etiqueta="Productos"
+              valor={
+                seleccionMantenimiento.length === 0
+                  ? "Sin seleccionar"
+                  : `${seleccionMantenimiento.length} seleccionados`
+              }
             />
+          ) : (
+            pasoActual >= 3 &&
+            tratamientoSeleccionado !== null && (
+              <FilaResumen
+                etiqueta="Producto"
+                valor={obtenerNombreTratamiento(
+                  tratamientoSeleccionado
+                )}
+              />
+            )
           )}
         </div>
 
-        <div className="relative mt-5 overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] px-5 py-5 text-white shadow-[0_16px_34px_rgba(8,121,197,0.22)]">
-          <div className="pointer-events-none absolute -bottom-16 -right-12 h-40 w-64 rounded-[50%] border border-white/15" />
-          <div className="pointer-events-none absolute -bottom-20 right-4 h-40 w-72 rounded-[50%] border border-white/10" />
-          <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+        {problemaAgua === "mantenimiento" &&
+          pasoActual >= 3 && (
+            <div className="mt-4 rounded-[18px] border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
+                Compra de mantenimiento
+              </p>
 
-          <div className="relative z-10 flex items-center gap-2">
-            <Droplets
-              size={18}
-              strokeWidth={2.5}
-            />
+              <div className="mt-3 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Productos seleccionados
+                  </p>
 
-            <p className="text-[11px] font-bold text-white/75">
-              Capacidad de la piscina
+                  <p className="mt-0.5 text-[16px] font-black text-blue-950">
+                    {seleccionMantenimiento.length}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Total
+                  </p>
+
+                  <p className="mt-0.5 text-[20px] font-black text-emerald-700">
+                    {totalMantenimiento > 0
+                      ? formatearPrecio(
+                          totalMantenimiento
+                        )
+                      : "$0"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                disabled={
+                  seleccionMantenimiento.length ===
+                  0
+                }
+                onClick={
+                  agregarMantenimientoAlCarrito
+                }
+                className={`mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] px-5 text-[13px] font-black transition ${
+                  seleccionMantenimiento.length > 0
+                    ? "bg-teal-700 text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+                    : "cursor-not-allowed bg-gray-200 text-gray-400"
+                }`}
+              >
+                <ShoppingCart
+                  size={18}
+                  strokeWidth={2.6}
+                />
+
+                {seleccionMantenimiento.length > 0
+                  ? "Agregar selección al carrito"
+                  : "Seleccioná productos"}
+              </button>
+            </div>
+          )}
+
+        <div className="relative mt-4 overflow-hidden rounded-[16px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] px-4 py-3.5 text-white shadow-[0_12px_28px_rgba(8,121,197,0.20)]">
+          <div className="pointer-events-none absolute -bottom-20 -right-14 h-36 w-56 rounded-[50%] border border-white/10" />
+          <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-2">
+              <Droplets
+                size={16}
+                strokeWidth={2.5}
+                className="shrink-0"
+              />
+
+              <p className="text-[10px] font-bold text-white/75">
+                Capacidad de la piscina
+              </p>
+            </div>
+
+            <p className="shrink-0 text-[22px] font-black leading-none">
+              {formatearNumero(litrosPiscina)}{" "}
+              <span className="text-[11px] text-white/80">
+                litros
+              </span>
             </p>
           </div>
 
-          <p className="relative z-10 mt-2 text-[34px] font-black leading-none">
-            {formatearNumero(litrosPiscina)}
-          </p>
-
-          <p className="relative z-10 mt-1 text-[14px] font-black text-white/85">
-            litros
-          </p>
-
           {litrosPiscina > 0 && (
-            <div className="relative z-10 mt-4 flex items-start gap-3 rounded-[15px] border border-white/20 bg-white/10 px-3.5 py-3 backdrop-blur-sm">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15">
+            <div className="relative z-10 mt-2.5 flex items-center justify-between gap-3 rounded-[12px] border border-white/15 bg-white/10 px-3 py-2 backdrop-blur-sm">
+              <div className="flex min-w-0 items-center gap-2">
                 <Clock3
-                  size={16}
+                  size={14}
                   strokeWidth={2.5}
+                  className="shrink-0 text-white/85"
                 />
-              </span>
 
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.12em] text-white/70">
+                <p className="text-[8px] font-black uppercase tracking-[0.09em] text-white/70">
                   Recirculación diaria
                 </p>
-
-                <p className="mt-0.5 text-[12px] font-black text-white">
-                  {formatearRecirculacion(
-                    litrosPiscina
-                  )}{" "}
-                  DIARIAMENTE
-                </p>
-
-                <p className="mt-1 text-[9px] font-semibold leading-relaxed text-white/70">
-                  Calculado a razón de 1 hora cada 10.000 litros.
-                </p>
               </div>
+
+              <p className="shrink-0 text-[10px] font-black text-white">
+                {formatearRecirculacion(
+                  litrosPiscina
+                )}{" "}
+                DIARIAMENTE
+              </p>
             </div>
           )}
         </div>
 
-        {tratamientoSeleccionado !== null && (
+        {pasoActual === 4 &&
+          tratamientoSeleccionado !== null &&
+          problemaAgua !== "mantenimiento" && (
           <div
             className={`mt-4 rounded-[18px] border p-4 ${
               compraEconomica
@@ -767,37 +975,41 @@ export default function CalculadoraPiscinaPC({
               </>
             ) : (
               <p className="mt-1 text-[10px] font-semibold leading-relaxed text-amber-900">
-                Todavía no se pudo calcular la combinación de envases.
-                Revisá que el producto tenga Tamaño, Precio, Dosis,
-                Unidad dosis y Litros referencia.
+                No se pudo calcular automáticamente la combinación de envases,
+                pero igualmente podés agregar una unidad de este producto al carrito.
               </p>
             )}
 
             <button
               type="button"
-              disabled={!compraEconomica}
               onClick={() => {
-                if (!compraEconomica) {
+                if (!tratamientoSeleccionado) {
                   return;
                 }
 
-                onAgregarAlCarrito(
-                  compraEconomica.items.map((item) => ({
-                    producto: item.producto,
-                    cantidad: item.cantidad,
-                  }))
-                );
+                if (compraEconomica) {
+                  onAgregarAlCarrito(
+                    compraEconomica.items.map((item) => ({
+                      producto: item.producto,
+                      cantidad: item.cantidad,
+                    }))
+                  );
+                  return;
+                }
+
+                onAgregarAlCarrito([
+                  {
+                    producto: tratamientoSeleccionado,
+                    cantidad: 1,
+                  },
+                ]);
               }}
-              className={`mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] px-5 text-[13px] font-black transition ${
-                compraEconomica
-                  ? "bg-teal-700 text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
-                  : "cursor-not-allowed bg-gray-200 text-gray-400"
-              }`}
+              className="mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] bg-teal-700 px-5 text-[13px] font-black text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
             >
               <ShoppingCart size={18} strokeWidth={2.6} />
               {compraEconomica
                 ? "Agregar compra recomendada"
-                : "Compra todavía no disponible"}
+                : "Agregar producto al carrito"}
             </button>
           </div>
         )}
