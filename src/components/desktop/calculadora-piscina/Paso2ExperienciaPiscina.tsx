@@ -415,9 +415,11 @@ export default function Paso2ExperienciaPiscina({
               />
             </span>
 
-            {problema === "mantenimiento"
-              ? "Ir al Paso 3: mantenimiento"
-              : "Ir al Paso 3: tratamiento"}
+            {caminoLocal === "directo"
+              ? "Ir al Paso 3: productos"
+              : problema === "mantenimiento"
+                ? "Ir al Paso 3: mantenimiento"
+                : "Ir al Paso 3: tratamiento"}
           </button>
 
           <style jsx>{`

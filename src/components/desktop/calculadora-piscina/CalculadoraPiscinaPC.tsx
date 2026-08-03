@@ -285,6 +285,10 @@ export default function CalculadoraPiscinaPC({
     setSeleccionMantenimiento,
   ] = useState<ProductoPiscina[]>([]);
 
+  const esSeleccionMultiple =
+    caminoExperiencia === "directo" ||
+    problemaAgua === "mantenimiento";
+
   const pasoDosRef =
     useRef<HTMLDivElement | null>(null);
 
@@ -452,7 +456,7 @@ export default function CalculadoraPiscinaPC({
   function irAlPasoCuatro() {
     if (
       transicionando ||
-      problemaAgua === "mantenimiento" ||
+      esSeleccionMultiple ||
       tratamientoSeleccionado === null
     ) {
       return;
@@ -522,7 +526,7 @@ export default function CalculadoraPiscinaPC({
     );
   }
 
-  function agregarMantenimientoAlCarrito() {
+  function agregarSeleccionMultipleAlCarrito() {
     if (
       seleccionMantenimiento.length === 0
     ) {
@@ -611,15 +615,17 @@ export default function CalculadoraPiscinaPC({
             <Paso
               numero={3}
               titulo={
-                problemaAgua === "mantenimiento"
-                  ? "Mantenimiento"
-                  : "Tratamiento"
+                caminoExperiencia === "directo"
+                  ? "Productos"
+                  : problemaAgua === "mantenimiento"
+                    ? "Mantenimiento"
+                    : "Tratamiento"
               }
               activo={pasoActual === 3}
               completado={pasoActual > 3}
             />
 
-            {problemaAgua !== "mantenimiento" && (
+            {!esSeleccionMultiple && (
               <>
                 <Linea />
 
@@ -717,7 +723,11 @@ export default function CalculadoraPiscinaPC({
                 : pasoActual === 2
                   ? "2 · Experiencia"
                   : pasoActual === 3
-                    ? "3 · Tratamiento"
+                    ? caminoExperiencia === "directo"
+                      ? "3 · Productos"
+                      : problemaAgua === "mantenimiento"
+                        ? "3 · Mantenimiento"
+                        : "3 · Tratamiento"
                     : "4 · Resultado"
             }
           />
@@ -802,7 +812,7 @@ export default function CalculadoraPiscinaPC({
 
 
           {pasoActual >= 3 &&
-          problemaAgua === "mantenimiento" ? (
+          esSeleccionMultiple ? (
             <FilaResumen
               etiqueta="Productos"
               valor={
@@ -823,66 +833,6 @@ export default function CalculadoraPiscinaPC({
             )
           )}
         </div>
-
-        {problemaAgua === "mantenimiento" &&
-          pasoActual >= 3 && (
-            <div className="mt-4 rounded-[18px] border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
-                Compra de mantenimiento
-              </p>
-
-              <div className="mt-3 flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-semibold text-gray-500">
-                    Productos seleccionados
-                  </p>
-
-                  <p className="mt-0.5 text-[16px] font-black text-blue-950">
-                    {seleccionMantenimiento.length}
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold text-gray-500">
-                    Total
-                  </p>
-
-                  <p className="mt-0.5 text-[20px] font-black text-emerald-700">
-                    {totalMantenimiento > 0
-                      ? formatearPrecio(
-                          totalMantenimiento
-                        )
-                      : "$0"}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                disabled={
-                  seleccionMantenimiento.length ===
-                  0
-                }
-                onClick={
-                  agregarMantenimientoAlCarrito
-                }
-                className={`mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] px-5 text-[13px] font-black transition ${
-                  seleccionMantenimiento.length > 0
-                    ? "bg-teal-700 text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
-                    : "cursor-not-allowed bg-gray-200 text-gray-400"
-                }`}
-              >
-                <ShoppingCart
-                  size={18}
-                  strokeWidth={2.6}
-                />
-
-                {seleccionMantenimiento.length > 0
-                  ? "Agregar selección al carrito"
-                  : "Seleccioná productos"}
-              </button>
-            </div>
-          )}
 
         <div className="relative mt-4 overflow-hidden rounded-[16px] bg-gradient-to-br from-[#0D5EA8] via-[#0879C5] to-[#159BE8] px-4 py-3.5 text-white shadow-[0_12px_28px_rgba(8,121,197,0.20)]">
           <div className="pointer-events-none absolute -bottom-20 -right-14 h-36 w-56 rounded-[50%] border border-white/10" />
@@ -933,9 +883,72 @@ export default function CalculadoraPiscinaPC({
           )}
         </div>
 
+
+        {esSeleccionMultiple &&
+          pasoActual >= 3 && (
+            <div className="mt-4 rounded-[18px] border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
+                {caminoExperiencia === "directo"
+                  ? "Compra seleccionada"
+                  : "Compra de mantenimiento"}
+              </p>
+
+              <div className="mt-3 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Productos seleccionados
+                  </p>
+
+                  <p className="mt-0.5 text-[16px] font-black text-blue-950">
+                    {seleccionMantenimiento.length}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Total
+                  </p>
+
+                  <p className="mt-0.5 text-[20px] font-black text-emerald-700">
+                    {totalMantenimiento > 0
+                      ? formatearPrecio(
+                          totalMantenimiento
+                        )
+                      : "$0"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                disabled={
+                  seleccionMantenimiento.length ===
+                  0
+                }
+                onClick={
+                  agregarSeleccionMultipleAlCarrito
+                }
+                className={`mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] px-5 text-[13px] font-black transition ${
+                  seleccionMantenimiento.length > 0
+                    ? "bg-teal-700 text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] hover:-translate-y-0.5 hover:bg-teal-800 active:scale-[0.99]"
+                    : "cursor-not-allowed bg-gray-200 text-gray-400"
+                }`}
+              >
+                <ShoppingCart
+                  size={18}
+                  strokeWidth={2.6}
+                />
+
+                {seleccionMantenimiento.length > 0
+                  ? "Agregar selección al carrito"
+                  : "Seleccioná productos"}
+              </button>
+            </div>
+          )}
+
         {pasoActual === 4 &&
           tratamientoSeleccionado !== null &&
-          problemaAgua !== "mantenimiento" && (
+          !esSeleccionMultiple && (
           <div
             className={`mt-4 rounded-[18px] border p-4 ${
               compraEconomica

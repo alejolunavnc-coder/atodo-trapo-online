@@ -13,7 +13,10 @@ import {
   CircleCheck,
   Clock3,
   Droplets,
+  FolderOpen,
   Ruler,
+  Save,
+  Trash2,
   Waves,
 } from "lucide-react";
 
@@ -35,6 +38,14 @@ export type ResumenVolumenPiscina = {
   detalle3Etiqueta?: string;
   detalle3Valor?: string;
 };
+
+type PiscinaGuardadaPC = {
+  litros: number;
+  resumen: ResumenVolumenPiscina;
+};
+
+const CLAVE_PISCINA_GUARDADA =
+  "atodo-trapo-piscina-guardada";
 
 type Paso1VolumenPiscinaProps = {
   transicionando: boolean;
@@ -189,6 +200,18 @@ export default function Paso1VolumenPiscina({
   const [modoVolumen, setModoVolumen] =
     useState<ModoVolumen | null>(null);
 
+  const [
+    piscinaGuardada,
+    setPiscinaGuardada,
+  ] = useState<PiscinaGuardadaPC | null>(
+    null
+  );
+
+  const [
+    mensajeGuardado,
+    setMensajeGuardado,
+  ] = useState("");
+
   const [litrosManuales, setLitrosManuales] =
     useState("");
 
@@ -205,6 +228,35 @@ export default function Paso1VolumenPiscina({
   const [diametro, setDiametro] = useState("");
   const [profundidadRedonda, setProfundidadRedonda] =
     useState("");
+
+  useEffect(() => {
+    try {
+      const guardado =
+        window.localStorage.getItem(
+          CLAVE_PISCINA_GUARDADA
+        );
+
+      if (!guardado) {
+        return;
+      }
+
+      const datos =
+        JSON.parse(
+          guardado
+        ) as PiscinaGuardadaPC;
+
+      if (
+        datos.litros > 0 &&
+        datos.resumen
+      ) {
+        setPiscinaGuardada(datos);
+      }
+    } catch {
+      window.localStorage.removeItem(
+        CLAVE_PISCINA_GUARDADA
+      );
+    }
+  }, []);
 
   const ingresoLitrosRef =
     useRef<HTMLElement | null>(null);
@@ -382,13 +434,10 @@ export default function Paso1VolumenPiscina({
   }, [forma, modoVolumen]);
 
   useEffect(() => {
-    if (
-      modoVolumen === "calcular" &&
-      volumenCompleto
-    ) {
+    if (volumenCompleto) {
       moverSuaveA(continuarRef);
     }
-  }, [modoVolumen, volumenCompleto]);
+  }, [volumenCompleto]);
 
   const resumenEnVivo =
     useMemo<ResumenVolumenPiscina | null>(() => {
@@ -474,8 +523,81 @@ export default function Paso1VolumenPiscina({
     onCambio,
   ]);
 
+  function guardarPiscina() {
+    if (
+      !volumenCompleto ||
+      resumenEnVivo === null
+    ) {
+      return;
+    }
+
+    const datos: PiscinaGuardadaPC = {
+      litros: litrosPiscina,
+      resumen: resumenEnVivo,
+    };
+
+    window.localStorage.setItem(
+      CLAVE_PISCINA_GUARDADA,
+      JSON.stringify(datos)
+    );
+
+    setPiscinaGuardada(datos);
+    setMensajeGuardado(
+      "Piscina guardada correctamente."
+    );
+
+    window.setTimeout(() => {
+      setMensajeGuardado("");
+    }, 1800);
+  }
+
+  function usarPiscinaGuardada() {
+    if (!piscinaGuardada) {
+      return;
+    }
+
+    setModoVolumen("manual");
+    setLitrosManuales(
+      String(
+        Math.round(
+          piscinaGuardada.litros
+        )
+      )
+    );
+
+    onCambio(
+      piscinaGuardada.litros,
+      piscinaGuardada.resumen
+    );
+
+    window.setTimeout(() => {
+      onCompletar(
+        piscinaGuardada.litros,
+        piscinaGuardada.resumen
+      );
+    }, 180);
+  }
+
+  function eliminarPiscinaGuardada() {
+    window.localStorage.removeItem(
+      CLAVE_PISCINA_GUARDADA
+    );
+
+    setPiscinaGuardada(null);
+    setMensajeGuardado(
+      "Piscina guardada eliminada."
+    );
+
+    window.setTimeout(() => {
+      setMensajeGuardado("");
+    }, 1800);
+  }
+
   function continuar() {
-    if (!volumenCompleto) {
+    if (
+      !volumenCompleto ||
+      modoVolumen === null
+    ) {
       return;
     }
 
@@ -532,6 +654,76 @@ export default function Paso1VolumenPiscina({
           : "translate-y-0 scale-100 opacity-100 blur-0"
       }`}
     >
+      {piscinaGuardada && (
+        <section className="rounded-[24px] border border-emerald-300 bg-gradient-to-r from-emerald-50 via-white to-cyan-50 p-6 shadow-sm">
+          <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+              <FolderOpen
+                size={24}
+                strokeWidth={2.5}
+              />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700">
+                Mi piscina guardada
+              </p>
+
+              <h2 className="mt-1 text-[24px] font-black text-blue-950">
+                {piscinaGuardada.litros.toLocaleString(
+                  "es-AR",
+                  {
+                    maximumFractionDigits: 0,
+                  }
+                )}{" "}
+                litros
+              </h2>
+
+              <p className="mt-1 text-[11px] font-semibold text-gray-500">
+                {piscinaGuardada.resumen.metodo} ·{" "}
+                {piscinaGuardada.resumen.forma}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-[1fr_auto] gap-3">
+            <button
+              type="button"
+              onClick={usarPiscinaGuardada}
+              className="flex h-13 items-center justify-center gap-2.5 rounded-[17px] bg-emerald-600 px-5 text-[14px] font-black text-white shadow-[0_10px_24px_rgba(16,185,129,0.26)] transition hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
+            >
+              <FolderOpen
+                size={18}
+                strokeWidth={2.6}
+              />
+
+              Usar mi piscina guardada
+            </button>
+
+            <button
+              type="button"
+              onClick={eliminarPiscinaGuardada}
+              className="flex h-13 items-center justify-center gap-2 rounded-[17px] border border-red-200 bg-white px-5 text-[12px] font-black text-red-600 transition hover:bg-red-50 active:scale-[0.99]"
+            >
+              <Trash2
+                size={17}
+                strokeWidth={2.5}
+              />
+
+              Eliminar
+            </button>
+          </div>
+        </section>
+      )}
+
+      {mensajeGuardado && (
+        <div className="rounded-[16px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-center">
+          <p className="text-[11px] font-black text-emerald-700">
+            {mensajeGuardado}
+          </p>
+        </div>
+      )}
+
       <section
         className={`rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-300 ${
           modoVolumen === null
@@ -840,8 +1032,23 @@ export default function Paso1VolumenPiscina({
 
           <button
             type="button"
+            onClick={guardarPiscina}
+            className="flex h-12 w-full items-center justify-center gap-2.5 rounded-[16px] border border-sky-200 bg-white px-5 text-[13px] font-black text-sky-700 shadow-sm transition hover:bg-sky-50 active:scale-[0.99]"
+          >
+            <Save
+              size={18}
+              strokeWidth={2.6}
+            />
+
+            {piscinaGuardada
+              ? "Actualizar piscina guardada"
+              : "Guardar esta piscina"}
+          </button>
+
+          <button
+            type="button"
             onClick={continuar}
-            className="group flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.34)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
+            className="group mt-3 flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.34)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
             style={{
               animation:
                 "pulsoPasoCompleto 1.9s ease-in-out infinite",

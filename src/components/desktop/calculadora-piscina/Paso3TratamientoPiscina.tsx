@@ -574,13 +574,17 @@ export default function Paso3TratamientoPiscina({
     camino === "guiado" &&
     problema === "mantenimiento";
 
+  const esSeleccionMultiple =
+    camino === "directo" ||
+    esMantenimiento;
+
   useEffect(() => {
-    if (!esMantenimiento) {
+    if (!esSeleccionMultiple) {
       setMostrarCatalogoMantenimiento(
         false
       );
     }
-  }, [esMantenimiento]);
+  }, [esSeleccionMultiple]);
 
   function abrirCatalogoMantenimiento() {
     setMostrarCatalogoMantenimiento(true);
@@ -648,10 +652,7 @@ export default function Paso3TratamientoPiscina({
 
   const productosFiltrados =
     useMemo(() => {
-      if (
-        camino === "directo" ||
-        esMantenimiento
-      ) {
+      if (esSeleccionMultiple) {
         return productosPiscinaCalculadora;
       }
 
@@ -680,7 +681,7 @@ export default function Paso3TratamientoPiscina({
     }, [
       productosPiscinaCalculadora,
       camino,
-      esMantenimiento,
+      esSeleccionMultiple,
       palabraClave,
     ]);
 
@@ -752,14 +753,16 @@ export default function Paso3TratamientoPiscina({
               <h2 className="mt-1 text-[21px] font-black tracking-[-0.03em] text-blue-950">
                 {esMantenimiento
                   ? "Mantenimiento completo"
-                  : "Elegí un producto"}
+                  : camino === "directo"
+                    ? "Elegí tus productos"
+                    : "Elegí un producto"}
               </h2>
 
               <p className="mt-1 text-[13px] font-medium text-gray-500">
                 {esMantenimiento
                   ? "Te mostramos qué necesita tu piscina y con qué frecuencia aplicarlo."
                   : camino === "directo"
-                    ? "Elegí directamente el producto que necesitás."
+                    ? "Revisá la guía y elegí todos los productos que necesitás."
                     : "Mostramos los productos que coinciden con el problema seleccionado."}
               </p>
             </div>
@@ -785,7 +788,7 @@ export default function Paso3TratamientoPiscina({
       )}
 
 
-      {esMantenimiento && (
+      {esSeleccionMultiple && (
         <div className="rounded-[24px] border border-sky-200 bg-gradient-to-br from-white via-sky-50/40 to-blue-50/60 p-6 shadow-sm">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-sm">
@@ -801,7 +804,7 @@ export default function Paso3TratamientoPiscina({
               </p>
 
               <h3 className="mt-1 text-[22px] font-black tracking-[-0.03em] text-blue-950">
-                Mantenimiento completo para{" "}
+                Guía para{" "}
                 {litrosPiscina.toLocaleString(
                   "es-AR",
                   {
@@ -895,7 +898,7 @@ export default function Paso3TratamientoPiscina({
               onClick={abrirCatalogoMantenimiento}
               className="group mt-5 flex h-14 w-full items-center justify-center gap-3 rounded-[17px] bg-emerald-600 px-6 text-[15px] font-black text-white shadow-[0_12px_28px_rgba(16,185,129,0.30)] transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-[0.99]"
             >
-              Elegir productos para el mantenimiento
+              Elegir productos
 
               <ArrowRight
                 size={18}
@@ -906,7 +909,7 @@ export default function Paso3TratamientoPiscina({
         </div>
       )}
 
-      {(!esMantenimiento ||
+      {(!esSeleccionMultiple ||
         mostrarCatalogoMantenimiento) && (
       <div
         ref={catalogoMantenimientoRef}
@@ -915,11 +918,9 @@ export default function Paso3TratamientoPiscina({
         <div className="flex items-center justify-between gap-5">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-sky-600">
-              {esMantenimiento
+              {esSeleccionMultiple
                 ? "Catálogo de piscina"
-                : camino === "directo"
-                  ? "Productos para piscina"
-                  : palabraClave || "Tratamiento"}
+                : palabraClave || "Tratamiento"}
             </p>
 
             <h3 className="mt-1 text-[20px] font-black tracking-[-0.03em] text-blue-950">
@@ -927,11 +928,9 @@ export default function Paso3TratamientoPiscina({
             </h3>
 
             <p className="mt-2 max-w-[680px] text-[12px] font-semibold leading-relaxed text-gray-500">
-              {esMantenimiento
-                ? "Elegí libremente los productos, marcas y presentaciones que quieras comprar para el mantenimiento."
-                : camino === "directo"
-                  ? "Compará los productos y elegí el que necesitás. Al seleccionarlo vas a encontrar el modo de uso completo más abajo."
-                  : "Elegí una de las soluciones compatibles. La dosis se calcula automáticamente según los litros de tu piscina y los datos cargados en Google Sheets."}
+              {esSeleccionMultiple
+                ? "Podés elegir varios productos. Tocá nuevamente una tarjeta para quitarla de la selección."
+                : "Elegí una de las soluciones compatibles. La dosis se calcula automáticamente según los litros de tu piscina y los datos cargados en Google Sheets."}
             </p>
           </div>
 
@@ -1011,7 +1010,7 @@ export default function Paso3TratamientoPiscina({
                     }
                     camino={camino}
                     activo={
-                      esMantenimiento
+                      esSeleccionMultiple
                         ? seleccionMantenimiento.some(
                             (seleccionado) =>
                               obtenerClaveSeleccion(
@@ -1030,7 +1029,7 @@ export default function Paso3TratamientoPiscina({
                             )
                     }
                     onClick={() => {
-                      if (esMantenimiento) {
+                      if (esSeleccionMultiple) {
                         onAlternarMantenimiento(
                           producto
                         );
@@ -1049,7 +1048,7 @@ export default function Paso3TratamientoPiscina({
         )}
 
         {tratamiento !== null &&
-          camino === "directo" && (
+          !esSeleccionMultiple && (
           <div className="mt-5 rounded-[24px] border border-sky-300 bg-gradient-to-br from-sky-50 via-white to-blue-50 p-5 shadow-[0_14px_34px_rgba(14,165,233,0.14)]">
             <div className="flex items-start gap-4">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-sky-600 text-white shadow-sm">
@@ -1111,7 +1110,7 @@ export default function Paso3TratamientoPiscina({
           </div>
         )}
 
-        {esMantenimiento ? (
+        {esSeleccionMultiple ? (
           seleccionMantenimiento.length > 0 && (
             <div className="mt-5 rounded-[24px] border border-emerald-400 bg-gradient-to-r from-emerald-50 via-white to-emerald-50 p-5 shadow-[0_14px_34px_rgba(16,185,129,0.18)] ring-2 ring-emerald-400/15">
               <div className="mb-3 flex items-center justify-center gap-2 text-emerald-700">
