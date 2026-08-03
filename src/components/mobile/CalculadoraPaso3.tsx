@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
+  ArrowLeft,
   Check,
   ClipboardList,
   PackageCheck,
@@ -332,8 +333,6 @@ export default function CalculadoraPaso3({
   onAbrirCarrito,
 }: CalculadoraPaso3Props) {
   const [agregando, setAgregando] = useState(false);
-  const [mostrarConfirmacion, setMostrarConfirmacion] =
-    useState(false);
   const resultado = useMemo<DatosPasoTres>(() => {
     const envasesDisponibles: EnvaseDisponible[] =
       datosPasoDos.variantes
@@ -432,8 +431,6 @@ export default function CalculadoraPaso3({
         cantidad: envase.unidades,
       }))
     );
-
-    setMostrarConfirmacion(true);
 
     window.setTimeout(() => {
       onFinalizado();
@@ -728,6 +725,20 @@ export default function CalculadoraPaso3({
         </section>
       </div>
 
+      {/* [Volver] */}
+
+      <button
+        type="button"
+        onClick={onVolverPaso}
+        className="fixed bottom-[96px] right-4 z-40 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-[#123A72]/90 text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-sm transition active:scale-90"
+        aria-label="Volver al Paso 2"
+      >
+        <ArrowLeft
+          size={25}
+          strokeWidth={2.7}
+        />
+      </button>
+
       {/* [Agregar al carrito] */}
 
       <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur">
@@ -755,24 +766,6 @@ export default function CalculadoraPaso3({
             : "Agregar al carrito"}
         </button>
       </div>
-
-      {mostrarConfirmacion && (
-        <div className="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
-          <div className="flex flex-col items-center rounded-[28px] bg-white/95 px-8 py-7 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1F9D55] text-white shadow-[0_10px_25px_rgba(31,157,85,0.35)]">
-              <Check size={34} strokeWidth={3} />
-            </div>
-
-            <p className="mt-3 text-[15px] font-black text-[#081B43]">
-              Agregado al carrito
-            </p>
-
-            <p className="mt-1 text-[10px] font-semibold text-gray-500">
-              Volviendo al inicio…
-            </p>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
