@@ -621,13 +621,17 @@ export default function Paso3TratamientoPiscinaMobile({
     camino === "guiado" &&
     problema === "mantenimiento";
 
+  const esSeleccionMultiple =
+    camino === "directo" ||
+    esMantenimiento;
+
   useEffect(() => {
-    if (!esMantenimiento) {
+    if (!esSeleccionMultiple) {
       setMostrarCatalogoMantenimiento(
         false
       );
     }
-  }, [esMantenimiento]);
+  }, [esSeleccionMultiple]);
 
   function moverSuaveAlCatalogo() {
     window.setTimeout(() => {
@@ -709,8 +713,7 @@ export default function Paso3TratamientoPiscinaMobile({
   const productosFiltrados =
     useMemo(() => {
       if (
-        camino === "directo" ||
-        esMantenimiento
+        esSeleccionMultiple
       ) {
         return productosPiscina;
       }
@@ -740,7 +743,7 @@ export default function Paso3TratamientoPiscinaMobile({
     }, [
       productosPiscina,
       camino,
-      esMantenimiento,
+      esSeleccionMultiple,
       palabraClave,
     ]);
 
@@ -815,7 +818,9 @@ export default function Paso3TratamientoPiscinaMobile({
               <h2 className="mt-1 text-[16px] font-black leading-tight text-blue-950">
                 {esMantenimiento
                   ? "Mantenimiento completo"
-                  : "Elegí un producto"}
+                  : camino === "directo"
+                    ? "Elegí tus productos"
+                    : "Elegí un producto"}
               </h2>
 
               <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">
@@ -823,7 +828,7 @@ export default function Paso3TratamientoPiscinaMobile({
                   ? "Te mostramos qué necesita tu piscina y cada cuánto aplicarlo."
                   : camino ===
                       "directo"
-                    ? "Elegí directamente el producto que necesitás."
+                    ? "Revisá la guía y elegí todos los productos que necesitás."
                     : "Mostramos los productos compatibles con el problema."}
               </p>
             </div>
@@ -848,7 +853,7 @@ export default function Paso3TratamientoPiscinaMobile({
         <PreparacionTratamiento />
       )}
 
-      {esMantenimiento && (
+      {esSeleccionMultiple && (
         <section className="rounded-[20px] border border-cyan-200 bg-gradient-to-br from-white via-cyan-50/40 to-blue-50/60 p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-cyan-600 text-white">
@@ -970,7 +975,7 @@ export default function Paso3TratamientoPiscinaMobile({
         </section>
       )}
 
-      {(!esMantenimiento ||
+      {(!esSeleccionMultiple ||
         mostrarCatalogoMantenimiento) && (
         <section
           ref={catalogoRef}
@@ -978,12 +983,10 @@ export default function Paso3TratamientoPiscinaMobile({
         >
           <div>
             <p className="text-[9px] font-black uppercase tracking-[0.12em] text-cyan-700">
-              {esMantenimiento
+              {esSeleccionMultiple
                 ? "Catálogo de piscina"
-                : camino === "directo"
-                  ? "Productos para piscina"
-                  : palabraClave ||
-                    "Tratamiento"}
+                : palabraClave ||
+                  "Tratamiento"}
             </p>
 
             <h3 className="mt-1 text-[16px] font-black text-blue-950">
@@ -991,11 +994,9 @@ export default function Paso3TratamientoPiscinaMobile({
             </h3>
 
             <p className="mt-1.5 text-[9px] font-semibold leading-relaxed text-gray-500">
-              {esMantenimiento
+              {esSeleccionMultiple
                 ? "Podés elegir varios. Tocá otra vez una tarjeta para quitarla."
-                : camino === "directo"
-                  ? "Elegí un producto para ver el resultado."
-                  : "Elegí una solución compatible. La dosis se calcula según los litros."}
+                : "Elegí una solución compatible. La dosis se calcula según los litros."}
             </p>
           </div>
 
@@ -1043,7 +1044,7 @@ export default function Paso3TratamientoPiscinaMobile({
                   indice
                 ) => {
                   const activo =
-                    esMantenimiento
+                    esSeleccionMultiple
                       ? seleccionMantenimiento.some(
                           (
                             seleccionado
@@ -1074,7 +1075,7 @@ export default function Paso3TratamientoPiscinaMobile({
                       activo={activo}
                       onClick={() => {
                         if (
-                          esMantenimiento
+                          esSeleccionMultiple
                         ) {
                           onAlternarMantenimiento(
                             producto
@@ -1093,7 +1094,7 @@ export default function Paso3TratamientoPiscinaMobile({
             </div>
           )}
 
-          {esMantenimiento ? (
+          {esSeleccionMultiple ? (
             seleccionMantenimiento.length >
               0 && (
               <div className="mt-4 rounded-[18px] border border-emerald-400 bg-emerald-50 p-3.5 ring-2 ring-emerald-400/10">

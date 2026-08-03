@@ -526,8 +526,7 @@ export default function CalculadoraPiscinaMobile({
   function irAlPasoCuatro() {
     if (
       transicionando ||
-      problemaAgua ===
-        "mantenimiento" ||
+      esSeleccionMultiple ||
       tratamientoSeleccionado ===
         null
     ) {
@@ -627,8 +626,13 @@ export default function CalculadoraPiscinaMobile({
     problemaAgua ===
       "mantenimiento";
 
+  const esSeleccionMultiple =
+    caminoExperiencia ===
+      "directo" ||
+    esMantenimiento;
+
   const cantidadPasos =
-    esMantenimiento ? 3 : 4;
+    esSeleccionMultiple ? 3 : 4;
 
   return (
     <main className="min-h-screen bg-[#F5F8FC] pb-28 text-gray-900">
@@ -719,8 +723,11 @@ export default function CalculadoraPiscinaMobile({
             <PasoIndicador
               numero={3}
               titulo={
-                esMantenimiento
-                  ? "Mantener"
+                esSeleccionMultiple
+                  ? caminoExperiencia ===
+                      "directo"
+                    ? "Elegir"
+                    : "Mantener"
                   : "Producto"
               }
               activo={
@@ -731,7 +738,7 @@ export default function CalculadoraPiscinaMobile({
               }
             />
 
-            {!esMantenimiento && (
+            {!esSeleccionMultiple && (
               <>
                 <LineaIndicador
                   activo={
@@ -900,13 +907,16 @@ export default function CalculadoraPiscinaMobile({
         ) : null}
       </section>
 
-      {esMantenimiento &&
+      {esSeleccionMultiple &&
         pasoActual === 3 && (
           <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-gray-200 bg-white/95 px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-12px_30px_rgba(15,23,42,0.14)] backdrop-blur-md">
             <div className="mx-auto flex max-w-[520px] items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-[8px] font-black uppercase tracking-[0.1em] text-emerald-700">
-                  Mantenimiento
+                  {caminoExperiencia ===
+                  "directo"
+                    ? "Productos elegidos"
+                    : "Mantenimiento"}
                 </p>
 
                 <div className="mt-0.5 flex items-end gap-2">
@@ -1065,6 +1075,11 @@ function ResumenCompacto({
   const [abierto, setAbierto] =
     useState(false);
 
+  const esSeleccionMultiple =
+    camino === "directo" ||
+    problema ===
+      "mantenimiento";
+
   return (
     <div className="overflow-hidden rounded-[18px] border border-cyan-100 bg-white shadow-sm">
       <button
@@ -1159,14 +1174,12 @@ function ResumenCompacto({
 
             <DatoResumen
               etiqueta={
-                problema ===
-                "mantenimiento"
+                esSeleccionMultiple
                   ? "Productos"
                   : "Producto"
               }
               valor={
-                problema ===
-                "mantenimiento"
+                esSeleccionMultiple
                   ? seleccionMantenimiento.length >
                     0
                     ? `${seleccionMantenimiento.length} seleccionados`

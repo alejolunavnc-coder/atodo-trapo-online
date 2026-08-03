@@ -332,8 +332,6 @@ export default function CalculadoraPaso3({
   onAbrirCarrito,
 }: CalculadoraPaso3Props) {
   const [agregando, setAgregando] = useState(false);
-  const [mostrarConfirmacion, setMostrarConfirmacion] =
-    useState(false);
   const resultado = useMemo<DatosPasoTres>(() => {
     const envasesDisponibles: EnvaseDisponible[] =
       datosPasoDos.variantes
@@ -432,8 +430,6 @@ export default function CalculadoraPaso3({
         cantidad: envase.unidades,
       }))
     );
-
-    setMostrarConfirmacion(true);
 
     window.setTimeout(() => {
       onFinalizado();
@@ -764,24 +760,6 @@ export default function CalculadoraPaso3({
           </button>
         </div>
       </div>
-
-      {mostrarConfirmacion && (
-        <div className="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
-          <div className="flex flex-col items-center rounded-[28px] bg-white/95 px-8 py-7 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1F9D55] text-white shadow-[0_10px_25px_rgba(31,157,85,0.35)]">
-              <Check size={34} strokeWidth={3} />
-            </div>
-
-            <p className="mt-3 text-[15px] font-black text-[#081B43]">
-              Agregado al carrito
-            </p>
-
-            <p className="mt-1 text-[10px] font-semibold text-gray-500">
-              Volviendo al inicio…
-            </p>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
