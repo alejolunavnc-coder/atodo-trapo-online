@@ -11,7 +11,6 @@ import {
 
 import {
 
-  ArrowLeft,
 
   ArrowRight,
 
@@ -310,6 +309,42 @@ export default function CalculadoraPaso2({
   const [datosPasoDos, setDatosPasoDos] =
     useState<DatosPasoDos | null>(null);
 
+  const datosPasoDosRef =
+    useRef<DatosPasoDos | null>(null);
+
+  datosPasoDosRef.current =
+    datosPasoDos;
+
+  useEffect(() => {
+    (window as any).__pasoCalculadoraPintura =
+      datosPasoDos ? 3 : 2;
+
+    (window as any).__manejarAtrasCalculadoraPintura =
+      () => {
+        if (datosPasoDosRef.current) {
+          setDatosPasoDos(null);
+          (window as any).__pasoCalculadoraPintura = 2;
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
+          return true;
+        }
+
+        onVolverPaso();
+        (window as any).__pasoCalculadoraPintura = 1;
+
+        return true;
+      };
+
+    return () => {
+      delete (window as any)
+        .__manejarAtrasCalculadoraPintura;
+    };
+  }, [datosPasoDos, onVolverPaso]);
+
 
 
   const pinturasCompatibles = useMemo<PinturaAgrupada[]>(() => {
@@ -565,6 +600,15 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
     };
 
 
+
+    window.history.pushState(
+      {
+        ...window.history.state,
+        atodoTrapoMobile: true,
+        calculadoraPinturaPaso: 3,
+      },
+      "",
+    );
 
     setDatosPasoDos(datos);
 
@@ -1254,30 +1298,6 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
         </section>
 
       </div>
-
-
-
-      {/* [Volver al Paso 1] */}
-
-
-
-      <button
-
-        type="button"
-
-        onClick={onVolverPaso}
-
-        className="fixed bottom-[96px] right-4 z-40 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-[#123A72]/90 text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-sm transition active:scale-90"
-
-        aria-label="Volver al Paso 1"
-
-      >
-
-        <ArrowLeft size={25} strokeWidth={2.7} />
-
-      </button>
-
-
 
       {/* [Calcular resultado] */}
 

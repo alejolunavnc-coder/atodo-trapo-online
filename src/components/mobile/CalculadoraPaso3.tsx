@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import {
-  ArrowLeft,
   Check,
   ClipboardList,
   PackageCheck,
@@ -728,20 +727,6 @@ export default function CalculadoraPaso3({
           </div>
         </section>
       </div>
-
-      {/* [Volver] */}
-
-      <button
-        type="button"
-        onClick={onVolverPaso}
-        className="fixed bottom-[96px] right-4 z-40 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-[#123A72]/90 text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-sm transition active:scale-90"
-        aria-label="Volver al Paso 2"
-      >
-        <ArrowLeft
-          size={25}
-          strokeWidth={2.7}
-        />
-      </button>
 
       {/* [Agregar al carrito] */}
 

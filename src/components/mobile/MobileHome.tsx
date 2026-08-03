@@ -37,7 +37,9 @@ import {
 } from "lucide-react";
 import type { Producto } from "@/src/types/producto";
 import BotonCalculadoraPintura from "./BotonCalculadoraPintura";
+import BotonCalculadoraPiscina from "./calculadora-piscina/BotonCalculadoraPiscina";
 import CalculadoraPintura from "./CalculadoraPintura";
+import CalculadoraPiscinaMobile from "./calculadora-piscina/CalculadoraPiscinaMobile";
 import MobileHeaderCompartido from "./MobileHeaderCompartido";
 
 // [Constantes]
@@ -90,7 +92,9 @@ export default function MobileHome() {
   const [carrito, setCarrito] = useState<any[]>([]);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ubicacionAbierta, setUbicacionAbierta] = useState(false);
-  const [calculadoraAbierta, setCalculadoraAbierta] = useState(false);
+  const [calculadoraAbierta, setCalculadoraAbierta] = useState<
+    "pintura" | "piscina" | null
+  >(null);
 
   const ofertasCarruselRef = useRef<HTMLDivElement | null>(null);
 
@@ -110,7 +114,7 @@ export default function MobileHome() {
     carritoAbierto: false,
     menuAbierto: false,
     ubicacionAbierta: false,
-    calculadoraAbierta: false,
+    calculadoraAbierta: null as "pintura" | "piscina" | null,
   });
 
   estadoNavegacionRef.current = {
@@ -235,8 +239,38 @@ export default function MobileHome() {
         return;
       }
 
+      if (estado.calculadoraAbierta === "piscina") {
+        const manejarAtrasPiscina = (window as any)
+          .__manejarAtrasCalculadoraPiscina;
+
+        if (
+          typeof manejarAtrasPiscina === "function" &&
+          manejarAtrasPiscina()
+        ) {
+          return;
+        }
+
+        setCalculadoraAbierta(null);
+        return;
+      }
+
+      if (estado.calculadoraAbierta === "pintura") {
+        const manejarAtrasPintura = (window as any)
+          .__manejarAtrasCalculadoraPintura;
+
+        if (
+          typeof manejarAtrasPintura === "function" &&
+          manejarAtrasPintura()
+        ) {
+          return;
+        }
+
+        setCalculadoraAbierta(null);
+        return;
+      }
+
       if (estado.calculadoraAbierta) {
-        setCalculadoraAbierta(false);
+        setCalculadoraAbierta(null);
         return;
       }
 
@@ -297,9 +331,14 @@ export default function MobileHome() {
     setCarritoAbierto(true);
   };
 
-  const abrirCalculadoraConHistorial = () => {
+  const abrirCalculadoraPinturaConHistorial = () => {
     registrarPasoNavegacion();
-    setCalculadoraAbierta(true);
+    setCalculadoraAbierta("pintura");
+  };
+
+  const abrirCalculadoraPiscinaConHistorial = () => {
+    registrarPasoNavegacion();
+    setCalculadoraAbierta("piscina");
   };
 
   const cambiarCategoriaConHistorial = (categoria: string) => {
@@ -405,6 +444,7 @@ export default function MobileHome() {
     categoriaActiva !== "Inicio" && categoriaActiva !== "Ofertas";
 
   const esPinturas = categoriaActiva.toLowerCase().includes("pintura");
+  const esPiscinas = categoriaActiva.toLowerCase().includes("piscina");
   // [Subcategorías]
 
   const subcategoriasPinturas = [
@@ -965,7 +1005,7 @@ export default function MobileHome() {
 
   const agregarRecomendacionCalculadora = (
     items: Array<{
-      producto: Producto;
+      producto: any;
       cantidad: number;
     }>,
   ) => {
@@ -1033,12 +1073,23 @@ export default function MobileHome() {
 
       return siguiente;
     });
+
+    setProductoAgregado(true);
+    setMostrarConfirmacionCarrito(true);
+
+    window.setTimeout(() => {
+      setProductoAgregado(false);
+    }, 700);
+
+    window.setTimeout(() => {
+      setMostrarConfirmacionCarrito(false);
+    }, 900);
   };
 
   const volverAlInicioGlobal = () => {
     cancelarBusquedaPorVoz();
 
-    setCalculadoraAbierta(false);
+    setCalculadoraAbierta(null);
     setCategoriaActiva("Inicio");
     setSubcategoriaActiva("Todas");
     setBusquedaMobile("");
@@ -1093,21 +1144,32 @@ export default function MobileHome() {
 
   // [Vista calculadora]
 
-  const vistaCalculadora = calculadoraAbierta ? (
-    <CalculadoraPintura
-      productos={productos}
-      cantidadCarrito={cantidadCarrito}
-      onVolver={volverConHistorial}
-      onVolverInicio={volverAlInicioGlobal}
-      onAbrirMenu={abrirMenuConHistorial}
-      onAbrirCarrito={abrirCarritoConHistorial}
-      onContinuar={(datosPasoUno) => {
-        console.log("Datos del Paso 1:", datosPasoUno);
-      }}
-      onAgregarAlCarrito={agregarRecomendacionCalculadora}
-      onFinalizado={finalizarCalculadora}
-    />
-  ) : null;
+  const vistaCalculadora =
+    calculadoraAbierta === "pintura" ? (
+      <CalculadoraPintura
+        productos={productos}
+        cantidadCarrito={cantidadCarrito}
+        onVolver={volverConHistorial}
+        onVolverInicio={volverAlInicioGlobal}
+        onAbrirMenu={abrirMenuConHistorial}
+        onAbrirCarrito={abrirCarritoConHistorial}
+        onContinuar={(datosPasoUno) => {
+          console.log("Datos del Paso 1:", datosPasoUno);
+        }}
+        onAgregarAlCarrito={agregarRecomendacionCalculadora}
+        onFinalizado={finalizarCalculadora}
+      />
+    ) : calculadoraAbierta === "piscina" ? (
+      <CalculadoraPiscinaMobile
+        cantidadCarrito={cantidadCarrito}
+        onVolver={volverConHistorial}
+        onVolverInicio={volverAlInicioGlobal}
+        onAbrirMenu={abrirMenuConHistorial}
+        onAbrirCarrito={abrirCarritoConHistorial}
+        onAgregarAlCarrito={agregarRecomendacionCalculadora}
+        onFinalizado={finalizarCalculadora}
+      />
+    ) : null;
 
   // [Render]
 
@@ -1228,9 +1290,15 @@ export default function MobileHome() {
           {/* [Acceso a la calculadora desde Inicio] */}
 
           {categoriaActiva === "Inicio" && !hayBusquedaMobile && (
-            <BotonCalculadoraPintura
-              onClick={abrirCalculadoraConHistorial}
-            />
+            <div className="space-y-2">
+              <BotonCalculadoraPintura
+                onClick={abrirCalculadoraPinturaConHistorial}
+              />
+
+              <BotonCalculadoraPiscina
+                onClick={abrirCalculadoraPiscinaConHistorial}
+              />
+            </div>
           )}
 
           {/* [Categorías + Banner] */}
@@ -1458,7 +1526,15 @@ export default function MobileHome() {
 
           {esCategoriaProductos && esPinturas && !hayBusquedaMobile && (
             <BotonCalculadoraPintura
-              onClick={abrirCalculadoraConHistorial}
+              onClick={abrirCalculadoraPinturaConHistorial}
+            />
+          )}
+
+          {/* [Acceso a la calculadora desde Piscinas] */}
+
+          {esCategoriaProductos && esPiscinas && !hayBusquedaMobile && (
+            <BotonCalculadoraPiscina
+              onClick={abrirCalculadoraPiscinaConHistorial}
             />
           )}
 

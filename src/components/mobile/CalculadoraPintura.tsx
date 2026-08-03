@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowLeft,
   ArrowRight,
   Armchair,
   Check,
@@ -214,6 +213,23 @@ export default function CalculadoraPintura({
   const [pasoActual, setPasoActual] = useState<1 | 2>(1);
   const [datosPasoUno, setDatosPasoUno] =
   useState<DatosPasoUno | null>(null);
+
+  useEffect(() => {
+    (window as any).__pasoCalculadoraPintura =
+      pasoActual;
+
+    if (pasoActual === 1) {
+      (window as any).__manejarAtrasCalculadoraPintura =
+        () => false;
+    }
+
+    return () => {
+      if (pasoActual === 1) {
+        delete (window as any)
+          .__manejarAtrasCalculadoraPintura;
+      }
+    };
+  }, [pasoActual]);
 
   const [grupoSeleccionado, setGrupoSeleccionado] =
     useState<GrupoCalculadora | null>(null);
@@ -442,6 +458,15 @@ export default function CalculadoraPintura({
     superficies,
     descuentos,
   };
+
+  window.history.pushState(
+    {
+      ...window.history.state,
+      atodoTrapoMobile: true,
+      calculadoraPinturaPaso: 2,
+    },
+    "",
+  );
 
   setDatosPasoUno(datos);
   setPasoActual(2);
@@ -1084,17 +1109,6 @@ if (pasoActual === 2 && datosPasoUno) {
           </section>
         )}
       </div>
-
-      {/* [Botón flotante Volver] */}
-
-<button
-  type="button"
-  onClick={onVolver}
-  className="fixed bottom-[96px] right-4 z-40 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-[#123A72]/90 text-white shadow-[0_10px_28px_rgba(0,0,0,0.22)] backdrop-blur-sm transition active:scale-90"
-  aria-label="Volver al catálogo"
->
-  <ArrowLeft size={25} strokeWidth={2.7} />
-</button>
 
       {/* [Botón continuar] */}
 
