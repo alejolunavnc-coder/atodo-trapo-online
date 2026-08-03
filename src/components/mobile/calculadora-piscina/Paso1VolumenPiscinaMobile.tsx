@@ -13,7 +13,10 @@ import {
   CircleCheck,
   Clock3,
   Droplets,
+  FolderOpen,
   Ruler,
+  Save,
+  Trash2,
   Waves,
 } from "lucide-react";
 
@@ -35,6 +38,14 @@ export type ResumenVolumenPiscinaMobile = {
   detalle3Etiqueta?: string;
   detalle3Valor?: string;
 };
+
+type PiscinaGuardadaMobile = {
+  litros: number;
+  resumen: ResumenVolumenPiscinaMobile;
+};
+
+const CLAVE_PISCINA_GUARDADA =
+  "atodo-trapo-piscina-guardada";
 
 type Paso1VolumenPiscinaMobileProps = {
   transicionando: boolean;
@@ -178,6 +189,18 @@ export default function Paso1VolumenPiscinaMobile({
       null
     );
 
+  const [
+    piscinaGuardada,
+    setPiscinaGuardada,
+  ] = useState<PiscinaGuardadaMobile | null>(
+    null
+  );
+
+  const [
+    mensajeGuardado,
+    setMensajeGuardado,
+  ] = useState("");
+
   const [litrosManuales, setLitrosManuales] =
     useState("");
 
@@ -208,6 +231,35 @@ export default function Paso1VolumenPiscinaMobile({
     profundidadRedonda,
     setProfundidadRedonda,
   ] = useState("");
+
+  useEffect(() => {
+    try {
+      const guardado =
+        window.localStorage.getItem(
+          CLAVE_PISCINA_GUARDADA
+        );
+
+      if (!guardado) return;
+
+      const datos =
+        JSON.parse(
+          guardado
+        ) as PiscinaGuardadaMobile;
+
+      if (
+        datos.litros > 0 &&
+        datos.resumen
+      ) {
+        setPiscinaGuardada(
+          datos
+        );
+      }
+    } catch {
+      window.localStorage.removeItem(
+        CLAVE_PISCINA_GUARDADA
+      );
+    }
+  }, []);
 
   const ingresoLitrosRef =
     useRef<HTMLElement | null>(null);
@@ -523,6 +575,74 @@ export default function Paso1VolumenPiscinaMobile({
     onCambio,
   ]);
 
+  function guardarPiscina() {
+    if (
+      !volumenCompleto ||
+      resumenEnVivo === null
+    ) {
+      return;
+    }
+
+    const datos: PiscinaGuardadaMobile = {
+      litros: litrosPiscina,
+      resumen: resumenEnVivo,
+    };
+
+    window.localStorage.setItem(
+      CLAVE_PISCINA_GUARDADA,
+      JSON.stringify(datos)
+    );
+
+    setPiscinaGuardada(datos);
+    setMensajeGuardado(
+      "Piscina guardada en este celular."
+    );
+
+    window.setTimeout(() => {
+      setMensajeGuardado("");
+    }, 1800);
+  }
+
+  function usarPiscinaGuardada() {
+    if (!piscinaGuardada) return;
+
+    setModoVolumen("manual");
+    setLitrosManuales(
+      String(
+        Math.round(
+          piscinaGuardada.litros
+        )
+      )
+    );
+
+    onCambio(
+      piscinaGuardada.litros,
+      piscinaGuardada.resumen
+    );
+
+    window.setTimeout(() => {
+      onCompletar(
+        piscinaGuardada.litros,
+        piscinaGuardada.resumen
+      );
+    }, 180);
+  }
+
+  function eliminarPiscinaGuardada() {
+    window.localStorage.removeItem(
+      CLAVE_PISCINA_GUARDADA
+    );
+
+    setPiscinaGuardada(null);
+    setMensajeGuardado(
+      "Piscina guardada eliminada."
+    );
+
+    window.setTimeout(() => {
+      setMensajeGuardado("");
+    }, 1800);
+  }
+
   function continuar() {
     if (
       !volumenCompleto ||
@@ -609,6 +729,75 @@ export default function Paso1VolumenPiscinaMobile({
           : "translate-y-0 opacity-100"
       }`}
     >
+      {piscinaGuardada && (
+        <section className="rounded-[20px] border border-emerald-300 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-emerald-600 text-white">
+              <FolderOpen
+                size={20}
+                strokeWidth={2.5}
+              />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.12em] text-emerald-700">
+                Mi piscina guardada
+              </p>
+
+              <h2 className="mt-1 text-[16px] font-black leading-tight text-blue-950">
+                {piscinaGuardada.litros.toLocaleString(
+                  "es-AR",
+                  {
+                    maximumFractionDigits:
+                      0,
+                  }
+                )}{" "}
+                litros
+              </h2>
+
+              <p className="mt-1 text-[9px] font-semibold text-gray-500">
+                {piscinaGuardada.resumen.metodo} ·{" "}
+                {piscinaGuardada.resumen.forma}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={usarPiscinaGuardada}
+            className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 px-4 text-[13px] font-black text-white shadow-[0_9px_22px_rgba(16,185,129,0.25)] active:scale-[0.98]"
+          >
+            <FolderOpen
+              size={17}
+              strokeWidth={2.6}
+            />
+
+            Usar mi piscina guardada
+          </button>
+
+          <button
+            type="button"
+            onClick={eliminarPiscinaGuardada}
+            className="mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-red-200 bg-white text-[10px] font-black text-red-600 active:scale-[0.98]"
+          >
+            <Trash2
+              size={15}
+              strokeWidth={2.5}
+            />
+
+            Eliminar piscina guardada
+          </button>
+        </section>
+      )}
+
+      {mensajeGuardado && (
+        <div className="rounded-[14px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-center">
+          <p className="text-[9px] font-black text-emerald-700">
+            {mensajeGuardado}
+          </p>
+        </div>
+      )}
+
       <section
         className={`rounded-[20px] border bg-white p-4 shadow-sm ${
           modoVolumen === null
@@ -916,8 +1105,23 @@ export default function Paso1VolumenPiscinaMobile({
 
           <button
             type="button"
+            onClick={guardarPiscina}
+            className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-[15px] border border-cyan-200 bg-white px-4 text-[11px] font-black text-cyan-700 shadow-sm transition active:scale-[0.98]"
+          >
+            <Save
+              size={16}
+              strokeWidth={2.6}
+            />
+
+            {piscinaGuardada
+              ? "Actualizar piscina guardada"
+              : "Guardar esta piscina"}
+          </button>
+
+          <button
+            type="button"
             onClick={continuar}
-            className="mt-3 flex h-13 w-full items-center justify-center gap-2.5 rounded-[16px] bg-cyan-600 px-5 text-[14px] font-black text-white shadow-[0_10px_24px_rgba(8,145,178,0.28)] transition active:scale-[0.98]"
+            className="mt-2 flex h-13 w-full items-center justify-center gap-2.5 rounded-[16px] bg-cyan-600 px-5 text-[14px] font-black text-white shadow-[0_10px_24px_rgba(8,145,178,0.28)] transition active:scale-[0.98]"
           >
             <ArrowRight
               size={18}
