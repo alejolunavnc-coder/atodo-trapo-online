@@ -955,23 +955,22 @@ export default function CalculadoraPiscinaMobile({
           </div>
         )}
 
-      {pasoActual === 4 &&
-        onFinalizado && (
-          <section className="px-3 pt-4">
-            <button
-              type="button"
-              onClick={onFinalizado}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-cyan-200 bg-white text-[12px] font-black text-cyan-700 shadow-sm active:scale-[0.98]"
-            >
-              <Home
-                size={17}
-                strokeWidth={2.5}
-              />
+      {pasoActual === 4 && (
+        <section className="px-3 pt-4">
+          <button
+            type="button"
+            onClick={onVolverInicio}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-cyan-200 bg-white text-[12px] font-black text-cyan-700 shadow-sm active:scale-[0.98]"
+          >
+            <Home
+              size={17}
+              strokeWidth={2.5}
+            />
 
-              Finalizar calculadora
-            </button>
-          </section>
-        )}
+            Volver al inicio
+          </button>
+        </section>
+      )}
     </main>
   );
 }
