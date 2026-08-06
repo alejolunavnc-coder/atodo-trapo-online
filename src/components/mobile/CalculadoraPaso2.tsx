@@ -304,7 +304,7 @@ export default function CalculadoraPaso2({
 
 
 
-  const [cantidadManos, setCantidadManos] = useState<number>(0);
+  const [cantidadManos, setCantidadManos] = useState<number>(1);
 
   const [datosPasoDos, setDatosPasoDos] =
     useState<DatosPasoDos | null>(null);
@@ -514,11 +514,14 @@ export default function CalculadoraPaso2({
 
 
   useEffect(() => {
-    setCantidadManos(0);
-
     if (!pinturaSeleccionada) {
+      setCantidadManos(1);
       return;
     }
+
+    setCantidadManos(
+      pinturaSeleccionada.manosRecomendadas
+    );
 
     const timeoutId = window.setTimeout(() => {
       manosRef.current?.scrollIntoView({

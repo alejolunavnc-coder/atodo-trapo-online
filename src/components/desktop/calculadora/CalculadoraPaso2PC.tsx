@@ -281,7 +281,7 @@ export default function CalculadoraPaso2PC({
   ] = useState("");
 
   const [cantidadManos, setCantidadManos] =
-    useState(0);
+    useState(1);
 
   const [datosPasoDosGuardados, setDatosPasoDosGuardados] =
     useState<DatosPasoDosPC | null>(null);
@@ -426,11 +426,14 @@ export default function CalculadoraPaso2PC({
   }, []);
 
   useEffect(() => {
-    setCantidadManos(0);
-
     if (!pinturaSeleccionada) {
+      setCantidadManos(1);
       return;
     }
+
+    setCantidadManos(
+      pinturaSeleccionada.manosRecomendadas
+    );
 
     window.setTimeout(() => {
       const elemento = manosRef.current;
