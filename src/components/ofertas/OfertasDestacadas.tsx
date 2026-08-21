@@ -90,7 +90,8 @@ export default function OfertasDestacadas({
         tiempoActual >= pausaTemporalHastaRef.current;
 
       if (puedeMoverse) {
-        carrusel.scrollLeft += tiempoTranscurrido * 0.035;
+        carrusel.scrollLeft +=
+          tiempoTranscurrido * 0.035;
 
         if (carrusel.scrollLeft > anchoBloque * 1.5) {
           reposicionandoRef.current = true;
@@ -186,525 +187,564 @@ export default function OfertasDestacadas({
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="rounded-[22px] border border-gray-100 bg-white p-5 shadow-sm">
-        {/* [Título ofertas] */}
 
-        <div className="mb-4 flex items-center gap-4">
-          <h2 className="text-[23px] font-bold leading-none text-blue-950">
-            Ofertas destacadas
-          </h2>
+          {/* [Título ofertas] */}
+          <div className="mb-4 flex items-center gap-4">
+            <h2 className="text-[23px] font-bold leading-none text-blue-950">
+              Ofertas destacadas
+            </h2>
 
-          <button
-            type="button"
-            className="rounded-lg bg-orange-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-orange-100"
-          >
-            🔥 Ver todas las ofertas
-          </button>
-        </div>
-
-        {/* [Contenido ofertas + WhatsApp] */}
-
-        <div className="grid grid-cols-[minmax(0,1fr)_250px] gap-5">
-          {/* [Carrusel de ofertas] */}
-
-          <div className="relative min-w-0">
             <button
               type="button"
-              onClick={() => moverCarrusel("izquierda")}
-              aria-label="Ver ofertas anteriores"
-              className="absolute -left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black text-[23px] font-bold text-white shadow-xl transition hover:scale-105 hover:bg-neutral-800 active:scale-95"
+              className="rounded-lg bg-orange-50 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-orange-100"
             >
-              ‹
+              🔥 Ver todas las ofertas
             </button>
+          </div>
 
-            <div
-              ref={carruselRef}
-              onScroll={mantenerCarruselInfinito}
-              onMouseEnter={() => {
-                carruselPausadoRef.current = true;
-              }}
-              onMouseLeave={() => {
-                carruselPausadoRef.current = false;
-                pausaTemporalHastaRef.current = 0;
-              }}
-              onTouchStart={() => {
-                carruselPausadoRef.current = true;
-              }}
-              onTouchEnd={() => {
-                carruselPausadoRef.current = false;
-                pausarTemporalmente();
-              }}
-              onWheel={() => pausarTemporalmente()}
-              onFocusCapture={() => {
-                carruselPausadoRef.current = true;
-              }}
-              onBlurCapture={() => {
-                carruselPausadoRef.current = false;
-                pausaTemporalHastaRef.current = 0;
-              }}
-              className="overflow-x-auto px-9 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              <div className="flex w-max gap-3">
-                {ofertasCarrusel.map(
-                  (grupo, indexCarrusel) => {
-                    const indexReal =
-                      indexCarrusel %
-                      ofertasAgrupadas.length;
+          {/* [Contenido ofertas + WhatsApp] */}
+          <div className="grid grid-cols-[minmax(0,1fr)_250px] gap-5">
 
-                    const claveOferta = `oferta${indexReal}`;
+            {/* [Carrusel de ofertas] */}
+            <div className="relative min-w-0">
+              <button
+                type="button"
+                onClick={() =>
+                  moverCarrusel("izquierda")
+                }
+                aria-label="Ver ofertas anteriores"
+                className="absolute -left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black text-[23px] font-bold text-white shadow-xl transition hover:scale-105 hover:bg-neutral-800 active:scale-95"
+              >
+                ‹
+              </button>
 
-                    const productoSeleccionado =
-                      grupo.items.find((item: any) => {
-                        const tamanoElegido =
-                          tamanosSeleccionados[
-                            claveOferta
-                          ] || grupo.items[0]?.Tamaño;
+              <div
+                ref={carruselRef}
+                onScroll={mantenerCarruselInfinito}
+                onMouseEnter={() => {
+                  carruselPausadoRef.current = true;
+                }}
+                onMouseLeave={() => {
+                  carruselPausadoRef.current = false;
+                  pausaTemporalHastaRef.current = 0;
+                }}
+                onTouchStart={() => {
+                  carruselPausadoRef.current = true;
+                }}
+                onTouchEnd={() => {
+                  carruselPausadoRef.current = false;
+                  pausarTemporalmente();
+                }}
+                onWheel={() => pausarTemporalmente()}
+                onFocusCapture={() => {
+                  carruselPausadoRef.current = true;
+                }}
+                onBlurCapture={() => {
+                  carruselPausadoRef.current = false;
+                  pausaTemporalHastaRef.current = 0;
+                }}
+                className="overflow-x-auto px-9 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                <div className="flex w-max gap-3">
+                  {ofertasCarrusel.map(
+                    (grupo, indexCarrusel) => {
+                      const indexReal =
+                        indexCarrusel %
+                        ofertasAgrupadas.length;
 
-                        if (
-                          grupo.items.some((i: any) =>
-                            i.Color?.trim()
-                          )
-                        ) {
-                          const colorDisponible =
-                            coloresSeleccionados[
-                              claveOferta
-                            ] ||
-                            grupo.items.find(
-                              (i: any) =>
-                                i.Tamaño === tamanoElegido
-                            )?.Color;
+                      const claveOferta =
+                        `oferta${indexReal}`;
 
-                          return (
-                            item.Tamaño === tamanoElegido &&
-                            item.Color === colorDisponible
-                          );
-                        }
+                      const productoSeleccionado =
+                        grupo.items.find(
+                          (item: any) => {
+                            const tamanoElegido =
+                              tamanosSeleccionados[
+                                claveOferta
+                              ] ||
+                              grupo.items[0]?.Tamaño;
 
-                        if (
-                          grupo.items.some((i: any) =>
-                            i.Fragancias?.trim()
-                          )
-                        ) {
-                          const fraganciaDisponible =
-                            fraganciasSeleccionadas[
-                              claveOferta
-                            ] ||
-                            grupo.items.find(
-                              (i: any) =>
-                                i.Tamaño === tamanoElegido
-                            )?.Fragancias;
+                            if (
+                              grupo.items.some(
+                                (i: any) =>
+                                  i.Color?.trim()
+                              )
+                            ) {
+                              const colorDisponible =
+                                coloresSeleccionados[
+                                  claveOferta
+                                ] ||
+                                grupo.items.find(
+                                  (i: any) =>
+                                    i.Tamaño ===
+                                    tamanoElegido
+                                )?.Color;
 
-                          return (
-                            item.Tamaño === tamanoElegido &&
-                            item.Fragancias ===
-                              fraganciaDisponible
-                          );
-                        }
+                              return (
+                                item.Tamaño ===
+                                  tamanoElegido &&
+                                item.Color ===
+                                  colorDisponible
+                              );
+                            }
 
-                        return (
-                          item.Tamaño === tamanoElegido
-                        );
-                      }) || grupo.items[0];
+                            if (
+                              grupo.items.some(
+                                (i: any) =>
+                                  i.Fragancias?.trim()
+                              )
+                            ) {
+                              const fraganciaDisponible =
+                                fraganciasSeleccionadas[
+                                  claveOferta
+                                ] ||
+                                grupo.items.find(
+                                  (i: any) =>
+                                    i.Tamaño ===
+                                    tamanoElegido
+                                )?.Fragancias;
 
-                    if (!productoSeleccionado) {
-                      return null;
-                    }
+                              return (
+                                item.Tamaño ===
+                                  tamanoElegido &&
+                                item.Fragancias ===
+                                  fraganciaDisponible
+                              );
+                            }
 
-                    const precio = precioNumero(
-                      productoSeleccionado.Precio
-                    );
-
-                    const precioOferta = precioNumero(
-                      productoSeleccionado[
-                        "Precio oferta"
-                      ]
-                    );
-
-                    const descuento =
-                      precio > 0 && precioOferta > 0
-                        ? Math.round(
-                            ((precio - precioOferta) /
-                              precio) *
-                              100
-                          )
-                        : 0;
-
-                    const ahorro =
-                      precio > 0 && precioOferta > 0
-                        ? precio - precioOferta
-                        : 0;
-
-                    const tamanioActual =
-                      tamanosSeleccionados[
-                        claveOferta
-                      ] || grupo.items[0]?.Tamaño;
-
-                    const opcionesTamanos = [
-                      ...new Set(
-                        grupo.items.map(
-                          (item: any) => item.Tamaño
-                        )
-                      ),
-                    ].filter(Boolean);
-
-                    const opcionesFragancias = [
-                      ...new Set(
-                        grupo.items
-                          .filter(
-                            (item: any) =>
+                            return (
                               item.Tamaño ===
-                              tamanioActual
-                          )
-                          .map(
-                            (item: any) =>
-                              item.Fragancias
-                          )
-                          .filter(Boolean)
-                      ),
-                    ];
+                              tamanoElegido
+                            );
+                          }
+                        ) || grupo.items[0];
 
-                    const opcionesColores = [
-                      ...new Set(
-                        grupo.items
-                          .filter(
-                            (item: any) =>
-                              item.Tamaño ===
-                              tamanioActual
-                          )
-                          .map(
-                            (item: any) => item.Color
-                          )
-                          .filter(Boolean)
-                      ),
-                    ];
+                      if (!productoSeleccionado) {
+                        return null;
+                      }
 
-                    const tieneFragancias =
-                      grupo.items.some((item: any) =>
-                        item.Fragancias?.trim()
+                      const precio = precioNumero(
+                        productoSeleccionado.Precio
                       );
 
-                    const marca =
-                      productoSeleccionado.Marca ||
-                      grupo.marca ||
-                      "";
+                      const precioOferta =
+                        precioNumero(
+                          productoSeleccionado[
+                            "Precio oferta"
+                          ]
+                        );
 
-                    const linea =
-                      productoSeleccionado.Linea ||
-                      grupo.linea ||
-                      "";
+                      const descuento =
+                        precio > 0 &&
+                        precioOferta > 0
+                          ? Math.round(
+                              ((precio -
+                                precioOferta) /
+                                precio) *
+                                100
+                            )
+                          : 0;
 
-                    return (
-                      <div
-                        key={`${grupo.nombre}-${indexCarrusel}`}
-                        className="relative w-[170px] shrink-0 rounded-[16px] border border-gray-200 bg-white p-2.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-                      >
-                        {/* [Chapas superiores] */}
+                      const ahorro =
+                        precio > 0 &&
+                        precioOferta > 0
+                          ? precio - precioOferta
+                          : 0;
 
-                        {descuento > 0 && (
-                          <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-yellow-400 px-1.5 py-0.5 text-[9px] font-bold text-blue-950">
-                            -{descuento}%
-                          </span>
-                        )}
+                      const tamanioActual =
+                        tamanosSeleccionados[
+                          claveOferta
+                        ] ||
+                        grupo.items[0]?.Tamaño;
 
-                        <div className="absolute right-2.5 top-2.5 z-10 flex items-center gap-1">
-                          {marca && (
-                            <span className="max-w-[70px] truncate rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[8px] font-bold text-blue-950 shadow-sm">
-                              {marca}
-                            </span>
-                          )}
+                      const opcionesTamanos = [
+                        ...new Set(
+                          grupo.items.map(
+                            (item: any) =>
+                              item.Tamaño
+                          )
+                        ),
+                      ].filter(Boolean);
+
+                      const opcionesFragancias = [
+                        ...new Set(
+                          grupo.items
+                            .filter(
+                              (item: any) =>
+                                item.Tamaño ===
+                                tamanioActual
+                            )
+                            .map(
+                              (item: any) =>
+                                item.Fragancias
+                            )
+                            .filter(Boolean)
+                        ),
+                      ];
+
+                      const opcionesColores = [
+                        ...new Set(
+                          grupo.items
+                            .filter(
+                              (item: any) =>
+                                item.Tamaño ===
+                                tamanioActual
+                            )
+                            .map(
+                              (item: any) =>
+                                item.Color
+                            )
+                            .filter(Boolean)
+                        ),
+                      ];
+
+                      const tieneFragancias =
+                        grupo.items.some(
+                          (item: any) =>
+                            item.Fragancias?.trim()
+                        );
+
+                      const marca =
+                        productoSeleccionado.Marca ||
+                        grupo.marca ||
+                        "";
+
+                      const linea =
+                        productoSeleccionado.Linea ||
+                        grupo.linea ||
+                        "";
+
+                      return (
+                        <div
+                          key={`${grupo.nombre}-${indexCarrusel}`}
+                          className="relative w-[170px] shrink-0 rounded-[16px] border border-gray-200 bg-white p-2.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          {/* [Chapas superiores] */}
 
                           {descuento > 0 && (
-                            <span className="rounded-md bg-red-600 px-1.5 py-0.5 text-[8px] font-bold text-white">
-                              OFERTA
+                            <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-yellow-400 px-1.5 py-0.5 text-[9px] font-bold text-blue-950">
+                              -{descuento}%
                             </span>
                           )}
-                        </div>
 
-                        {/* [Imagen] */}
+                          <div className="absolute right-2.5 top-2.5 z-10 flex items-center gap-1">
+                            {marca && (
+                              <span className="max-w-[70px] truncate rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[8px] font-bold text-blue-950 shadow-sm">
+                                {marca}
+                              </span>
+                            )}
 
-                        <div className="mb-2 mt-5 flex h-[94px] items-center justify-center">
-                          {productoSeleccionado.Imagen?.trim() && (
-                            <img
-                              loading="lazy"
-                              decoding="async"
-                              src={productoSeleccionado.Imagen.trim()}
-                              alt={grupo.nombre}
-                              className="max-h-[90px] max-w-full object-contain"
-                            />
-                          )}
-                        </div>
+                            {descuento > 0 && (
+                              <span className="rounded-md bg-red-600 px-1.5 py-0.5 text-[8px] font-bold text-white">
+                                OFERTA
+                              </span>
+                            )}
+                          </div>
 
-                        {/* [Nombre y línea] */}
+                          {/* [Imagen] */}
 
-                        <div>
-                          <h3 className="line-clamp-2 min-h-[28px] text-[13px] font-bold leading-[1.08] text-blue-950">
-                            {grupo.nombre}
-                          </h3>
+                          <div className="mb-2 mt-5 flex h-[94px] items-center justify-center">
+                            {productoSeleccionado.Imagen?.trim() && (
+                              <img
+                                decoding="async"
+                                src={productoSeleccionado.Imagen.trim()}
+                                alt={grupo.nombre}
+                                className="max-h-[90px] max-w-full object-contain"
+                              />
+                            )}
+                          </div>
 
-                          {linea && (
-                            <p className="mt-0.5 line-clamp-1 text-[10px] font-medium leading-none text-slate-500">
-                              {linea}
+                          {/* [Nombre y línea] */}
+
+                          <div>
+                            <h3 className="line-clamp-2 min-h-[28px] text-[13px] font-bold leading-[1.08] text-blue-950">
+                              {grupo.nombre}
+                            </h3>
+
+                            {linea && (
+                              <p className="mt-0.5 line-clamp-1 text-[10px] font-medium leading-none text-slate-500">
+                                {linea}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* [Precios] */}
+
+                          <div className="mt-2.5">
+                            {precio > 0 &&
+                              precioOferta > 0 && (
+                                <p className="text-[10px] leading-none text-red-600 line-through">
+                                  $
+                                  {precio.toLocaleString(
+                                    "es-AR"
+                                  )}
+                                </p>
+                              )}
+
+                            <p className="mt-1 text-[18px] font-bold leading-tight text-blue-950">
+                              $
+                              {(precioOferta > 0
+                                ? precioOferta
+                                : precio
+                              ).toLocaleString(
+                                "es-AR"
+                              )}
                             </p>
-                          )}
-                        </div>
 
-                        {/* [Precios] */}
-
-                        <div className="mt-2.5">
-                          {precio > 0 &&
-                            precioOferta > 0 && (
-                              <p className="text-[10px] leading-none text-red-600 line-through">
-                                $
-                                {precio.toLocaleString(
+                            {ahorro > 0 && (
+                              <p className="text-[10px] font-semibold leading-tight text-green-600">
+                                Ahorrás $
+                                {ahorro.toLocaleString(
                                   "es-AR"
                                 )}
                               </p>
                             )}
-
-                          <p className="mt-1 text-[18px] font-bold leading-tight text-blue-950">
-                            $
-                            {(precioOferta > 0
-                              ? precioOferta
-                              : precio
-                            ).toLocaleString("es-AR")}
-                          </p>
-
-                          {ahorro > 0 && (
-                            <p className="text-[10px] font-semibold leading-tight text-green-600">
-                              Ahorrás $
-                              {ahorro.toLocaleString(
-                                "es-AR"
-                              )}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* [Tamaños] */}
-
-                        {opcionesTamanos.length > 0 && (
-                          <div className="mt-2.5 border-t border-gray-200 pt-2.5">
-                            <p className="mb-1.5 text-[10px] font-semibold text-blue-950">
-                              Tamaño
-                            </p>
-
-                            <div className="flex flex-wrap gap-1">
-                              {opcionesTamanos.map(
-                                (tam, i) => (
-                                  <button
-                                    key={i}
-                                    type="button"
-                                    onClick={() => {
-                                      const primerColorDisponible =
-                                        grupo.items.find(
-                                          (
-                                            item: any
-                                          ) =>
-                                            item.Tamaño ===
-                                              tam &&
-                                            item.Color?.trim()
-                                        )?.Color || "";
-
-                                      const primeraFraganciaDisponible =
-                                        grupo.items.find(
-                                          (
-                                            item: any
-                                          ) =>
-                                            item.Tamaño ===
-                                              tam &&
-                                            item.Fragancias?.trim()
-                                        )?.Fragancias ||
-                                        "";
-
-                                      setTamanosSeleccionados(
-                                        {
-                                          ...tamanosSeleccionados,
-                                          [claveOferta]:
-                                            tam,
-                                        }
-                                      );
-
-                                      setColoresSeleccionados(
-                                        {
-                                          ...coloresSeleccionados,
-                                          [claveOferta]:
-                                            primerColorDisponible,
-                                        }
-                                      );
-
-                                      setFraganciasSeleccionadas(
-                                        {
-                                          ...fraganciasSeleccionadas,
-                                          [claveOferta]:
-                                            primeraFraganciaDisponible,
-                                        }
-                                      );
-                                    }}
-                                    className={
-                                      tamanioActual === tam
-                                        ? "h-6 rounded-md bg-blue-950 px-2 text-[10px] font-semibold text-white"
-                                        : "h-6 rounded-md border border-gray-200 bg-white px-2 text-[10px] font-medium text-blue-950 hover:border-blue-300"
-                                    }
-                                  >
-                                    {String(tam)}
-                                  </button>
-                                )
-                              )}
-                            </div>
                           </div>
-                        )}
 
-                        {/* [Fragancia o color] */}
+                          {/* [Tamaños] */}
 
-                        <div className="mt-2.5">
-                          {tieneFragancias &&
-                          opcionesFragancias.length >
-                            0 ? (
-                            <>
+                          {opcionesTamanos.length >
+                            0 && (
+                            <div className="mt-2.5 border-t border-gray-200 pt-2.5">
                               <p className="mb-1.5 text-[10px] font-semibold text-blue-950">
-                                Fragancia
+                                Tamaño
                               </p>
 
-                              <select
-                                value={
-                                  fraganciasSeleccionadas[
-                                    claveOferta
-                                  ] ||
-                                  productoSeleccionado.Fragancias ||
-                                  ""
-                                }
-                                onChange={(e) =>
-                                  setFraganciasSeleccionadas(
-                                    {
-                                      ...fraganciasSeleccionadas,
-                                      [claveOferta]:
-                                        e.target.value,
-                                    }
-                                  )
-                                }
-                                className="h-8 w-full rounded-lg border border-gray-200 bg-white px-2 text-[11px] text-blue-950 outline-none focus:border-blue-800"
-                              >
-                                {opcionesFragancias.map(
-                                  (fragancia, i) => (
-                                    <option
+                              <div className="flex flex-wrap gap-1">
+                                {opcionesTamanos.map(
+                                  (tam, i) => (
+                                    <button
                                       key={i}
-                                      value={String(
-                                        fragancia
-                                      )}
-                                    >
-                                      {String(fragancia)}
-                                    </option>
-                                  )
-                                )}
-                              </select>
-                            </>
-                          ) : opcionesColores.length >
-                            0 ? (
-                            <>
-                              <p className="mb-1.5 text-[10px] font-semibold text-blue-950">
-                                Color
-                              </p>
+                                      type="button"
+                                      onClick={() => {
+                                        const primerColorDisponible =
+                                          grupo.items.find(
+                                            (
+                                              item: any
+                                            ) =>
+                                              item.Tamaño ===
+                                                tam &&
+                                              item.Color?.trim()
+                                          )?.Color || "";
 
-                              <select
-                                value={
-                                  coloresSeleccionados[
-                                    claveOferta
-                                  ] ||
-                                  productoSeleccionado.Color ||
-                                  ""
-                                }
-                                onChange={(e) =>
-                                  setColoresSeleccionados({
-                                    ...coloresSeleccionados,
-                                    [claveOferta]:
-                                      e.target.value,
-                                  })
-                                }
-                                className="h-8 w-full rounded-lg border border-gray-200 bg-white px-2 text-[11px] text-blue-950 outline-none focus:border-blue-800"
-                              >
-                                {opcionesColores.map(
-                                  (color, i) => (
-                                    <option
-                                      key={i}
-                                      value={String(color)}
+                                        const primeraFraganciaDisponible =
+                                          grupo.items.find(
+                                            (
+                                              item: any
+                                            ) =>
+                                              item.Tamaño ===
+                                                tam &&
+                                              item.Fragancias?.trim()
+                                          )?.Fragancias ||
+                                          "";
+
+                                        setTamanosSeleccionados(
+                                          {
+                                            ...tamanosSeleccionados,
+                                            [claveOferta]:
+                                              tam,
+                                          }
+                                        );
+
+                                        setColoresSeleccionados(
+                                          {
+                                            ...coloresSeleccionados,
+                                            [claveOferta]:
+                                              primerColorDisponible,
+                                          }
+                                        );
+
+                                        setFraganciasSeleccionadas(
+                                          {
+                                            ...fraganciasSeleccionadas,
+                                            [claveOferta]:
+                                              primeraFraganciaDisponible,
+                                          }
+                                        );
+                                      }}
+                                      className={
+                                        tamanioActual ===
+                                        tam
+                                          ? "h-6 rounded-md bg-blue-950 px-2 text-[10px] font-semibold text-white"
+                                          : "h-6 rounded-md border border-gray-200 bg-white px-2 text-[10px] font-medium text-blue-950 hover:border-blue-300"
+                                      }
                                     >
-                                      {String(color)}
-                                    </option>
+                                      {String(tam)}
+                                    </button>
                                   )
                                 )}
-                              </select>
-                            </>
-                          ) : null}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* [Fragancia o color] */}
+
+                          <div className="mt-2.5">
+                            {tieneFragancias &&
+                            opcionesFragancias.length >
+                              0 ? (
+                              <>
+                                <p className="mb-1.5 text-[10px] font-semibold text-blue-950">
+                                  Fragancia
+                                </p>
+
+                                <select
+                                  value={
+                                    fraganciasSeleccionadas[
+                                      claveOferta
+                                    ] ||
+                                    productoSeleccionado.Fragancias ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    setFraganciasSeleccionadas(
+                                      {
+                                        ...fraganciasSeleccionadas,
+                                        [claveOferta]:
+                                          e.target
+                                            .value,
+                                      }
+                                    )
+                                  }
+                                  className="h-8 w-full rounded-lg border border-gray-200 bg-white px-2 text-[11px] text-blue-950 outline-none focus:border-blue-800"
+                                >
+                                  {opcionesFragancias.map(
+                                    (
+                                      fragancia,
+                                      i
+                                    ) => (
+                                      <option
+                                        key={i}
+                                        value={String(
+                                          fragancia
+                                        )}
+                                      >
+                                        {String(
+                                          fragancia
+                                        )}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </>
+                            ) : opcionesColores.length >
+                              0 ? (
+                              <>
+                                <p className="mb-1.5 text-[10px] font-semibold text-blue-950">
+                                  Color
+                                </p>
+
+                                <select
+                                  value={
+                                    coloresSeleccionados[
+                                      claveOferta
+                                    ] ||
+                                    productoSeleccionado.Color ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    setColoresSeleccionados(
+                                      {
+                                        ...coloresSeleccionados,
+                                        [claveOferta]:
+                                          e.target
+                                            .value,
+                                      }
+                                    )
+                                  }
+                                  className="h-8 w-full rounded-lg border border-gray-200 bg-white px-2 text-[11px] text-blue-950 outline-none focus:border-blue-800"
+                                >
+                                  {opcionesColores.map(
+                                    (color, i) => (
+                                      <option
+                                        key={i}
+                                        value={String(
+                                          color
+                                        )}
+                                      >
+                                        {String(
+                                          color
+                                        )}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </>
+                            ) : null}
+                          </div>
+
+                          {/* [Agregar] */}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              agregarAlCarrito(
+                                productoSeleccionado
+                              )
+                            }
+                            className="mt-3 h-8 w-full whitespace-nowrap rounded-lg bg-yellow-400 text-[11px] font-bold text-blue-950 transition hover:bg-yellow-500"
+                          >
+                            🛒 Agregar
+                          </button>
                         </div>
-
-                        {/* [Agregar] */}
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            agregarAlCarrito(
-                              productoSeleccionado
-                            )
-                          }
-                          className="mt-3 h-8 w-full whitespace-nowrap rounded-lg bg-yellow-400 text-[11px] font-bold text-blue-950 transition hover:bg-yellow-500"
-                        >
-                          🛒 Agregar
-                        </button>
-                      </div>
-                    );
-                  }
-                )}
+                      );
+                    }
+                  )}
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => moverCarrusel("derecha")}
-              aria-label="Ver más ofertas"
-              className="absolute -right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black text-[23px] font-bold text-white shadow-xl transition hover:scale-105 hover:bg-neutral-800 active:scale-95"
-            >
-              ›
-            </button>
-          </div>
-
-          {/* [Bloque WhatsApp] */}
-
-          <div className="relative flex min-h-[410px] flex-col justify-between overflow-hidden rounded-[20px] bg-blue-950 p-6">
-            <div className="relative z-10">
-              <h3 className="text-[21px] font-bold leading-tight text-white">
-                ¿Tenés dudas?
-              </h3>
-
-              <p className="mt-2 text-[14px] font-bold text-yellow-400">
-                Escribinos por WhatsApp
-              </p>
-
-              <p className="mt-4 text-[13px] leading-relaxed text-white/90">
-                Te respondemos para consultar stock,
-                precios o disponibilidad.
-              </p>
-
-              <a
-                href={`https://wa.me/${
-                  contactoConfig.whatsapp
-                }?text=${encodeURIComponent(
-                  "¡Hola! 👋 Tengo una consulta sobre las ofertas publicadas."
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-green-600"
+              <button
+                type="button"
+                onClick={() =>
+                  moverCarrusel("derecha")
+                }
+                aria-label="Ver más ofertas"
+                className="absolute -right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black text-[23px] font-bold text-white shadow-xl transition hover:scale-105 hover:bg-neutral-800 active:scale-95"
               >
-                <FaWhatsapp size={18} />
-                Ir a WhatsApp
-              </a>
+                ›
+              </button>
             </div>
 
-            <div className="absolute bottom-8 right-6 text-[90px] opacity-10">
-              💬
-            </div>
+            {/* [Bloque WhatsApp] */}
 
-            <div className="absolute bottom-0 left-0 right-0 h-16 rounded-t-[50%] bg-blue-900/50" />
+            <div className="relative flex min-h-[410px] flex-col justify-between overflow-hidden rounded-[20px] bg-blue-950 p-6">
+              <div className="relative z-10">
+                <h3 className="text-[21px] font-bold leading-tight text-white">
+                  ¿Tenés dudas?
+                </h3>
+
+                <p className="mt-2 text-[14px] font-bold text-yellow-400">
+                  Escribinos por WhatsApp
+                </p>
+
+                <p className="mt-4 text-[13px] leading-relaxed text-white/90">
+                  Te respondemos para consultar stock,
+                  precios o disponibilidad.
+                </p>
+
+                <a
+                  href={`https://wa.me/${
+                    contactoConfig.whatsapp
+                  }?text=${encodeURIComponent(
+                    "¡Hola! 👋 Tengo una consulta sobre las ofertas publicadas."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-green-600"
+                >
+                  <FaWhatsapp size={18} />
+                  Ir a WhatsApp
+                </a>
+              </div>
+
+              <div className="absolute bottom-8 right-6 text-[90px] opacity-10">
+                💬
+              </div>
+
+              <div className="absolute bottom-0 left-0 right-0 h-16 rounded-t-[50%] bg-blue-900/50" />
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </section>
   );
