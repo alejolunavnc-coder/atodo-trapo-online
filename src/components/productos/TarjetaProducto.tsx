@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type TarjetaProductoProps = {
   nombre: string;
   linea: string;
@@ -30,7 +32,6 @@ export default function TarjetaProducto({
   precioOferta,
 }: TarjetaProductoProps) {
   const precioNormal = precioNumero(precio);
-
   const precioConOferta = precioNumero(precioOferta);
 
   const estaEnOferta =
@@ -55,6 +56,8 @@ export default function TarjetaProducto({
         )
       : 0;
 
+  const imagenLimpia = imagen?.trim() || "";
+
   return (
     <div className="relative flex min-h-[118px] items-start gap-0">
       {/* [Marca] */}
@@ -75,15 +78,20 @@ export default function TarjetaProducto({
         </div>
       )}
 
-      {/* [Imagen] */}
+      {/* [Imagen optimizada] */}
       <div className="flex h-[112px] w-[145px] shrink-0 items-center justify-center pt-5">
-        {imagen?.trim() ? (
-          <img
-            decoding="async"
-            src={imagen.trim()}
-            alt={marca || nombre}
-            className="max-h-[104px] max-w-[125px] object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"
-          />
+        {imagenLimpia ? (
+          <div className="relative h-[104px] w-[125px]">
+            <Image
+              src={imagenLimpia}
+              alt={marca || nombre}
+              fill
+              sizes="125px"
+              quality={70}
+              loading="eager"
+              className="object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"
+            />
+          </div>
         ) : (
           <div className="flex h-[82px] w-[105px] items-center justify-center rounded-xl border border-dashed border-gray-200 text-[11px] text-gray-400">
             Sin imagen
