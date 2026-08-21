@@ -424,6 +424,8 @@ export default function OfertasDestacadas({
                         <div className="mb-2 mt-5 flex h-[94px] items-center justify-center">
                           {productoSeleccionado.Imagen?.trim() && (
                             <img
+                              loading="lazy"
+                              decoding="async"
                               src={productoSeleccionado.Imagen.trim()}
                               alt={grupo.nombre}
                               className="max-h-[90px] max-w-full object-contain"

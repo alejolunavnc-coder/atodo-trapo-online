@@ -81,6 +81,8 @@ export default function TarjetaProducto({
       <div className="flex h-[112px] w-[145px] shrink-0 items-center justify-center pt-5">
         {imagen?.trim() ? (
           <img
+            loading="lazy"
+            decoding="async"
             src={imagen.trim()}
             alt={marca || nombre}
             className="max-h-[104px] max-w-[125px] object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"

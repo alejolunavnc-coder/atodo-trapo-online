@@ -1272,6 +1272,8 @@ function TarjetaProducto({
 
         {imagen ? (
           <img
+            loading="lazy"
+            decoding="async"
             src={imagen}
             alt={nombre}
             className="h-[88%] w-[88%] object-contain"

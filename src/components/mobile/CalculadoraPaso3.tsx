@@ -626,6 +626,8 @@ export default function CalculadoraPaso3({
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[12px] bg-white p-1">
                     {envase.producto.Imagen ? (
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={envase.producto.Imagen}
                         alt={envase.producto.Nombre}
                         className="h-full w-full object-contain"

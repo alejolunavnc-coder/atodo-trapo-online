@@ -981,6 +981,8 @@ function moverCarrusel(direccion: "izquierda" | "derecha") {
 
             {producto.Imagen ? (
               <img
+                loading="lazy"
+                decoding="async"
                 src={producto.Imagen}
                 alt={producto.Nombre}
                 className="relative z-10 h-[76%] w-[76%] object-contain"

@@ -229,6 +229,8 @@ export default function Marcas({
                   >
                     <div className="relative h-[105px] w-full overflow-hidden bg-gray-100">
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={`/iconos/subcategorias/${imagen}`}
                         alt={nombreVisible}
                         className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${

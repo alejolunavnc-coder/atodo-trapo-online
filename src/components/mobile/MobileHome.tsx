@@ -176,7 +176,7 @@ export default function MobileHome() {
 
     const cargarProductos = async () => {
       try {
-        const respuesta = await fetch("/api/productos", { cache: "no-store" });
+        const respuesta = await fetch("/api/productos");
         if (!respuesta.ok) throw new Error("No se pudo cargar /api/productos");
 
         const csv = await respuesta.text();
@@ -1493,6 +1493,8 @@ export default function MobileHome() {
                       >
                         <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
                           <img
+                            loading="lazy"
+                            decoding="async"
                             src={`/iconos/subcategorias/${imagen}`}
                             alt={nombreVisible}
                             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
@@ -1629,6 +1631,8 @@ export default function MobileHome() {
 
                       {producto.Imagen && (
                         <img
+                          loading="lazy"
+                          decoding="async"
                           src={producto.Imagen}
                           alt={grupo.nombre}
                           className="relative z-10 h-[81%] w-[81%] object-contain"
@@ -1781,6 +1785,8 @@ export default function MobileHome() {
 
                         {producto.Imagen && (
                           <img
+                            loading="lazy"
+                            decoding="async"
                             src={producto.Imagen}
                             alt={producto.nombre}
                             className="relative z-10 h-[81%] w-[81%] object-contain"
@@ -2308,6 +2314,8 @@ export default function MobileHome() {
 
                             {item.imagen && (
                               <img
+                                loading="lazy"
+                                decoding="async"
                                 src={item.imagen}
                                 alt={item.nombre}
                                 className="h-[82%] w-[82%] object-contain"

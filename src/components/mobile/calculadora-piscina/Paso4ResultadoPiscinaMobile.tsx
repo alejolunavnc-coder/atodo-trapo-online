@@ -845,6 +845,8 @@ export default function Paso4ResultadoPiscinaMobile({
 
             {imagen ? (
               <img
+                loading="lazy"
+                decoding="async"
                 src={imagen}
                 alt={nombre}
                 className="h-[92%] w-[92%] object-contain"

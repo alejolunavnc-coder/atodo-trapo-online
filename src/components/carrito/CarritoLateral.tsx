@@ -174,6 +174,8 @@ export default function CarritoLateral({
                           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
                             {imagenProducto ? (
                               <img
+                                loading="lazy"
+                                decoding="async"
                                 src={
                                   imagenProducto
                                 }
