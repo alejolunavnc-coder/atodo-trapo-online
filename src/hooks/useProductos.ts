@@ -48,11 +48,23 @@ export default function useProductos({
     (producto: Producto) => tieneOferta(producto)
   );
 
-  const categoriaActual = String(categoria || "")
-    .trim()
-    .toLowerCase();
+  /* =========================================================
+     NORMALIZACIÓN DE TEXTO
+     Permite que "Plásticos" y "Plasticos" sean iguales.
+     También evita problemas con mayúsculas, espacios y tildes.
+     ========================================================= */
+
+  const normalizarTexto = (valor: unknown) =>
+    String(valor || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+
+  const categoriaActual = normalizarTexto(categoria);
 
   const esOfertas = categoriaActual === "ofertas";
+
   const esPinturas = categoriaActual.includes("pintura");
 
   const productosFiltrados = productosDisponibles.filter(
@@ -60,17 +72,15 @@ export default function useProductos({
       if (esOfertas) return tieneOferta(producto);
 
       const mismaCategoria =
-        producto.Categoría?.trim().toLowerCase() ===
+        normalizarTexto(producto.Categoría) ===
         categoriaActual;
 
       if (!mismaCategoria) return false;
+
       if (!esPinturas) return true;
 
-      const subcategoriaActual = String(
-        subcategoria || ""
-      )
-        .trim()
-        .toLowerCase();
+      const subcategoriaActual =
+        normalizarTexto(subcategoria);
 
       if (
         subcategoriaActual === "" ||
@@ -80,9 +90,8 @@ export default function useProductos({
       }
 
       return (
-        String(producto.Subcategoría || "")
-          .trim()
-          .toLowerCase() === subcategoriaActual
+        normalizarTexto(producto.Subcategoría) ===
+        subcategoriaActual
       );
     }
   );
