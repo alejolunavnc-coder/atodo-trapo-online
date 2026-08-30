@@ -1635,7 +1635,6 @@ export default function MobileHome() {
                           alt={grupo.nombre}
                           width={160}
                           height={160}
-                          sizes="30vw"
                           quality={70}
                           loading="eager"
                           className="relative z-10 h-[81%] w-[81%] object-contain"
@@ -1790,10 +1789,9 @@ export default function MobileHome() {
                           <Image
                             src={producto.Imagen}
                             alt={productoAbierto.nombre || "Producto"}
-                            width={220}
-                            height={220}
-                            sizes="38vw"
-                            quality={75}
+                            width={160}
+                            height={160}
+                            quality={70}
                             loading="eager"
                             className="relative z-10 h-[81%] w-[81%] object-contain"
                           />
