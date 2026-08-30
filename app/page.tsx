@@ -5,12 +5,12 @@ export default function Home() {
   return (
     <>
       {/* PC */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <DesktopHome />
       </div>
 
       {/* CELULAR */}
-      <div className="block md:hidden">
+      <div className="block lg:hidden">
         <MobileHome />
       </div>
     </>
