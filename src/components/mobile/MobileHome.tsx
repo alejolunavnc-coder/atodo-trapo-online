@@ -1630,11 +1630,14 @@ export default function MobileHome() {
                       )}
 
                       {producto.Imagen && (
-                        <img
-                          loading="lazy"
-                          decoding="async"
+                        <Image
                           src={producto.Imagen}
                           alt={grupo.nombre}
+                          width={160}
+                          height={160}
+                          sizes="30vw"
+                          quality={70}
+                          loading="eager"
                           className="relative z-10 h-[81%] w-[81%] object-contain"
                         />
                       )}
@@ -1784,11 +1787,14 @@ export default function MobileHome() {
                         )}
 
                         {producto.Imagen && (
-                          <img
-                            loading="lazy"
-                            decoding="async"
+                          <Image
                             src={producto.Imagen}
-                            alt={producto.nombre}
+                            alt={productoAbierto.nombre || "Producto"}
+                            width={220}
+                            height={220}
+                            sizes="38vw"
+                            quality={75}
+                            loading="eager"
                             className="relative z-10 h-[81%] w-[81%] object-contain"
                           />
                         )}
@@ -2313,11 +2319,13 @@ export default function MobileHome() {
                             )}
 
                             {item.imagen && (
-                              <img
-                                loading="lazy"
-                                decoding="async"
+                              <Image
                                 src={item.imagen}
                                 alt={item.nombre}
+                                width={140}
+                                height={140}
+                                sizes="30vw"
+                                quality={70}
                                 className="h-[82%] w-[82%] object-contain"
                               />
                             )}
