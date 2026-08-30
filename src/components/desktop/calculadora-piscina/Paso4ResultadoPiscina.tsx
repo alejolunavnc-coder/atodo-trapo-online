@@ -610,8 +610,6 @@ export default function Paso4ResultadoPiscina({
 
           {imagen ? (
             <img
-              loading="lazy"
-              decoding="async"
               src={imagen}
               alt={nombre}
               className="h-full max-h-[250px] w-full object-contain"

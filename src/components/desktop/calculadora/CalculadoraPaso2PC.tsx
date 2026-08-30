@@ -781,8 +781,6 @@ export default function CalculadoraPaso2PC({
 
                             {producto.Imagen ? (
                               <img
-                                loading="lazy"
-                                decoding="async"
                                 src={producto.Imagen}
                                 alt={producto.Nombre}
                                 className="h-[88%] w-[88%] object-contain transition-transform duration-200 group-hover:scale-105"
@@ -1080,8 +1078,6 @@ export default function CalculadoraPaso2PC({
                 {pinturaSeleccionada.productoBase
                   .Imagen ? (
                   <img
-                    loading="lazy"
-                    decoding="async"
                     src={
                       pinturaSeleccionada
                         .productoBase.Imagen

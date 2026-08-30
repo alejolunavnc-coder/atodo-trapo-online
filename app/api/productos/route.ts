@@ -102,15 +102,15 @@ export async function GET() {
       respuestaPiscina,
     ] = await Promise.all([
       fetch(SHEET_PRODUCTOS_URL, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       }),
 
       fetch(SHEET_PINTURAS_URL, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       }),
 
       fetch(SHEET_PISCINA_URL, {
-        next: { revalidate: 60 },
+        cache: "no-store",
       }),
     ]);
 
@@ -202,7 +202,9 @@ export async function GET() {
           "text/csv; charset=utf-8",
 
         "Cache-Control":
-          "public, max-age=30, s-maxage=60, stale-while-revalidate=300",
+          "no-store, no-cache, must-revalidate",
+
+        Pragma: "no-cache",
       },
     });
   } catch (error) {

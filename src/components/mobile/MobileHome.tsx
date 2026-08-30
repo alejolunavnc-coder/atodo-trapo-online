@@ -176,7 +176,7 @@ export default function MobileHome() {
 
     const cargarProductos = async () => {
       try {
-        const respuesta = await fetch("/api/productos");
+        const respuesta = await fetch("/api/productos", { cache: "no-store" });
         if (!respuesta.ok) throw new Error("No se pudo cargar /api/productos");
 
         const csv = await respuesta.text();
@@ -1493,8 +1493,6 @@ export default function MobileHome() {
                       >
                         <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
                           <img
-                            loading="lazy"
-                            decoding="async"
                             src={`/iconos/subcategorias/${imagen}`}
                             alt={nombreVisible}
                             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
@@ -1630,13 +1628,9 @@ export default function MobileHome() {
                       )}
 
                       {producto.Imagen && (
-                        <Image
+                        <img
                           src={producto.Imagen}
                           alt={grupo.nombre}
-                          width={160}
-                          height={160}
-                          quality={70}
-                          loading="eager"
                           className="relative z-10 h-[81%] w-[81%] object-contain"
                         />
                       )}
@@ -1786,13 +1780,9 @@ export default function MobileHome() {
                         )}
 
                         {producto.Imagen && (
-                          <Image
+                          <img
                             src={producto.Imagen}
-                            alt={productoAbierto.nombre || "Producto"}
-                            width={160}
-                            height={160}
-                            quality={70}
-                            loading="eager"
+                            alt={producto.nombre}
                             className="relative z-10 h-[81%] w-[81%] object-contain"
                           />
                         )}
@@ -2317,13 +2307,9 @@ export default function MobileHome() {
                             )}
 
                             {item.imagen && (
-                              <Image
+                              <img
                                 src={item.imagen}
                                 alt={item.nombre}
-                                width={140}
-                                height={140}
-                                sizes="30vw"
-                                quality={70}
                                 className="h-[82%] w-[82%] object-contain"
                               />
                             )}

@@ -249,8 +249,6 @@ export default function DetalleProducto({
               {grupoDetalle.producto
                 ?.Imagen?.trim() && (
                 <img
-                  loading="lazy"
-                  decoding="async"
                   src={grupoDetalle.producto.Imagen.trim()}
                   alt={
                     grupoDetalle.grupo
