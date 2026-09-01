@@ -1637,7 +1637,8 @@ export default function MobileHome() {
                           width={160}
                           height={160}
                           quality={70}
-                          loading="eager"
+                          loading="lazy"
+                          forzarOriginal
                           className="relative z-10 h-[81%] w-[81%] object-contain"
                         />
                       )}
@@ -1794,6 +1795,7 @@ export default function MobileHome() {
                             height={160}
                             quality={70}
                             loading="eager"
+                            forzarOriginal
                             className="relative z-10 h-[81%] w-[81%] object-contain"
                           />
                         )}

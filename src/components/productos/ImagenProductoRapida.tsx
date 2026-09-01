@@ -15,6 +15,7 @@ type Props = {
   quality?: number;
   loading?: "eager" | "lazy";
   className?: string;
+  forzarOriginal?: boolean;
 };
 
 /**
@@ -32,19 +33,20 @@ export default function ImagenProductoRapida({
   quality = 70,
   loading = "lazy",
   className,
+  forzarOriginal = false,
 }: Props) {
   const [usarOriginal, setUsarOriginal] = useState(() =>
-    originalesQueFuncionaron.has(src),
+    forzarOriginal || originalesQueFuncionaron.has(src),
   );
   const [cargada, setCargada] = useState(false);
 
   useEffect(() => {
-    setUsarOriginal(originalesQueFuncionaron.has(src));
+    setUsarOriginal(forzarOriginal || originalesQueFuncionaron.has(src));
     setCargada(false);
-  }, [src]);
+  }, [src, forzarOriginal]);
 
   useEffect(() => {
-    if (cargada || usarOriginal) return;
+    if (cargada || usarOriginal || forzarOriginal) return;
 
     const temporizador = window.setTimeout(() => {
       originalesQueFuncionaron.add(src);
@@ -52,7 +54,7 @@ export default function ImagenProductoRapida({
     }, 3500);
 
     return () => window.clearTimeout(temporizador);
-  }, [src, cargada, usarOriginal]);
+  }, [src, cargada, usarOriginal, forzarOriginal]);
 
   const alCargar = () => {
     if (usarOriginal) originalesQueFuncionaron.add(src);
