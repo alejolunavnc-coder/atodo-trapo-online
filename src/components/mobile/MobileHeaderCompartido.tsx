@@ -30,7 +30,7 @@ export default function MobileHeaderCompartido({
       <section
         className="relative overflow-hidden px-4 pb-7 pt-3"
         style={{
-          backgroundImage: "url('/header.png')",
+          backgroundImage: "url('/header.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -58,7 +58,7 @@ export default function MobileHeaderCompartido({
           >
             <div className="relative h-[88px] w-[210px]">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="A Todo Trapo Online"
                 fill
                 priority

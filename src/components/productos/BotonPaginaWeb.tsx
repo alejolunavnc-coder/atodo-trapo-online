@@ -24,7 +24,7 @@ export default function BotonPaginaWeb() {
           className="fixed left-4 top-[30%] -translate-y-1/2 z-[9999] w-12 h-12 rounded-full bg-yellow-400 hover:bg-yellow-500 shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110"
         >
           <img
-            src="/iconoweb.png"
+            src="/iconoweb.webp"
             alt="Página web"
             className="w-[44px] h-[44px] object-contain scale-115"
           />
@@ -58,7 +58,7 @@ export default function BotonPaginaWeb() {
               </button>
 
               <img
-                src="/iconoweb.png"
+                src="/iconoweb.webp"
                 alt="Página web"
                 className="w-[58px] h-[58px] object-contain mx-auto mb-2"
               />

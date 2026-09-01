@@ -98,51 +98,51 @@ export default function Marcas({
       .trim();
 
   const imagenesSubcategorias: Record<string, string> = {
-    todas: "todas.png",
+    todas: "todas.webp",
 
-    aerosol: "aerosoles.png",
-    aerosoles: "aerosoles.png",
+    aerosol: "aerosoles.webp",
+    aerosoles: "aerosoles.webp",
 
-    enduido: "enduidos.png",
-    enduidos: "enduidos.png",
+    enduido: "enduidos.webp",
+    enduidos: "enduidos.webp",
 
-    madera: "madera.png",
-    maderas: "madera.png",
+    madera: "madera.webp",
+    maderas: "madera.webp",
 
-    interior: "pintura-interior.png",
-    "pintura interior": "pintura-interior.png",
+    interior: "pintura-interior.webp",
+    "pintura interior": "pintura-interior.webp",
 
-    exterior: "pintura-exterior.png",
-    "pintura exterior": "pintura-exterior.png",
+    exterior: "pintura-exterior.webp",
+    "pintura exterior": "pintura-exterior.webp",
 
-    "interior exterior": "pintura-int-ext.png",
-    "int ext": "pintura-int-ext.png",
-    "pintura int ext": "pintura-int-ext.png",
-    "pintura interior exterior": "pintura-int-ext.png",
+    "interior exterior": "pintura-int-ext.webp",
+    "int ext": "pintura-int-ext.webp",
+    "pintura int ext": "pintura-int-ext.webp",
+    "pintura interior exterior": "pintura-int-ext.webp",
 
-    piscina: "piscinas.png",
-    piscinas: "piscinas.png",
-    "p piscinas": "piscinas.png",
-    "pinturas para piscinas": "piscinas.png",
+    piscina: "piscinas.webp",
+    piscinas: "piscinas.webp",
+    "p piscinas": "piscinas.webp",
+    "pinturas para piscinas": "piscinas.webp",
 
-    piso: "pisos.png",
-    pisos: "pisos.png",
-    "pintura para pisos": "pisos.png",
+    piso: "pisos.webp",
+    pisos: "pisos.webp",
+    "pintura para pisos": "pisos.webp",
 
-    sellador: "sellador-fijador.png",
-    fijador: "sellador-fijador.png",
-    "sellador fijador": "sellador-fijador.png",
-    "selladores y fijadores": "sellador-fijador.png",
+    sellador: "sellador-fijador.webp",
+    fijador: "sellador-fijador.webp",
+    "sellador fijador": "sellador-fijador.webp",
+    "selladores y fijadores": "sellador-fijador.webp",
 
-    sintetico: "sintetico-3-en-1.png",
-    "sintetico 3 en 1": "sintetico-3-en-1.png",
+    sintetico: "sintetico-3-en-1.webp",
+    "sintetico 3 en 1": "sintetico-3-en-1.webp",
 
-    texturado: "texturado.png",
-    texturados: "texturado.png",
+    texturado: "texturado.webp",
+    texturados: "texturado.webp",
 
-    pinceles: "pinceles-y-rodillos.png",
-    rodillos: "pinceles-y-rodillos.png",
-    "pinceles y rodillos": "pinceles-y-rodillos.png",
+    pinceles: "pinceles-y-rodillos.webp",
+    rodillos: "pinceles-y-rodillos.webp",
+    "pinceles y rodillos": "pinceles-y-rodillos.webp",
   };
 
   const nombresVisibles: Record<string, string> = {
@@ -206,7 +206,7 @@ export default function Marcas({
 
                 const imagen =
                   imagenesSubcategorias[claveSubcategoria] ||
-                  "pintura-int-ext.png";
+                  "pintura-int-ext.webp";
 
                 const nombreVisible =
                   nombresVisibles[claveSubcategoria] ||

@@ -14,57 +14,57 @@ const categoriasOrdenadas = [
   {
     categoria: "Pinturas",
     nombre: "Pinturas",
-    icono: "pinturas.png",
+    icono: "pinturas.webp",
   },
   {
     categoria: "Piscinas",
     nombre: "Piscinas",
-    icono: "piscina.png",
+    icono: "piscina.webp",
   },
   {
     categoria: "Ofertas",
     nombre: "Ofertas",
-    icono: "ofertas.png",
+    icono: "ofertas.webp",
   },
   {
     categoria: "Limpieza",
     nombre: "Limpieza",
-    icono: "limpieza.png",
+    icono: "limpieza.webp",
   },
   {
     categoria: "Auto y Moto",
     nombre: "Auto y Moto",
-    icono: "automoto.png",
+    icono: "automoto.webp",
   },
   {
     categoria: "Aromatizantes",
     nombre: "Aromatizantes",
-    icono: "aromatizantes.png",
+    icono: "aromatizantes.webp",
   },
   {
     categoria: "Plasticos",
     nombre: "Plásticos",
-    icono: "plasticos.png",
+    icono: "plasticos.webp",
   },
   {
     categoria: "Iluminación",
     nombre: "Iluminación",
-    icono: "iluminacion.png",
+    icono: "iluminacion.webp",
   },
   {
     categoria: "Jardinería",
     nombre: "Jardinería",
-    icono: "jardineria.png",
+    icono: "jardineria.webp",
   },
   {
     categoria: "Control Plagas",
     nombre: "Control Plagas",
-    icono: "control-plagas.png",
+    icono: "control-plagas.webp",
   },
   {
     categoria: "Accesorios",
     nombre: "Accesorios",
-    icono: "accesorios.png",
+    icono: "accesorios.webp",
   },
 ];
 

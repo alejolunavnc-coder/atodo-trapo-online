@@ -167,9 +167,9 @@ export default function BotonInstalarWeb() {
       : "Tu navegador";
 
   const iconoNavegador = esChrome
-    ? "/navegadores/chrome.png"
+    ? "/navegadores/chrome.webp"
     : esSafari
-      ? "/navegadores/safari.png"
+      ? "/navegadores/safari.webp"
       : null;
 
   const textoPasoDos = esChrome
@@ -225,7 +225,7 @@ export default function BotonInstalarWeb() {
             <div className="flex items-start gap-1">
               <div className="relative -ml-1 -mt-1 h-[96px] w-[112px] shrink-0">
                 <Image
-                  src="/instalacion/telefono-instalar-v2.png"
+                  src="/instalacion/telefono-instalar-v2.webp"
                   alt="Instalar acceso directo"
                   fill
                   className="object-contain"

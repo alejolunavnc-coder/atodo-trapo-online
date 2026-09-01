@@ -1327,7 +1327,7 @@ export default function MobileHome() {
                             }`}
                           >
                             <Image
-                              src={`/iconoscel/${iconoImagen}.png`}
+                              src={`/iconoscel/${iconoImagen}.webp`}
                               alt={nombre}
                               width={30}
                               height={30}
@@ -1360,9 +1360,9 @@ export default function MobileHome() {
                     className="relative cursor-pointer overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"
                   >
                     {[
-                      "/bannercel/banner1.png",
-                      "/bannercel/banner2.png",
-                      "/bannercel/banner3.png",
+                      "/bannercel/banner1.webp",
+                      "/bannercel/banner2.webp",
+                      "/bannercel/banner3.webp",
                     ].map((banner, index) => (
                       <img
                         key={index}
@@ -1405,55 +1405,55 @@ export default function MobileHome() {
                     const activa = subcategoriaActiva === subcategoria;
 
                     const imagenesSubcategorias: Record<string, string> = {
-                      todas: "todas.png",
+                      todas: "todas.webp",
 
-                      Aerosol: "aerosoles.png",
-                      Aerosoles: "aerosoles.png",
+                      Aerosol: "aerosoles.webp",
+                      Aerosoles: "aerosoles.webp",
 
-                      Enduido: "enduidos.png",
-                      Enduidos: "enduidos.png",
+                      Enduido: "enduidos.webp",
+                      Enduidos: "enduidos.webp",
 
-                      Madera: "madera.png",
-                      Maderas: "madera.png",
+                      Madera: "madera.webp",
+                      Maderas: "madera.webp",
 
-                      Exterior: "pintura-exterior.png",
-                      "Pintura Exterior": "pintura-exterior.png",
+                      Exterior: "pintura-exterior.webp",
+                      "Pintura Exterior": "pintura-exterior.webp",
 
-                      "Interior/Exterior": "pintura-int-ext.png",
-                      "Interior Exterior": "pintura-int-ext.png",
-                      "Int/Ext": "pintura-int-ext.png",
-                      "Pintura Int/Ext": "pintura-int-ext.png",
-                      "Pintura Interior/Exterior": "pintura-int-ext.png",
+                      "Interior/Exterior": "pintura-int-ext.webp",
+                      "Interior Exterior": "pintura-int-ext.webp",
+                      "Int/Ext": "pintura-int-ext.webp",
+                      "Pintura Int/Ext": "pintura-int-ext.webp",
+                      "Pintura Interior/Exterior": "pintura-int-ext.webp",
 
-                      Interior: "pintura-interior.png",
-                      "Pintura Interior": "pintura-interior.png",
+                      Interior: "pintura-interior.webp",
+                      "Pintura Interior": "pintura-interior.webp",
 
-                      Piscina: "piscinas.png",
-                      Piscinas: "piscinas.png",
-                      "P/ Piscinas": "piscinas.png",
-                      "Pinturas para Piscinas": "piscinas.png",
+                      Piscina: "piscinas.webp",
+                      Piscinas: "piscinas.webp",
+                      "P/ Piscinas": "piscinas.webp",
+                      "Pinturas para Piscinas": "piscinas.webp",
 
-                      Piso: "pisos.png",
-                      Pisos: "pisos.png",
-                      "Pintura para Pisos": "pisos.png",
+                      Piso: "pisos.webp",
+                      Pisos: "pisos.webp",
+                      "Pintura para Pisos": "pisos.webp",
 
-                      Sellador: "sellador-fijador.png",
-                      Fijador: "sellador-fijador.png",
-                      "Sellador Fijador": "sellador-fijador.png",
-                      "Selladores y Fijadores": "sellador-fijador.png",
+                      Sellador: "sellador-fijador.webp",
+                      Fijador: "sellador-fijador.webp",
+                      "Sellador Fijador": "sellador-fijador.webp",
+                      "Selladores y Fijadores": "sellador-fijador.webp",
 
-                      Sintético: "sintetico-3-en-1.png",
-                      Sintetico: "sintetico-3-en-1.png",
-                      "Sintético 3 en 1": "sintetico-3-en-1.png",
-                      "Sintetico 3 en 1": "sintetico-3-en-1.png",
+                      Sintético: "sintetico-3-en-1.webp",
+                      Sintetico: "sintetico-3-en-1.webp",
+                      "Sintético 3 en 1": "sintetico-3-en-1.webp",
+                      "Sintetico 3 en 1": "sintetico-3-en-1.webp",
 
-                      Texturado: "texturado.png",
-                      Texturados: "texturado.png",
+                      Texturado: "texturado.webp",
+                      Texturados: "texturado.webp",
 
-                      "Pinceles y Rodillos": "pinceles-y-rodillos.png",
-                      "Pinceles & Rodillos": "pinceles-y-rodillos.png",
-                      "Pinceles-Rodillos": "pinceles-y-rodillos.png",
-                      "Pinceles/Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles y Rodillos": "pinceles-y-rodillos.webp",
+                      "Pinceles & Rodillos": "pinceles-y-rodillos.webp",
+                      "Pinceles-Rodillos": "pinceles-y-rodillos.webp",
+                      "Pinceles/Rodillos": "pinceles-y-rodillos.webp",
                     };
 
                     const nombresVisibles: Record<string, string> = {
@@ -1476,7 +1476,7 @@ export default function MobileHome() {
 
                     const imagen =
                       imagenesSubcategorias[subcategoria] ||
-                      "pintura-int-ext.png";
+                      "pintura-int-ext.webp";
 
                     const nombreVisible =
                       nombresVisibles[subcategoria] || subcategoria;
@@ -2563,7 +2563,7 @@ export default function MobileHome() {
           >
             <div className="relative overflow-hidden rounded-br-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
               <img
-                src="/banners/menu.png"
+                src="/banners/menu.webp"
                 alt="A Todo Trapo"
                 className="h-[178px] w-full object-cover"
               />

@@ -2,12 +2,12 @@ export const negocioConfig = {
   nombre: "A Todo Trapo Online",
   subtitulo: "Pinturería y artículos para el hogar",
 
-  logo: "/logo.png",
+  logo: "/logo.webp",
 
   banners: [
-    "/banners/banner.png",
-    "/banners/banner2.png",
-    "/banners/banner3.png",
-    "/banners/banner4.png",
+    "/banners/banner.webp",
+    "/banners/banner2.webp",
+    "/banners/banner3.webp",
+    "/banners/banner4.webp",
   ],
 };
