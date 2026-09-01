@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import Image from "next/image";
+import ImagenProductoRapida from "@/src/components/productos/ImagenProductoRapida";
 import { FaWhatsapp } from "react-icons/fa";
 import { contactoConfig } from "@/src/config/contacto";
 
@@ -423,11 +425,17 @@ export default function OfertasDestacadas({
 
                         <div className="mb-2 mt-5 flex h-[94px] items-center justify-center">
                           {productoSeleccionado.Imagen?.trim() && (
-                            <img
-                              src={productoSeleccionado.Imagen.trim()}
-                              alt={grupo.nombre}
-                              className="max-h-[90px] max-w-full object-contain"
-                            />
+                            <div className="relative h-[90px] w-full">
+                              <ImagenProductoRapida
+                                src={productoSeleccionado.Imagen.trim()}
+                                alt={grupo.nombre}
+                                fill
+                                sizes="150px"
+                                quality={70}
+                                loading="eager"
+                                className="object-contain"
+                              />
+                            </div>
                           )}
                         </div>
 

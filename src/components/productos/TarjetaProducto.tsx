@@ -1,3 +1,5 @@
+import ImagenProductoRapida from "@/src/components/productos/ImagenProductoRapida";
+
 type TarjetaProductoProps = {
   nombre: string;
   linea: string;
@@ -54,10 +56,11 @@ export default function TarjetaProducto({
         )
       : 0;
 
+  const imagenLimpia = imagen?.trim() || "";
+
   return (
     <div className="relative flex min-h-[118px] items-start gap-0">
       {/* [Marca] */}
-
       {marca?.trim() && (
         <div className="absolute -top-2 left-0 z-20">
           <span className="inline-flex max-w-[100px] items-center truncate rounded-full bg-blue-950 px-2.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] text-white shadow-sm">
@@ -67,7 +70,6 @@ export default function TarjetaProducto({
       )}
 
       {/* [Porcentaje] */}
-
       {estaEnOferta && porcentaje > 0 && (
         <div className="absolute -top-2 left-[82px] z-20">
           <span className="inline-flex items-center rounded-full bg-yellow-400 px-2.5 py-0.5 text-[9px] font-black text-blue-950 shadow-sm">
@@ -76,15 +78,20 @@ export default function TarjetaProducto({
         </div>
       )}
 
-      {/* [Imagen] */}
-
+      {/* [Imagen optimizada] */}
       <div className="flex h-[112px] w-[145px] shrink-0 items-center justify-center pt-5">
-        {imagen?.trim() ? (
-          <img
-            src={imagen.trim()}
-            alt={marca || nombre}
-            className="max-h-[104px] max-w-[125px] object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"
-          />
+        {imagenLimpia ? (
+          <div className="relative h-[104px] w-[125px]">
+            <ImagenProductoRapida
+              src={imagenLimpia}
+              alt={marca || nombre}
+              fill
+              sizes="125px"
+              quality={70}
+              loading="eager"
+              className="object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-[1.04]"
+            />
+          </div>
         ) : (
           <div className="flex h-[82px] w-[105px] items-center justify-center rounded-xl border border-dashed border-gray-200 text-[11px] text-gray-400">
             Sin imagen
@@ -93,7 +100,6 @@ export default function TarjetaProducto({
       </div>
 
       {/* [Información] */}
-
       <div className="min-w-0 flex-1 pr-10 pt-1">
         {nombre?.trim() && (
           <h3 className="line-clamp-2 text-[16px] font-extrabold leading-tight tracking-[-0.03em] text-blue-950">
@@ -139,7 +145,6 @@ export default function TarjetaProducto({
       </div>
 
       {/* [Flecha] */}
-
       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[26px] font-light text-blue-950 transition-transform duration-300 group-hover:rotate-180">
         ⌄
       </div>

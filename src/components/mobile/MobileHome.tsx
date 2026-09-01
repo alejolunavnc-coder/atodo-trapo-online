@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 import Image from "next/image";
+import ImagenProductoRapida from "@/src/components/productos/ImagenProductoRapida";
 import Papa from "papaparse";
 import { FaInstagram } from "react-icons/fa";
 import BotonInstalarWeb from "./instalacion/BotonInstalarWeb";
@@ -176,7 +177,7 @@ export default function MobileHome() {
 
     const cargarProductos = async () => {
       try {
-        const respuesta = await fetch("/api/productos", { cache: "no-store" });
+        const respuesta = await fetch("/api/productos");
         if (!respuesta.ok) throw new Error("No se pudo cargar /api/productos");
 
         const csv = await respuesta.text();
@@ -1327,7 +1328,7 @@ export default function MobileHome() {
                             }`}
                           >
                             <Image
-                              src={`/iconoscel/${iconoImagen}.webp`}
+                              src={`/iconoscel/${iconoImagen}.png`}
                               alt={nombre}
                               width={30}
                               height={30}
@@ -1360,9 +1361,9 @@ export default function MobileHome() {
                     className="relative cursor-pointer overflow-hidden rounded-[28px] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"
                   >
                     {[
-                      "/bannercel/banner1.webp",
-                      "/bannercel/banner2.webp",
-                      "/bannercel/banner3.webp",
+                      "/bannercel/banner1.png",
+                      "/bannercel/banner2.png",
+                      "/bannercel/banner3.png",
                     ].map((banner, index) => (
                       <img
                         key={index}
@@ -1405,55 +1406,55 @@ export default function MobileHome() {
                     const activa = subcategoriaActiva === subcategoria;
 
                     const imagenesSubcategorias: Record<string, string> = {
-                      todas: "todas.webp",
+                      todas: "todas.png",
 
-                      Aerosol: "aerosoles.webp",
-                      Aerosoles: "aerosoles.webp",
+                      Aerosol: "aerosoles.png",
+                      Aerosoles: "aerosoles.png",
 
-                      Enduido: "enduidos.webp",
-                      Enduidos: "enduidos.webp",
+                      Enduido: "enduidos.png",
+                      Enduidos: "enduidos.png",
 
-                      Madera: "madera.webp",
-                      Maderas: "madera.webp",
+                      Madera: "madera.png",
+                      Maderas: "madera.png",
 
-                      Exterior: "pintura-exterior.webp",
-                      "Pintura Exterior": "pintura-exterior.webp",
+                      Exterior: "pintura-exterior.png",
+                      "Pintura Exterior": "pintura-exterior.png",
 
-                      "Interior/Exterior": "pintura-int-ext.webp",
-                      "Interior Exterior": "pintura-int-ext.webp",
-                      "Int/Ext": "pintura-int-ext.webp",
-                      "Pintura Int/Ext": "pintura-int-ext.webp",
-                      "Pintura Interior/Exterior": "pintura-int-ext.webp",
+                      "Interior/Exterior": "pintura-int-ext.png",
+                      "Interior Exterior": "pintura-int-ext.png",
+                      "Int/Ext": "pintura-int-ext.png",
+                      "Pintura Int/Ext": "pintura-int-ext.png",
+                      "Pintura Interior/Exterior": "pintura-int-ext.png",
 
-                      Interior: "pintura-interior.webp",
-                      "Pintura Interior": "pintura-interior.webp",
+                      Interior: "pintura-interior.png",
+                      "Pintura Interior": "pintura-interior.png",
 
-                      Piscina: "piscinas.webp",
-                      Piscinas: "piscinas.webp",
-                      "P/ Piscinas": "piscinas.webp",
-                      "Pinturas para Piscinas": "piscinas.webp",
+                      Piscina: "piscinas.png",
+                      Piscinas: "piscinas.png",
+                      "P/ Piscinas": "piscinas.png",
+                      "Pinturas para Piscinas": "piscinas.png",
 
-                      Piso: "pisos.webp",
-                      Pisos: "pisos.webp",
-                      "Pintura para Pisos": "pisos.webp",
+                      Piso: "pisos.png",
+                      Pisos: "pisos.png",
+                      "Pintura para Pisos": "pisos.png",
 
-                      Sellador: "sellador-fijador.webp",
-                      Fijador: "sellador-fijador.webp",
-                      "Sellador Fijador": "sellador-fijador.webp",
-                      "Selladores y Fijadores": "sellador-fijador.webp",
+                      Sellador: "sellador-fijador.png",
+                      Fijador: "sellador-fijador.png",
+                      "Sellador Fijador": "sellador-fijador.png",
+                      "Selladores y Fijadores": "sellador-fijador.png",
 
-                      Sintético: "sintetico-3-en-1.webp",
-                      Sintetico: "sintetico-3-en-1.webp",
-                      "Sintético 3 en 1": "sintetico-3-en-1.webp",
-                      "Sintetico 3 en 1": "sintetico-3-en-1.webp",
+                      Sintético: "sintetico-3-en-1.png",
+                      Sintetico: "sintetico-3-en-1.png",
+                      "Sintético 3 en 1": "sintetico-3-en-1.png",
+                      "Sintetico 3 en 1": "sintetico-3-en-1.png",
 
-                      Texturado: "texturado.webp",
-                      Texturados: "texturado.webp",
+                      Texturado: "texturado.png",
+                      Texturados: "texturado.png",
 
-                      "Pinceles y Rodillos": "pinceles-y-rodillos.webp",
-                      "Pinceles & Rodillos": "pinceles-y-rodillos.webp",
-                      "Pinceles-Rodillos": "pinceles-y-rodillos.webp",
-                      "Pinceles/Rodillos": "pinceles-y-rodillos.webp",
+                      "Pinceles y Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles & Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles-Rodillos": "pinceles-y-rodillos.png",
+                      "Pinceles/Rodillos": "pinceles-y-rodillos.png",
                     };
 
                     const nombresVisibles: Record<string, string> = {
@@ -1476,7 +1477,7 @@ export default function MobileHome() {
 
                     const imagen =
                       imagenesSubcategorias[subcategoria] ||
-                      "pintura-int-ext.webp";
+                      "pintura-int-ext.png";
 
                     const nombreVisible =
                       nombresVisibles[subcategoria] || subcategoria;
@@ -1493,6 +1494,8 @@ export default function MobileHome() {
                       >
                         <div className="relative h-[70px] w-full overflow-hidden bg-gray-100">
                           <img
+                            loading="lazy"
+                            decoding="async"
                             src={`/iconos/subcategorias/${imagen}`}
                             alt={nombreVisible}
                             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
@@ -1628,9 +1631,13 @@ export default function MobileHome() {
                       )}
 
                       {producto.Imagen && (
-                        <img
+                        <ImagenProductoRapida
                           src={producto.Imagen}
                           alt={grupo.nombre}
+                          width={160}
+                          height={160}
+                          quality={70}
+                          loading="eager"
                           className="relative z-10 h-[81%] w-[81%] object-contain"
                         />
                       )}
@@ -1780,9 +1787,13 @@ export default function MobileHome() {
                         )}
 
                         {producto.Imagen && (
-                          <img
+                          <ImagenProductoRapida
                             src={producto.Imagen}
-                            alt={producto.nombre}
+                            alt={productoAbierto.nombre || "Producto"}
+                            width={160}
+                            height={160}
+                            quality={70}
+                            loading="eager"
                             className="relative z-10 h-[81%] w-[81%] object-contain"
                           />
                         )}
@@ -2307,9 +2318,13 @@ export default function MobileHome() {
                             )}
 
                             {item.imagen && (
-                              <img
+                              <Image
                                 src={item.imagen}
                                 alt={item.nombre}
+                                width={140}
+                                height={140}
+                                sizes="30vw"
+                                quality={70}
                                 className="h-[82%] w-[82%] object-contain"
                               />
                             )}
@@ -2563,7 +2578,7 @@ export default function MobileHome() {
           >
             <div className="relative overflow-hidden rounded-br-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
               <img
-                src="/banners/menu.webp"
+                src="/banners/menu.png"
                 alt="A Todo Trapo"
                 className="h-[178px] w-full object-cover"
               />
