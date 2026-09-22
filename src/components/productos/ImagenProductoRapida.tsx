@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import manifest from "@/src/generated/imagenes-productos.json";
 
 const originalesQueFuncionaron = new Set<string>();
+
+type ImagenLocal = { tarjeta?: string; detalle?: string };
+const imagenesLocales = manifest as Record<string, ImagenLocal>;
 
 type Props = {
   src: string;
@@ -35,18 +39,21 @@ export default function ImagenProductoRapida({
   className,
   forzarOriginal = false,
 }: Props) {
+  const local = imagenesLocales[String(src || "").trim()];
+  const srcEfectivo = local?.tarjeta || src;
+  const esLocal = Boolean(local?.tarjeta);
   const [usarOriginal, setUsarOriginal] = useState(() =>
-    forzarOriginal || originalesQueFuncionaron.has(src),
+    esLocal || forzarOriginal || originalesQueFuncionaron.has(src),
   );
   const [cargada, setCargada] = useState(false);
 
   useEffect(() => {
-    setUsarOriginal(forzarOriginal || originalesQueFuncionaron.has(src));
+    setUsarOriginal(esLocal || forzarOriginal || originalesQueFuncionaron.has(src));
     setCargada(false);
-  }, [src, forzarOriginal]);
+  }, [src, forzarOriginal, esLocal]);
 
   useEffect(() => {
-    if (cargada || usarOriginal || forzarOriginal) return;
+    if (cargada || usarOriginal || forzarOriginal || esLocal) return;
 
     const temporizador = window.setTimeout(() => {
       originalesQueFuncionaron.add(src);
@@ -54,7 +61,7 @@ export default function ImagenProductoRapida({
     }, 3500);
 
     return () => window.clearTimeout(temporizador);
-  }, [src, cargada, usarOriginal, forzarOriginal]);
+  }, [src, cargada, usarOriginal, forzarOriginal, esLocal]);
 
   const alCargar = () => {
     if (usarOriginal) originalesQueFuncionaron.add(src);
@@ -70,7 +77,7 @@ export default function ImagenProductoRapida({
   if (fill) {
     return (
       <Image
-        src={src}
+        src={srcEfectivo}
         alt={alt}
         fill
         sizes={sizes}
@@ -86,7 +93,7 @@ export default function ImagenProductoRapida({
 
   return (
     <Image
-      src={src}
+      src={srcEfectivo}
       alt={alt}
       width={width ?? 160}
       height={height ?? 160}
