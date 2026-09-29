@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import Papa from "papaparse";
+import { productId, variantId } from "@/src/lib/productIdentity";
+import { deliveryUrl, readRegistry } from "@/src/lib/imageRegistry";
 
 const SHEET_PRODUCTOS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRonjC9Bv3YGK1Wpr8CN2EZh9370FkdcEXo94iCA-rJPiw7Y2gLT9hipzcTk4UWcFCRQaEvN0XT0Q_/pub?gid=0&single=true&output=csv";
@@ -94,6 +96,7 @@ function completarColumnas(
   });
 }
 
+
 export async function GET() {
   try {
     const [
@@ -183,9 +186,36 @@ export async function GET() {
         columnasCompletas
       );
 
+    // Resolución central: específica > general > imagen histórica del Sheets.
+    // Se agregan metadatos internos para que /admin pueda indicar el origen
+    // sin romper los componentes públicos que siguen leyendo `Imagen`.
+    const registry = await readRegistry();
+    const columnasSalida = [...columnasCompletas, "_ImagenAnterior", "_ImagenOrigen", "_ProductId", "_VariantId"];
+    catalogoNormalizado.forEach((fila) => {
+      const anterior = String(fila.Imagen || "").trim();
+      const pid = productId(fila);
+      const vid = variantId(fila);
+      const especifica = registry.variants[vid];
+      const general = registry.products[pid];
+      fila._ImagenAnterior = anterior;
+      fila._ProductId = pid;
+      fila._VariantId = vid;
+      if (especifica) {
+        fila.Imagen = deliveryUrl(especifica, "card");
+        fila._ImagenOrigen = "especifica";
+      } else if (general) {
+        fila.Imagen = deliveryUrl(general, "card");
+        fila._ImagenOrigen = "general";
+      } else if (anterior) {
+        fila._ImagenOrigen = "anterior";
+      } else {
+        fila._ImagenOrigen = "sin-imagen";
+      }
+    });
+
     const csvFinal = Papa.unparse(
       {
-        fields: columnasCompletas,
+        fields: columnasSalida,
         data: catalogoNormalizado,
       },
       {

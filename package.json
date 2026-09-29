@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "sync:imagenes": "node scripts/sincronizar-imagenes-productos.mjs",
-    "prebuild": "node scripts/sincronizar-imagenes-productos.mjs"
+    "sync:imagenes": "node scripts/sincronizar-imagenes-productos.mjs"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.10",
