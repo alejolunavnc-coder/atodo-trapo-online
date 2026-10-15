@@ -80,6 +80,7 @@ export default function useCarrito(
                   cantidad:
                     (item.cantidad || 1) +
                     cantidadSegura,
+                  imagen: nuevoProducto.imagen || item.imagen,
                 }
               : item
         );

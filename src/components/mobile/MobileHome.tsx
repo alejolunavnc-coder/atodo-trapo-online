@@ -1,4 +1,5 @@
 "use client";
+import ImagenCarrito from "@/src/components/carrito/ImagenCarrito";
 
 // [Imports]
 

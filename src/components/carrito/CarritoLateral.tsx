@@ -1,3 +1,4 @@
+import ImagenCarrito from "@/src/components/carrito/ImagenCarrito";
 import { contactoConfig } from "@/src/config/contacto";
 import type { CarritoItem } from "@/src/types/carrito";
 import type { Producto } from "@/src/types/producto";
@@ -172,21 +173,7 @@ export default function CarritoLateral({
                       >
                         <div className="flex gap-3">
                           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
-                            {imagenProducto ? (
-                              <img
-                                src={
-                                  imagenProducto
-                                }
-                                alt={
-                                  producto.nombre
-                                }
-                                className="w-full h-full object-contain p-1.5"
-                              />
-                            ) : (
-                              <span className="text-2xl">
-                                🛒
-                              </span>
-                            )}
+                            <ImagenCarrito src={imagenProducto} alt={producto.nombre} />
                           </div>
 
                           <div className="flex-1 min-w-0">
